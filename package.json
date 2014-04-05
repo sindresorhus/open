@@ -1,0 +1,44 @@
+{
+  "name": "opn",
+  "version": "0.0.0",
+  "description": "A better node-open. Opens stuff like websites, files, executables. Cross-platform.",
+  "license": "MIT",
+  "repository": "sindresorhus/opn",
+  "bin": {
+    "opn": "cli.js"
+  },
+  "author": {
+    "name": "Sindre Sorhus",
+    "email": "sindresorhus@gmail.com",
+    "url": "http://sindresorhus.com"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "files": [
+    "cli.js",
+    "index.js",
+    "xdg-open"
+  ],
+  "keywords": [
+    "cli",
+    "bin",
+    "app",
+    "open",
+    "opn",
+    "launch",
+    "start",
+    "xdg-open",
+    "default",
+    "cmd",
+    "browser",
+    "editor",
+    "executable"
+  ],
+  "devDependencies": {
+    "mocha": "*"
+  }
+}
