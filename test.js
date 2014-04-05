@@ -7,10 +7,14 @@ var opn = require('./index');
 
 // these have to be manually verified
 
+it('should open file in default app', function () {
+	opn('index.js');
+});
+
 it('should open url in default app', function (cb) {
 	this.timeout(20000);
+
 	opn('http://sindresorhus.com', process.platform === 'darwin' ? cb() : function (err) {
-		console.log(arguments);
 		assert(!err, err);
 		cb();
 	});
@@ -19,14 +23,6 @@ it('should open url in default app', function (cb) {
 it('should open url in specified app', function (cb) {
 	this.timeout(20000);
 	opn('http://sindresorhus.com', 'firefox', function (err) {
-		assert(!err, err);
-		cb();
-	});
-});
-
-it('should open file in default app', function (cb) {
-	this.timeout(20000);
-	opn('index.js', function (err) {
 		assert(!err, err);
 		cb();
 	});
