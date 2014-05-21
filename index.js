@@ -28,6 +28,7 @@ module.exports = function (target, app, cb) {
 	} else if (process.platform === 'win32') {
 		cmd = 'cmd';
 		args.push('/c', 'start');
+		target = target.replace(/&/g, '^&');
 
 		if (cb) {
 			args.push('/wait');
