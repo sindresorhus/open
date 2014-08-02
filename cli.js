@@ -1,26 +1,28 @@
 #!/usr/bin/env node
 'use strict';
 var pkg = require('./package.json');
-var opn = require('./index');
+var opn = require('./');
 
 function help() {
-	console.log(pkg.description);
-	console.log('');
-	console.log('Usage');
-	console.log('  $ opn <file|url> [app]');
-	console.log('');
-	console.log('Example');
-	console.log('  $ opn http://sindresorhus.com');
-	console.log('  $ opn http://sindresorhus.com firefox');
-	console.log('  $ opn unicorn.png');
+	console.log([
+		pkg.description,
+		'',
+		'Usage',
+		'  $ opn <file|url> [app]',
+		'',
+		'Example',
+		'  $ opn http://sindresorhus.com',
+		'  $ opn http://sindresorhus.com firefox',
+		'  $ opn unicorn.png'
+	].join('\n'));
 }
 
-if (process.argv.indexOf('-h') !== -1 || process.argv.indexOf('--help') !== -1) {
+if (process.argv.indexOf('--help') !== -1) {
 	help();
 	return;
 }
 
-if (process.argv.indexOf('-v') !== -1 || process.argv.indexOf('--version') !== -1) {
+if (process.argv.indexOf('--version') !== -1) {
 	console.log(pkg.version);
 	return;
 }

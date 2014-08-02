@@ -12,7 +12,7 @@
 
 ## Install
 
-```bash
+```sh
 $ npm install --save opn
 ```
 
@@ -41,7 +41,7 @@ Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other plat
 
 #### target
 
-*Required*  
+*Required*
 Type: `string`
 
 The thing you want to open. Can be a url, file, or executable.
@@ -69,13 +69,11 @@ On Windows you have to explicitly specify an app for it to be able to wait.
 
 You can also use it as a CLI app by installing it globally:
 
-```bash
+```sh
 $ npm install --global opn
 ```
 
-#### Usage
-
-```bash
+```sh
 $ opn --help
 
 Usage

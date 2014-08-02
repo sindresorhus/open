@@ -1,6 +1,6 @@
 'use strict';
 var assert = require('assert');
-var opn = require('./index');
+var opn = require('./');
 
 // tests only checks that opening doesn't return an error
 // it has no way make sure that it actually opened anything
