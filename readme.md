@@ -28,6 +28,9 @@ opn('http://sindresorhus.com');
 opn('http://sindresorhus.com', 'firefox');
 // you can also specify the app to open in
 
+opn('http://sindresorhus.com', ['google-chrome', '--incognito']);
+// you can also specify the arguments of app
+
 opn('unicorn.png');
 // opens the image in the default image viewer
 ```
@@ -77,11 +80,12 @@ $ npm install --global opn
 $ opn --help
 
 Usage
-  $ opn <file|url> [app]
+  $ opn <file|url> [app] [app arguments]
 
 Example
   $ opn http://sindresorhus.com
   $ opn http://sindresorhus.com firefox
+  $ opn http://sindresorhus.com google-chrome --incognito
   $ opn unicorn.png
 ```
 
