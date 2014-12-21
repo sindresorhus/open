@@ -37,4 +37,12 @@ describe('opn:', function () {
 			cb();
 		});
 	});
+
+	it('should throw error if specified app not exists', function (cb) {
+		this.timeout(20000);
+		opn('https://github.com/regexps', 'gooooooogle-chroooome', function (err) {
+			assert.strictEqual(err.code, 'ENOENT');
+			cb();
+		});
+	});
 });
