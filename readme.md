@@ -53,9 +53,10 @@ Opens in the default app for the file type. Eg. urls opens in your default brows
 
 #### app
 
-Type: `string`
+Type: `string`, `array`
 
-Specify the app to open the `target` with.
+Specify the app to open the `target` with. Where if is array, first will be app name,
+other will be app arguments
 
 The app name is platform dependent. Don't hard code it in reusable modules.
 
