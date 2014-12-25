@@ -61,7 +61,7 @@ Options
 --help
     Show command synopsis.
 --manual
-    Show this manualpage.
+    Show this manual page.
 --version
     Show the xdg-utils version information.
 
@@ -83,7 +83,7 @@ Examples
 
 xdg-open 'http://www.freedesktop.org/'
 
-Opens the Freedesktop.org website in the user's default browser
+Opens the freedesktop.org website in the user's default browser.
 
 xdg-open /tmp/foobar.png
 
@@ -119,6 +119,64 @@ DEBUG()
   [ ${XDG_UTILS_DEBUG_LEVEL} -lt $1 ] && return 0;
   shift
   echo "$@" >&2
+}
+
+# This handles backslashes but not quote marks.
+first_word()
+{
+    read first rest
+    echo "$first"
+}
+
+#-------------------------------------------------------------
+# map a binary to a .desktop file
+binary_to_desktop_file()
+{
+    search="${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    binary="`which "$1"`"
+    binary="`readlink -f "$binary"`"
+    base="`basename "$binary"`"
+    IFS=:
+    for dir in $search; do
+        unset IFS
+        [ "$dir" ] || continue
+        [ -d "$dir/applications" ] || [ -d "$dir/applnk" ] || continue
+        for file in "$dir"/applications/*.desktop "$dir"/applications/*/*.desktop "$dir"/applnk/*.desktop "$dir"/applnk/*/*.desktop; do
+            [ -r "$file" ] || continue
+            # Check to make sure it's worth the processing.
+            grep -q "^Exec.*$base" "$file" || continue
+            # Make sure it's a visible desktop file (e.g. not "preferred-web-browser.desktop").
+            grep -Eq "^(NoDisplay|Hidden)=true" "$file" && continue
+            command="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | first_word`"
+            command="`which "$command"`"
+            if [ x"`readlink -f "$command"`" = x"$binary" ]; then
+                # Fix any double slashes that got added path composition
+                echo "$file" | sed -e 's,//*,/,g'
+                return
+            fi
+        done
+    done
+}
+
+#-------------------------------------------------------------
+# map a .desktop file to a binary
+## FIXME: handle vendor dir case
+desktop_file_to_binary()
+{
+    search="${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    desktop="`basename "$1"`"
+    IFS=:
+    for dir in $search; do
+        unset IFS
+        [ "$dir" ] && [ -d "$dir/applications" ] || continue
+        file="$dir/applications/$desktop"
+        [ -r "$file" ] || continue
+        # Remove any arguments (%F, %f, %U, %u, etc.).
+        command="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | first_word`"
+        command="`which "$command"`"
+        readlink -f "$command"
+        return
+    done
 }
 
 #-------------------------------------------------------------
@@ -229,7 +287,7 @@ check_vendor_prefix()
     [ -n "$file_label" ] || file_label="filename"
     file=`basename "$1"`
     case "$file" in
-       [a-zA-Z]*-*)
+       [[:alpha:]]*-*)
          return
          ;;
     esac
@@ -251,7 +309,7 @@ check_output_file()
         fi
     else
         DIR=`dirname "$1"`
-        if [ ! -w "$DIR" -o ! -x "$DIR" ]; then
+        if [ ! -w "$DIR" ] || [ ! -x "$DIR" ]; then
             exit_failure_file_permission_write "no permission to create file '$1'"
         fi
     fi
@@ -279,7 +337,7 @@ check_common_commands()
             ;;
 
             --version)
-            echo "xdg-open 1.0.2"
+            echo "xdg-open 1.1.0 rc1"
             exit_success
             ;;
         esac
@@ -303,12 +361,75 @@ fi
 
 detectDE()
 {
-    if [ x"$KDE_FULL_SESSION" = x"true" ]; then DE=kde;
-    elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
-    elif `dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.gnome.SessionManager > /dev/null 2>&1` ; then DE=gnome;
-    elif xprop -root _DT_SAVE_MODE 2> /dev/null | grep ' = \"xfce4\"$' >/dev/null 2>&1; then DE=xfce;
-    elif [ x"$DESKTOP_SESSION" == x"LXDE" ]; then DE=lxde;
-    else DE=""
+    # see https://bugs.freedesktop.org/show_bug.cgi?id=34164
+    unset GREP_OPTIONS
+
+    if [ -n "${XDG_CURRENT_DESKTOP}" ]; then
+      case "${XDG_CURRENT_DESKTOP}" in
+         ENLIGHTENMENT)
+           DE=enlightenment;
+           ;;
+         GNOME)
+           DE=gnome;
+           ;;
+         KDE)
+           DE=kde;
+           ;;
+         LXDE)
+           DE=lxde;
+           ;;
+         MATE)
+           DE=mate;
+           ;;
+         XFCE)
+           DE=xfce
+           ;;
+      esac
+    fi
+
+    if [ x"$DE" = x"" ]; then
+      # classic fallbacks
+      if [ x"$KDE_FULL_SESSION" = x"true" ]; then DE=kde;
+      elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
+      elif [ x"$MATE_DESKTOP_SESSION_ID" != x"" ]; then DE=mate;
+      elif `dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.gnome.SessionManager > /dev/null 2>&1` ; then DE=gnome;
+      elif xprop -root _DT_SAVE_MODE 2> /dev/null | grep ' = \"xfce4\"$' >/dev/null 2>&1; then DE=xfce;
+      elif xprop -root 2> /dev/null | grep -i '^xfce_desktop_window' >/dev/null 2>&1; then DE=xfce
+      elif echo $DESKTOP | grep -q '^Enlightenment'; then DE=enlightenment;
+      fi
+    fi
+
+    if [ x"$DE" = x"" ]; then
+      # fallback to checking $DESKTOP_SESSION
+      case "$DESKTOP_SESSION" in
+         gnome)
+           DE=gnome;
+           ;;
+         LXDE|Lubuntu)
+           DE=lxde;
+           ;;
+         MATE)
+           DE=mate;
+           ;;
+         xfce|xfce4|'Xfce Session')
+           DE=xfce;
+           ;;
+      esac
+    fi
+
+    if [ x"$DE" = x"" ]; then
+      # fallback to uname output for other platforms
+      case "$(uname 2>/dev/null)" in
+        Darwin)
+          DE=darwin;
+          ;;
+      esac
+    fi
+
+    if [ x"$DE" = x"gnome" ]; then
+      # gnome-default-applications-properties is only available in GNOME 2.x
+      # but not in GNOME 3.x
+      which gnome-default-applications-properties > /dev/null 2>&1  || DE="gnome3"
     fi
 }
 
@@ -319,7 +440,7 @@ detectDE()
 
 kfmclient_fix_exit_code()
 {
-    version=`kde${KDE_SESSION_VERSION}-config --version 2>/dev/null | grep '^KDE'`
+    version=`LC_ALL=C.UTF-8 kde-config --version 2>/dev/null | grep '^KDE'`
     major=`echo $version | sed 's/KDE.*: \([0-9]\).*/\1/'`
     minor=`echo $version | sed 's/KDE.*: [0-9]*\.\([0-9]\).*/\1/'`
     release=`echo $version | sed 's/KDE.*: [0-9]*\.[0-9]*\.\([0-9]\).*/\1/'`
@@ -334,6 +455,23 @@ first_word()
 {
     read first rest
     echo "$first"
+}
+
+last_word()
+{
+    read first rest
+    echo "$rest"
+}
+
+open_darwin()
+{
+    open "$1"
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
 }
 
 open_kde()
@@ -371,6 +509,21 @@ open_gnome()
     fi
 }
 
+open_mate()
+{
+    if gvfs-open --help 2>/dev/null 1>&2; then
+        gvfs-open "$1"
+    else
+        mate-open "$1"
+    fi
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
+}
+
 open_xfce()
 {
     exo-open "$1"
@@ -382,9 +535,65 @@ open_xfce()
     fi
 }
 
+open_enlightenment()
+{
+    enlightenment_open "$1"
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
+}
+
+#-----------------------------------------
+# Recursively search .desktop file
+
+search_desktop_file()
+{
+    local default="$1"
+    local dir="$2"
+    local arg="$3"
+
+    local file=""
+    # look for both vendor-app.desktop, vendor/app.desktop
+    if [ -r "$dir/$default" ]; then
+      file="$dir/$default"
+    elif [ -r "$dir/`echo $default | sed -e 's|-|/|'`" ]; then
+      file="$dir/`echo $default | sed -e 's|-|/|'`"
+    fi
+
+    if [ -r "$file" ] ; then
+        command="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | first_word`"
+        command_exec=`which $command 2>/dev/null`
+        arguments="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | last_word`"
+        arg_one="`echo "$arg" | sed 's/[&*\\]/\\\\&/g'`"
+        arguments_exec="`echo "$arguments" | sed -e 's*%[fFuU]*"'"$arg_one"'"*g'`"
+
+        if [ -x "$command_exec" ] ; then
+            if echo "$arguments" | grep -iq '%[fFuU]' ; then
+                echo START "$command_exec" "$arguments_exec"
+                eval "$command_exec" "$arguments_exec"
+            else
+                echo START "$command_exec" "$arguments_exec" "$arg"
+                eval "$command_exec" "$arguments_exec" "$arg"
+            fi
+
+            if [ $? -eq 0 ]; then
+                exit_success
+            fi
+        fi
+    fi
+
+    for d in $dir/*/; do
+        [ -d "$d" ] && search_desktop_file "$default" "$d" "$arg"
+    done
+}
+
+
 open_generic_xdg_mime()
 {
-    filetype=`xdg-mime query filetype "$1" | sed "s/;.*//"`
+    filetype="$2"
     default=`xdg-mime query default "$filetype"`
     if [ -n "$default" ] ; then
         xdg_user_dir="$XDG_DATA_HOME"
@@ -393,19 +602,25 @@ open_generic_xdg_mime()
         xdg_system_dirs="$XDG_DATA_DIRS"
         [ -n "$xdg_system_dirs" ] || xdg_system_dirs=/usr/local/share/:/usr/share/
 
+DEBUG 3 "$xdg_user_dir:$xdg_system_dirs"
         for x in `echo "$xdg_user_dir:$xdg_system_dirs" | sed 's/:/ /g'`; do
-            local file="$x/applications/$default"
-            if [ -r "$file" ] ; then
-                command="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | first_word`"
-                command_exec=`which $command 2>/dev/null`
-                if [ -x "$command_exec" ] ; then
-                    $command_exec "$1"
-                    if [ $? -eq 0 ]; then
-                        exit_success
-                    fi
-                fi
-            fi
+            search_desktop_file "$default" "$x/applications/" "$1"
         done
+    fi
+}
+
+open_generic_xdg_file_mime()
+{
+    filetype=`xdg-mime query filetype "$1" | sed "s/;.*//"`
+    open_generic_xdg_mime "$1" "$filetype"
+}
+
+open_generic_xdg_x_scheme_handler()
+{
+    scheme="`echo $1 | sed -n 's/\(^[[:alnum:]+\.-]*\):.*$/\1/p'`"
+    if [ -n $scheme ]; then
+        filetype="x-scheme-handler/$scheme"
+        open_generic_xdg_mime "$1" "$filetype"
     fi
 }
 
@@ -413,7 +628,7 @@ open_generic()
 {
     # Paths or file:// URLs
     if (echo "$1" | grep -q '^file://' ||
-        ! echo "$1" | egrep -q '^[a-zA-Z+\.\-]+:'); then
+        ! echo "$1" | egrep -q '^[[:alpha:]+\.\-]+:'); then
 
         local file="$1"
 
@@ -424,10 +639,9 @@ open_generic()
         fi
         check_input_file "$file"
 
-        open_generic_xdg_mime "$file"
+        open_generic_xdg_file_mime "$file"
 
-        if [ -f /etc/debian_version ] &&
-            which run-mailcap 2>/dev/null 1>&2; then
+        if which run-mailcap 2>/dev/null 1>&2; then
             run-mailcap --action=view "$file"
             if [ $? -eq 0 ]; then
                 exit_success
@@ -442,6 +656,8 @@ open_generic()
         fi
     fi
 
+    open_generic_xdg_x_scheme_handler "$1"
+
     IFS=":"
     for browser in $BROWSER; do
         if [ x"$browser" != x"" ]; then
@@ -452,7 +668,7 @@ open_generic()
             fi
 
             if [ x"$browser_with_arg" = x"$browser" ]; then
-                "$browser" "$1";
+                eval '$browser "$1"'$xdg_redirect_output;
             else eval '$browser_with_arg'$xdg_redirect_output;
             fi
 
@@ -469,7 +685,7 @@ open_lxde()
 {
     # pcmanfm only knows how to handle file:// urls and filepaths, it seems.
     if (echo "$1" | grep -q '^file://' ||
-        ! echo "$1" | egrep -q '^[a-zA-Z+\.\-]+:')
+        ! echo "$1" | egrep -q '^[[:alpha:]+\.\-]+:')
     then
         local file="$(echo "$1" | sed 's%^file://%%')"
 
@@ -522,11 +738,23 @@ if [ x"$DE" = x"" ]; then
     DE=generic
 fi
 
+DEBUG 2 "Selected DE $DE"
+
+# sanitize BROWSER (avoid caling ourselves in particular)
+case "${BROWSER}" in
+    *:"xdg-open"|"xdg-open":*)
+        BROWSER=$(echo $BROWSER | sed -e 's|:xdg-open||g' -e 's|xdg-open:||g')
+        ;;
+    "xdg-open")
+        BROWSER=
+        ;;
+esac
+
 # if BROWSER variable is not set, check some well known browsers instead
 if [ x"$BROWSER" = x"" ]; then
-    BROWSER=links2:links:lynx:w3m
+    BROWSER=links2:elinks:links:lynx:w3m
     if [ -n "$DISPLAY" ]; then
-        BROWSER=firefox:mozilla:epiphany:konqueror:chromium-browser:google-chrome:$BROWSER
+        BROWSER=x-www-browser:firefox:seamonkey:mozilla:epiphany:konqueror:chromium-browser:google-chrome:$BROWSER
     fi
 fi
 
@@ -535,8 +763,12 @@ case "$DE" in
     open_kde "$url"
     ;;
 
-    gnome)
+    gnome*)
     open_gnome "$url"
+    ;;
+
+    mate)
+    open_mate "$url"
     ;;
 
     xfce)
@@ -545,6 +777,10 @@ case "$DE" in
 
     lxde)
     open_lxde "$url"
+    ;;
+
+    enlightenment)
+    open_enlightenment "$url"
     ;;
 
     generic)
