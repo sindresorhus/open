@@ -14,6 +14,8 @@ module.exports = function (target, app, cb) {
 
 	var cmd;
 	var args = [];
+    var app_args = [];
+    if (app instanceof Array) { app_args = app.splice(1); app = app[0] }
 
 	if (process.platform === 'darwin') {
 		cmd = 'open';
@@ -46,6 +48,7 @@ module.exports = function (target, app, cb) {
 		}
 	}
 
+    args = args.concat(app_args);
 	args.push(target);
 
 	// xdg-open will block the process unless stdio is ignored
