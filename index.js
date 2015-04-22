@@ -1,6 +1,6 @@
 'use strict';
 var path = require('path');
-var execFile = require('child_process').execFile;
+var childProcess = require('child_process');
 
 module.exports = function (target, app, cb) {
 	if (typeof target !== 'string') {
@@ -48,6 +48,19 @@ module.exports = function (target, app, cb) {
 
 	args.push(target);
 
-	// xdg-open will block the process unless stdio is ignored
-	execFile(cmd, args, {stdio: 'ignore'}, cb);
+	var opts = {};
+
+	if (!cb) {
+		// xdg-open will block the process unless stdio is ignored even if it's unref()'d
+		opts.stdio = 'ignore';
+	}
+
+	var cp = childProcess.spawn(cmd, args, opts);
+
+	if (cb) {
+		cp.once('error', cb);
+		cp.once('close', cb);
+	} else {
+		cp.unref();
+	}
 };
