@@ -4,13 +4,11 @@
   "description": "A better node-open. Opens stuff like websites, files, executables. Cross-platform.",
   "license": "MIT",
   "repository": "sindresorhus/opn",
-  "bin": {
-    "opn": "cli.js"
-  },
+  "bin": "cli.js",
   "author": {
     "name": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
-    "url": "http://sindresorhus.com"
+    "url": "sindresorhus.com"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -24,6 +22,7 @@
     "xdg-open"
   ],
   "keywords": [
+    "cli-app",
     "cli",
     "bin",
     "app",
