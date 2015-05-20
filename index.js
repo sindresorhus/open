@@ -12,6 +12,8 @@ module.exports = function (target, app, cb) {
 		app = null;
 	}
 
+	app = app && !Array.isArray(app) ? [app] : app;
+
 	var cmd;
 	var args = [];
 
@@ -23,7 +25,7 @@ module.exports = function (target, app, cb) {
 		}
 
 		if (app) {
-			args.push('-a', app);
+			args.push.apply(args, ['-a', app]);
 		}
 	} else if (process.platform === 'win32') {
 		cmd = 'cmd';
@@ -35,11 +37,12 @@ module.exports = function (target, app, cb) {
 		}
 
 		if (app) {
-			args.push(app);
+			args.push.apply(args, app);
 		}
 	} else {
 		if (app) {
-			cmd = app;
+			cmd = app.shift();
+			args.push.apply(args, app);
 		} else {
 			// http://portland.freedesktop.org/download/xdg-utils-1.1.0-rc1.tar.gz
 			cmd = path.join(__dirname, 'xdg-open');

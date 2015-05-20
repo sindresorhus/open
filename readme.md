@@ -28,6 +28,9 @@ opn('http://sindresorhus.com');
 opn('http://sindresorhus.com', 'firefox');
 // you can also specify the app to open in
 
+opn('http://sindresorhus.com', ['google-chrome', '--incognito']);
+// you can also specify the arguments of app
+
 opn('unicorn.png');
 // opens the image in the default image viewer
 ```
@@ -50,9 +53,10 @@ Opens in the default app for the file type. Eg. urls opens in your default brows
 
 #### app
 
-Type: `string`
+Type: `string`, `array`
 
-Specify the app to open the `target` with.
+Specify the app to open the `target` with. Where if is array, first will be app name,
+other will be app arguments
 
 The app name is platform dependent. Don't hard code it in reusable modules.
 
@@ -77,11 +81,12 @@ $ npm install --global opn
 $ opn --help
 
 Usage
-  $ opn <file|url> [app]
+  $ opn <file|url> [app] [app arguments]
 
 Example
   $ opn http://sindresorhus.com
   $ opn http://sindresorhus.com firefox
+  $ opn http://sindresorhus.com google-chrome --incognito
   $ opn unicorn.png
 ```
 
