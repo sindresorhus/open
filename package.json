@@ -37,6 +37,9 @@
     "editor",
     "executable"
   ],
+  "dependencies": {
+    "meow": "^3.1.0"
+  },
   "devDependencies": {
     "mocha": "*"
   }
