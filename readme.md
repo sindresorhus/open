@@ -6,13 +6,14 @@
 #### Why?
 
 - Actively maintained
+- Supports app arguments
 - Includes the latest [xdg-open script](http://portland.freedesktop.org/download/)
 - Fixes most of the `node-open` issues
 
 
 ## Install
 
-```sh
+```
 $ npm install --save opn
 ```
 
@@ -26,10 +27,13 @@ opn('http://sindresorhus.com');
 // opens that url in the default browser
 
 opn('http://sindresorhus.com', 'firefox');
-// you can also specify the app to open in
+// specify the app to open in
 
 opn('unicorn.png');
 // opens the image in the default image viewer
+
+opn('http://sindresorhus.com', ['google chrome', '--incognito']);
+// specify app arguments
 ```
 
 
@@ -50,9 +54,9 @@ Opens in the default app for the file type. Eg. urls opens in your default brows
 
 #### app
 
-Type: `string`
+Type: `string`, `array`
 
-Specify the app to open the `target` with.
+Specify the app to open the `target` with, or an array with the app and app arguments.
 
 The app name is platform dependent. Don't hard code it in reusable modules.
 
@@ -67,22 +71,21 @@ On Windows you have to explicitly specify an app for it to be able to wait.
 
 ## CLI
 
-You can also use it as a CLI app by installing it globally:
-
-```sh
+```
 $ npm install --global opn
 ```
 
-```sh
+```
 $ opn --help
 
-Usage
-  $ opn <file|url> [app]
+  Usage
+    $ opn <file|url> [app] [app arguments]
 
-Example
-  $ opn http://sindresorhus.com
-  $ opn http://sindresorhus.com firefox
-  $ opn unicorn.png
+  Example
+    $ opn http://sindresorhus.com
+    $ opn http://sindresorhus.com firefox
+    $ opn http://sindresorhus.com 'google chrome' --incognito
+    $ opn unicorn.png
 ```
 
 

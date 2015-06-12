@@ -13,7 +13,13 @@ module.exports = function (target, app, cb) {
 	}
 
 	var cmd;
+	var appArgs;
 	var args = [];
+
+	if (Array.isArray(app)) {
+		appArgs = app.slice(1);
+		app = app[0];
+	}
 
 	if (process.platform === 'darwin') {
 		cmd = 'open';
@@ -24,6 +30,11 @@ module.exports = function (target, app, cb) {
 
 		if (app) {
 			args.push('-a', app);
+		}
+
+		if (appArgs) {
+			args.push('--args')
+			args = args.concat(appArgs);
 		}
 	} else if (process.platform === 'win32') {
 		cmd = 'cmd';
@@ -37,12 +48,20 @@ module.exports = function (target, app, cb) {
 		if (app) {
 			args.push(app);
 		}
+
+		if (appArgs) {
+			args = args.concat(appArgs);
+		}
 	} else {
 		if (app) {
 			cmd = app;
 		} else {
 			// http://portland.freedesktop.org/download/xdg-utils-1.1.0-rc1.tar.gz
 			cmd = path.join(__dirname, 'xdg-open');
+		}
+
+		if (appArgs) {
+			args = args.concat(appArgs);
 		}
 	}
 
@@ -59,7 +78,15 @@ module.exports = function (target, app, cb) {
 
 	if (cb) {
 		cp.once('error', cb);
-		cp.once('close', cb);
+
+		cp.once('close', function (code) {
+			if (code > 0) {
+				cb(new Error('Exited with code ' + code));
+				return;
+			}
+
+			cb();
+		});
 	} else {
 		cp.unref();
 	}
