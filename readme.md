@@ -7,8 +7,10 @@
 
 - Actively maintained
 - Supports app arguments
-- Includes the latest [xdg-open script](http://portland.freedesktop.org/download/)
-- Fixes most of the `node-open` issues
+- Safer as it uses `spawn` instead of `exec`
+- Fixes most of the open `node-open` issues
+- Comes with a CLI for use in your scripts
+- Includes the latest [`xdg-open` script](http://portland.freedesktop.org/download/) for Linux
 
 
 ## Install
@@ -23,14 +25,14 @@ $ npm install --save opn
 ```js
 var opn = require('opn');
 
+opn('unicorn.png');
+// opens the image in the default image viewer
+
 opn('http://sindresorhus.com');
-// opens that url in the default browser
+// opens the url in the default browser
 
 opn('http://sindresorhus.com', 'firefox');
 // specify the app to open in
-
-opn('unicorn.png');
-// opens the image in the default image viewer
 
 opn('http://sindresorhus.com', ['google chrome', '--incognito']);
 // specify app arguments
@@ -41,16 +43,16 @@ opn('http://sindresorhus.com', ['google chrome', '--incognito']);
 
 Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
 
-### opn(target, [app, callback])
+### opn(target, [app], [callback])
 
 #### target
 
 *Required*
 Type: `string`
 
-The thing you want to open. Can be a url, file, or executable.
+The thing you want to open. Can be a URL, file, or executable.
 
-Opens in the default app for the file type. Eg. urls opens in your default browser.
+Opens in the default app for the file type. Eg. URLs opens in your default browser.
 
 #### app
 
@@ -58,13 +60,13 @@ Type: `string`, `array`
 
 Specify the app to open the `target` with, or an array with the app and app arguments.
 
-The app name is platform dependent. Don't hard code it in reusable modules.
+The app name is platform dependent. Don't hard code it in reusable modules. Eg. Chrome is `google chrome` on OS X, `google-chrome` on Linux and `chrome` on Windows.
 
-#### callback(err)
+#### callback(error)
 
 Type: `function`
 
-Executes when the opened app exits.
+Called when the opened app exits.
 
 On Windows you have to explicitly specify an app for it to be able to wait.
 

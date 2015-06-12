@@ -24,18 +24,31 @@
   "keywords": [
     "cli-app",
     "cli",
-    "bin",
     "app",
     "open",
     "opn",
+    "opener",
+    "opens",
     "launch",
     "start",
     "xdg-open",
+    "xdg",
     "default",
     "cmd",
     "browser",
     "editor",
-    "executable"
+    "executable",
+    "exe",
+    "url",
+    "urls",
+    "arguments",
+    "args",
+    "spawn",
+    "exec",
+    "child",
+    "process",
+    "website",
+    "file"
   ],
   "dependencies": {
     "meow": "^3.1.0"
