@@ -38,7 +38,7 @@ it('should open url in specified app', function (cb) {
 	});
 });
 
-it('should open url in specified app with arguments', function(cb) {
+it('should open url in specified app with arguments', function (cb) {
 	this.timeout(20000);
 
 	opn('http://sindresorhus.com', [chromeName, '--incognito'], function (err) {
