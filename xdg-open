@@ -38,71 +38,80 @@ manualpage()
 cat << _MANUALPAGE
 Name
 
-xdg-open - opens a file or URL in the user's preferred application
+   xdg-open - opens a file or URL in the user's preferred
+   application
 
 Synopsis
 
-xdg-open { file | URL }
+   xdg-open { file | URL }
 
-xdg-open { --help | --manual | --version }
+   xdg-open { --help | --manual | --version }
 
 Description
 
-xdg-open opens a file or URL in the user's preferred application. If a URL is
-provided the URL will be opened in the user's preferred web browser. If a file
-is provided the file will be opened in the preferred application for files of
-that type. xdg-open supports file, ftp, http and https URLs.
+   xdg-open opens a file or URL in the user's preferred
+   application. If a URL is provided the URL will be opened in the
+   user's preferred web browser. If a file is provided the file
+   will be opened in the preferred application for files of that
+   type. xdg-open supports file, ftp, http and https URLs.
 
-xdg-open is for use inside a desktop session only. It is not recommended to use
-xdg-open as root.
+   xdg-open is for use inside a desktop session only. It is not
+   recommended to use xdg-open as root.
 
 Options
 
---help
-    Show command synopsis.
---manual
-    Show this manual page.
---version
-    Show the xdg-utils version information.
+   --help
+          Show command synopsis.
+
+   --manual
+          Show this manual page.
+
+   --version
+          Show the xdg-utils version information.
 
 Exit Codes
 
-An exit code of 0 indicates success while a non-zero exit code indicates
-failure. The following failure codes can be returned:
+   An exit code of 0 indicates success while a non-zero exit code
+   indicates failure. The following failure codes can be returned:
 
-1
-    Error in command line syntax.
-2
-    One of the files passed on the command line did not exist.
-3
-    A required tool could not be found.
-4
-    The action failed.
+   1
+          Error in command line syntax.
+
+   2
+          One of the files passed on the command line did not
+          exist.
+
+   3
+          A required tool could not be found.
+
+   4
+          The action failed.
 
 Examples
 
 xdg-open 'http://www.freedesktop.org/'
 
-Opens the freedesktop.org website in the user's default browser.
+   Opens the freedesktop.org website in the user's default
+   browser.
 
 xdg-open /tmp/foobar.png
 
-Opens the PNG image file /tmp/foobar.png in the user's default image viewing
-application.
-
+   Opens the PNG image file /tmp/foobar.png in the user's default
+   image viewing application.
 _MANUALPAGE
 }
 
 usage()
 {
 cat << _USAGE
-xdg-open - opens a file or URL in the user's preferred application
+   xdg-open - opens a file or URL in the user's preferred
+   application
 
 Synopsis
 
-xdg-open { file | URL }
+   xdg-open { file | URL }
 
-xdg-open { --help | --manual | --version }
+   xdg-open { --help | --manual | --version }
 
 _USAGE
 }
@@ -337,7 +346,7 @@ check_common_commands()
             ;;
 
             --version)
-            echo "xdg-open 1.1.0 rc1"
+            echo "xdg-open 1.1.0 rc3"
             exit_success
             ;;
         esac
@@ -389,7 +398,7 @@ detectDE()
 
     if [ x"$DE" = x"" ]; then
       # classic fallbacks
-      if [ x"$KDE_FULL_SESSION" = x"true" ]; then DE=kde;
+      if [ x"$KDE_FULL_SESSION" != x"" ]; then DE=kde;
       elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
       elif [ x"$MATE_DESKTOP_SESSION_ID" != x"" ]; then DE=mate;
       elif `dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.gnome.SessionManager > /dev/null 2>&1` ; then DE=gnome;
@@ -406,7 +415,7 @@ detectDE()
            DE=gnome;
            ;;
          LXDE|Lubuntu)
-           DE=lxde;
+           DE=lxde; 
            ;;
          MATE)
            DE=mate;
@@ -419,7 +428,7 @@ detectDE()
 
     if [ x"$DE" = x"" ]; then
       # fallback to uname output for other platforms
-      case "$(uname 2>/dev/null)" in
+      case "$(uname 2>/dev/null)" in 
         Darwin)
           DE=darwin;
           ;;
@@ -451,16 +460,42 @@ kfmclient_fix_exit_code()
 }
 
 # This handles backslashes but not quote marks.
-first_word()
-{
-    read first rest
-    echo "$first"
-}
-
 last_word()
 {
     read first rest
     echo "$rest"
+}
+
+# Get the value of a key in a desktop file's Desktop Entry group.
+# Example: Use get_key foo.desktop Exec
+# to get the values of the Exec= key for the Desktop Entry group.
+get_key()
+{
+    local file="${1}"
+    local key="${2}"
+    local desktop_entry=""
+
+    IFS_="${IFS}"
+    IFS=""
+    while read line
+    do
+        case "$line" in
+            "[Desktop Entry]")
+                desktop_entry="y"
+            ;;
+            # Reset match flag for other groups
+            "["*)
+                desktop_entry=""
+            ;;
+            "${key}="*)
+                # Only match Desktop Entry group
+                if [ -n "${desktop_entry}" ]
+                then
+                    echo "${line}" | cut -d= -f 2-
+                fi
+        esac
+    done < "${file}"
+    IFS="${IFS_}"
 }
 
 open_darwin()
@@ -476,15 +511,18 @@ open_darwin()
 
 open_kde()
 {
-    if kde-open -v 2>/dev/null 1>&2; then
-        kde-open "$1"
+    if [ -n "${KDE_SESSION_VERSION}" ]; then
+      case "${KDE_SESSION_VERSION}" in
+        4)
+          kde-open "$1"
+        ;;
+        5)
+          kde-open${KDE_SESSION_VERSION} "$1"
+        ;;
+      esac
     else
-        if [ x"$KDE_SESSION_VERSION" = x"4" ]; then
-            kfmclient openURL "$1"
-        else
-            kfmclient exec "$1"
-            kfmclient_fix_exit_code $?
-        fi
+        kfmclient exec "$1"
+        kfmclient_fix_exit_code $?
     fi
 
     if [ $? -eq 0 ]; then
@@ -553,7 +591,7 @@ search_desktop_file()
 {
     local default="$1"
     local dir="$2"
-    local arg="$3"
+    local target="$3"
 
     local file=""
     # look for both vendor-app.desktop, vendor/app.desktop
@@ -564,29 +602,56 @@ search_desktop_file()
     fi
 
     if [ -r "$file" ] ; then
-        command="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | first_word`"
+        command="$(get_key "${file}" "Exec" | first_word)"
         command_exec=`which $command 2>/dev/null`
-        arguments="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | last_word`"
-        arg_one="`echo "$arg" | sed 's/[&*\\]/\\\\&/g'`"
-        arguments_exec="`echo "$arguments" | sed -e 's*%[fFuU]*"'"$arg_one"'"*g'`"
+        icon="$(get_key "${file}" "Icon")"
+        # FIXME: Actually LC_MESSAGES should be used as described in
+        # http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s04.html
+        localised_name="$(get_key "${file}" "Name")"
+        set -- $(get_key "${file}" "Exec" | last_word)
+        # We need to replace any occurrence of "%f", "%F" and
+        # the like by the target file. We examine each
+        # argument and append the modified argument to the
+        # end then shift.
+        local args=$#
+        local replaced=0
+        while [ $args -gt 0 ]; do
+            case $1 in
+                %[c])
+                    replaced=1
+                    arg="${localised_name}"
+                    shift
+                    set -- "$@" "$arg"
+                    ;;
+                %[fFuU])
+                    replaced=1
+                    arg="$target"
+                    shift
+                    set -- "$@" "$arg"
+                    ;;
+                %[i])
+                    replaced=1
+                    shift
+                    set -- "$@" "--icon" "$icon"
+                    ;;
+                *)
+                    arg="$1"
+                    shift
+                    set -- "$@" "$arg"
+                    ;;
+            esac
+            args=$(( $args - 1 ))
+        done
+        [ $replaced -eq 1 ] || set -- "$@" "$target"
+        "$command_exec" "$@"
 
-        if [ -x "$command_exec" ] ; then
-            if echo "$arguments" | grep -iq '%[fFuU]' ; then
-                echo START "$command_exec" "$arguments_exec"
-                eval "$command_exec" "$arguments_exec"
-            else
-                echo START "$command_exec" "$arguments_exec" "$arg"
-                eval "$command_exec" "$arguments_exec" "$arg"
-            fi
-
-            if [ $? -eq 0 ]; then
-                exit_success
-            fi
+        if [ $? -eq 0 ]; then
+            exit_success
         fi
     fi
 
     for d in $dir/*/; do
-        [ -d "$d" ] && search_desktop_file "$default" "$d" "$arg"
+        [ -d "$d" ] && search_desktop_file "$default" "$d" "$target"
     done
 }
 
@@ -637,9 +702,12 @@ open_generic()
             file=${file#file://}
             file="$(printf "$(echo "$file" | sed -e 's@%\([a-f0-9A-F]\{2\}\)@\\x\1@g')")"
         fi
-        check_input_file "$file"
+        file_check=${file%%#*}
+        file_check=${file_check%%\?*}
+        check_input_file "$file_check"
 
-        open_generic_xdg_file_mime "$file"
+        filetype=`xdg-mime query filetype "$file_check" | sed "s/;.*//"`
+        open_generic_xdg_mime "$file" "$filetype"
 
         if which run-mailcap 2>/dev/null 1>&2; then
             run-mailcap --action=view "$file"
@@ -687,10 +755,10 @@ open_lxde()
     if (echo "$1" | grep -q '^file://' ||
         ! echo "$1" | egrep -q '^[[:alpha:]+\.\-]+:')
     then
-        local file="$(echo "$1" | sed 's%^file://%%')"
+        local file="$1"
 
         # handle relative paths
-        if ! echo "$file" | grep -q '^/'; then
+        if ! echo "$file" | egrep -q '^(file://)?/'; then
             file="$(pwd)/$file"
         fi
 

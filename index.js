@@ -56,7 +56,6 @@ module.exports = function (target, app, cb) {
 		if (app) {
 			cmd = app;
 		} else {
-			// http://portland.freedesktop.org/download/xdg-utils-1.1.0-rc1.tar.gz
 			cmd = path.join(__dirname, 'xdg-open');
 		}
 

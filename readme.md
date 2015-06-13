@@ -10,7 +10,7 @@
 - Safer as it uses `spawn` instead of `exec`
 - Fixes most of the open `node-open` issues
 - Comes with a CLI for use in your scripts
-- Includes the latest [`xdg-open` script](http://portland.freedesktop.org/download/) for Linux
+- Includes the latest [`xdg-open` script](http://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux
 
 
 ## Install
