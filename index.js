@@ -89,4 +89,6 @@ module.exports = function (target, app, cb) {
 	} else {
 		cp.unref();
 	}
+
+	return cp;
 };

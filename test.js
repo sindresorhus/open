@@ -46,3 +46,8 @@ it('should open url in specified app with arguments', function (cb) {
 		cb();
 	});
 });
+
+it('should return the child process when called', function () {
+	var cp = opn('index.js');
+	assert('stdout' in cp);
+});
