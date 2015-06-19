@@ -25,7 +25,7 @@ it('should open url in default app', function (cb) {
 	this.timeout(20000);
 
 	opn('http://sindresorhus.com', process.platform === 'darwin' ? cb() : function (err) {
-		assert(!err, err);
+		assert.ifError(err);
 		cb();
 	});
 });
@@ -33,7 +33,7 @@ it('should open url in default app', function (cb) {
 it('should open url in specified app', function (cb) {
 	this.timeout(20000);
 	opn('http://sindresorhus.com', 'firefox', function (err) {
-		assert(!err, err);
+		assert.ifError(err);
 		cb();
 	});
 });
@@ -42,7 +42,7 @@ it('should open url in specified app with arguments', function (cb) {
 	this.timeout(20000);
 
 	opn('http://sindresorhus.com', [chromeName, '--incognito'], function (err) {
-		assert(!err, err);
+		assert.ifError(err);
 		cb();
 	});
 });
