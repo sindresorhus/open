@@ -13,7 +13,7 @@ var cli = meow({
 		'  $ opn http://sindresorhus.com firefox',
 		'  $ opn http://sindresorhus.com \'google chrome\' --incognito',
 		'  $ opn unicorn.png'
-	].join('\n')
+	]
 });
 
 opn(cli.input[0], process.argv.slice(3));
