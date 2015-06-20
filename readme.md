@@ -45,6 +45,8 @@ Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other plat
 
 ### opn(target, [app], [callback])
 
+Returns the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You'd normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
+
 #### target
 
 *Required*
