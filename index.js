@@ -18,6 +18,7 @@ module.exports = function (target, opts, cb) {
 	var cmd;
 	var appArgs;
 	var args = [];
+	var cpOpts = {};
 
 	if (Array.isArray(opts.app)) {
 		appArgs = opts.app.slice(1);
@@ -65,16 +66,15 @@ module.exports = function (target, opts, cb) {
 		if (appArgs) {
 			args = args.concat(appArgs);
 		}
+
+		if (!(cb && opts.wait)) {
+			// xdg-open will block the process unless
+			// stdio is ignored even if it's unref'd
+			cpOpts.stdio = 'ignore';
+		}
 	}
 
 	args.push(target);
-
-	var cpOpts = {};
-
-	if (!cb) {
-		// xdg-open will block the process unless stdio is ignored even if it's unref()'d
-		cpOpts.stdio = 'ignore';
-	}
 
 	var cp = childProcess.spawn(cmd, args, cpOpts);
 
