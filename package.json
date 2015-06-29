@@ -4,7 +4,6 @@
   "description": "A better node-open. Opens stuff like websites, files, executables. Cross-platform.",
   "license": "MIT",
   "repository": "sindresorhus/opn",
-  "bin": "cli.js",
   "author": {
     "name": "Sindre Sorhus",
     "email": "sindresorhus@gmail.com",
@@ -17,13 +16,10 @@
     "test": "mocha"
   },
   "files": [
-    "cli.js",
     "index.js",
     "xdg-open"
   ],
   "keywords": [
-    "cli-app",
-    "cli",
     "app",
     "open",
     "opn",
@@ -51,7 +47,6 @@
     "file"
   ],
   "dependencies": {
-    "meow": "^3.3.0",
     "object-assign": "^3.0.0"
   },
   "devDependencies": {

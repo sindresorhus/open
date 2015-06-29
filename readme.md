@@ -9,7 +9,6 @@
 - Supports app arguments
 - Safer as it uses `spawn` instead of `exec`
 - Fixes most of the open `node-open` issues
-- Comes with a CLI for use in your scripts
 - Includes the latest [`xdg-open` script](http://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux
 
 
@@ -84,24 +83,9 @@ Type: `function`
 Called when the opened app exits, or if `wait: false`, immediately when opening.
 
 
-## CLI
+## Related
 
-```
-$ npm install --global opn
-```
-
-```
-$ opn --help
-
-  Usage
-    $ opn <file|url> [app] [app arguments]
-
-  Example
-    $ opn http://sindresorhus.com
-    $ opn http://sindresorhus.com firefox
-    $ opn http://sindresorhus.com 'google chrome' --incognito
-    $ opn unicorn.png
-```
+- [opn-cli](https://github.com/sindresorhus/opn-cli) - CLI for this module
 
 
 ## License
