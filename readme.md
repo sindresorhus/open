@@ -30,10 +30,10 @@ opn('unicorn.png');
 opn('http://sindresorhus.com');
 // opens the url in the default browser
 
-opn('http://sindresorhus.com', 'firefox');
+opn('http://sindresorhus.com', {app: 'firefox'});
 // specify the app to open in
 
-opn('http://sindresorhus.com', ['google chrome', '--incognito']);
+opn('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 // specify app arguments
 ```
 
