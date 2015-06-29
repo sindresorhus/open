@@ -43,7 +43,7 @@ opn('http://sindresorhus.com', ['google chrome', '--incognito']);
 
 Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
 
-### opn(target, [app], [callback])
+### opn(target, [options], [callback])
 
 Returns the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You'd normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
 
@@ -56,7 +56,21 @@ The thing you want to open. Can be a URL, file, or executable.
 
 Opens in the default app for the file type. Eg. URLs opens in your default browser.
 
-#### app
+#### options
+
+Type: `object`
+
+An optional options hash.
+
+##### options.wait
+
+Type: `boolean`
+
+Defaults to `true` and means that opn will wait calling the callback (if one is given) until the app have been closed again. If set to `false` the callback will be called immediately after the child process have spawned.
+
+Note that waiting is only possible if the app name is either `darwin` or `win32`.
+
+##### options.app
 
 Type: `string`, `array`
 
@@ -68,7 +82,7 @@ The app name is platform dependent. Don't hard code it in reusable modules. Eg. 
 
 Type: `function`
 
-Called when the opened app exits.
+Called when the opened app exits or as soon as the child process have spawned if `options.wait` is set to `false`.
 
 On Windows you have to explicitly specify an app for it to be able to wait.
 

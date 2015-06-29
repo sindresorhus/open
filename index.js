@@ -1,35 +1,38 @@
 'use strict';
 var path = require('path');
 var childProcess = require('child_process');
+var objectAssign = require('object-assign');
 
-module.exports = function (target, app, cb) {
+module.exports = function (target, opts, cb) {
 	if (typeof target !== 'string') {
 		throw new Error('Expected a `target`');
 	}
 
-	if (typeof app === 'function') {
-		cb = app;
-		app = null;
+	if (typeof opts === 'function') {
+		cb = opts;
+		opts = null;
 	}
+
+	opts = objectAssign({ wait: true }, opts);
 
 	var cmd;
 	var appArgs;
 	var args = [];
 
-	if (Array.isArray(app)) {
-		appArgs = app.slice(1);
-		app = app[0];
+	if (Array.isArray(opts.app)) {
+		appArgs = opts.app.slice(1);
+		opts.app = opts.app[0];
 	}
 
 	if (process.platform === 'darwin') {
 		cmd = 'open';
 
-		if (cb) {
+		if (cb && opts.wait) {
 			args.push('-W');
 		}
 
-		if (app) {
-			args.push('-a', app);
+		if (opts.app) {
+			args.push('-a', opts.app);
 		}
 
 		if (appArgs) {
@@ -41,20 +44,20 @@ module.exports = function (target, app, cb) {
 		args.push('/c', 'start');
 		target = target.replace(/&/g, '^&');
 
-		if (cb) {
+		if (cb && opts.wait) {
 			args.push('/wait');
 		}
 
-		if (app) {
-			args.push(app);
+		if (opts.app) {
+			args.push(opts.app);
 		}
 
 		if (appArgs) {
 			args = args.concat(appArgs);
 		}
 	} else {
-		if (app) {
-			cmd = app;
+		if (opts.app) {
+			cmd = opts.app;
 		} else {
 			cmd = path.join(__dirname, 'xdg-open');
 		}
@@ -66,14 +69,14 @@ module.exports = function (target, app, cb) {
 
 	args.push(target);
 
-	var opts = {};
+	var cpOpts = {};
 
 	if (!cb) {
 		// xdg-open will block the process unless stdio is ignored even if it's unref()'d
-		opts.stdio = 'ignore';
+		cpOpts.stdio = 'ignore';
 	}
 
-	var cp = childProcess.spawn(cmd, args, opts);
+	var cp = childProcess.spawn(cmd, args, cpOpts);
 
 	if (cb) {
 		cp.once('error', cb);
