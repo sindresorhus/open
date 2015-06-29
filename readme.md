@@ -1,4 +1,4 @@
-# opn [![Build Status](https://travis-ci.org/sindresorhus/opn.svg?branch=master)](https://travis-ci.org/sindresorhus/opn)
+# opn
 
 > A better [node-open](https://github.com/pwnall/node-open). Opens stuff like websites, files, executables. Cross-platform.
 
