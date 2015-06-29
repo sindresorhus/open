@@ -13,7 +13,7 @@ module.exports = function (target, opts, cb) {
 		opts = null;
 	}
 
-	opts = objectAssign({ wait: true }, opts);
+	opts = objectAssign({wait: true}, opts);
 
 	var cmd;
 	var appArgs;
@@ -36,7 +36,7 @@ module.exports = function (target, opts, cb) {
 		}
 
 		if (appArgs) {
-			args.push('--args')
+			args.push('--args');
 			args = args.concat(appArgs);
 		}
 	} else if (process.platform === 'win32') {

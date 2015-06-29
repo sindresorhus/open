@@ -49,7 +49,7 @@ Returns the [spawned child process](https://nodejs.org/api/child_process.html#ch
 
 #### target
 
-*Required*
+*Required*  
 Type: `string`
 
 The thing you want to open. Can be a URL, file, or executable.
@@ -60,17 +60,16 @@ Opens in the default app for the file type. Eg. URLs opens in your default brows
 
 Type: `object`
 
-An optional options hash.
+##### wait
 
-##### options.wait
+Type: `boolean`  
+Default: `true`
 
-Type: `boolean`
+Wait for the opened app to exit before calling the `callback`. If `false` it's called immediately when opening the app.
 
-Defaults to `true` and means that opn will wait calling the callback (if one is given) until the app have been closed again. If set to `false` the callback will be called immediately after the child process have spawned.
+On Windows you have to explicitly specify an app for it to be able to wait.
 
-Note that waiting is only possible if the app name is either `darwin` or `win32`.
-
-##### options.app
+##### app
 
 Type: `string`, `array`
 
@@ -82,9 +81,7 @@ The app name is platform dependent. Don't hard code it in reusable modules. Eg. 
 
 Type: `function`
 
-Called when the opened app exits or as soon as the child process have spawned if `options.wait` is set to `false`.
-
-On Windows you have to explicitly specify an app for it to be able to wait.
+Called when the opened app exits, or if `wait: false`, immediately when opening.
 
 
 ## CLI

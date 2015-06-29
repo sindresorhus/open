@@ -22,7 +22,7 @@ it('should open file in default app', function () {
 });
 
 it('should not wait for the app to close if wait: false', function (cb) {
-	opn('http://sindresorhus.com', { wait: false }, function (err) {
+	opn('http://sindresorhus.com', {wait: false}, function (err) {
 		assert.ifError(err);
 		cb();
 	});
@@ -39,7 +39,7 @@ it('should open url in default app', function (cb) {
 
 it('should open url in specified app', function (cb) {
 	this.timeout(20000);
-	opn('http://sindresorhus.com', { app: 'firefox' }, function (err) {
+	opn('http://sindresorhus.com', {app: 'firefox'}, function (err) {
 		assert.ifError(err);
 		cb();
 	});
@@ -48,7 +48,7 @@ it('should open url in specified app', function (cb) {
 it('should open url in specified app with arguments', function (cb) {
 	this.timeout(20000);
 
-	opn('http://sindresorhus.com', { app: [chromeName, '--incognito'] }, function (err) {
+	opn('http://sindresorhus.com', {app: [chromeName, '--incognito']}, function (err) {
 		assert.ifError(err);
 		cb();
 	});
