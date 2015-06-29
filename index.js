@@ -16,7 +16,7 @@ module.exports = function (target, opts, cb) {
 	opts = objectAssign({wait: true}, opts);
 
 	var cmd;
-	var appArgs;
+	var appArgs = [];
 	var args = [];
 	var cpOpts = {};
 
@@ -36,7 +36,7 @@ module.exports = function (target, opts, cb) {
 			args.push('-a', opts.app);
 		}
 
-		if (appArgs) {
+		if (appArgs.length > 0) {
 			args.push('--args');
 			args = args.concat(appArgs);
 		}
@@ -53,7 +53,7 @@ module.exports = function (target, opts, cb) {
 			args.push(opts.app);
 		}
 
-		if (appArgs) {
+		if (appArgs.length > 0) {
 			args = args.concat(appArgs);
 		}
 	} else {
@@ -63,7 +63,7 @@ module.exports = function (target, opts, cb) {
 			cmd = path.join(__dirname, 'xdg-open');
 		}
 
-		if (appArgs) {
+		if (appArgs.length > 0) {
 			args = args.concat(appArgs);
 		}
 
