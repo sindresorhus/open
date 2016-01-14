@@ -1,8 +1,7 @@
-'use strict';
-var assert = require('assert');
-var opn = require('./');
+import test from 'ava';
+import m from './';
 
-var chromeName;
+let chromeName;
 
 if (process.platform === 'darwin') {
 	chromeName = 'google chrome canary';
@@ -17,44 +16,27 @@ if (process.platform === 'darwin') {
 
 // these have to be manually verified
 
-it('should open file in default app', function () {
-	opn('index.js');
+test('open file in default app', async () => {
+	await m('index.js');
 });
 
-it('should not wait for the app to close if wait: false', function (cb) {
-	opn('http://sindresorhus.com', {wait: false}, function (err) {
-		assert.ifError(err);
-		cb();
-	});
+test('not wait for the app to close if wait: false', async () => {
+	await m('http://sindresorhus.com', {wait: false});
 });
 
-it('should open url in default app', function (cb) {
-	this.timeout(20000);
-
-	opn('http://sindresorhus.com', process.platform === 'darwin' ? cb() : function (err) {
-		assert.ifError(err);
-		cb();
-	});
+test('open url in default app', async () => {
+	await m('http://sindresorhus.com');
 });
 
-it('should open url in specified app', function (cb) {
-	this.timeout(20000);
-	opn('http://sindresorhus.com', {app: 'firefox'}, function (err) {
-		assert.ifError(err);
-		cb();
-	});
+test('open url in specified app', async () => {
+	await m('http://sindresorhus.com', {app: 'firefox'});
 });
 
-it('should open url in specified app with arguments', function (cb) {
-	this.timeout(20000);
-
-	opn('http://sindresorhus.com', {app: [chromeName, '--incognito']}, function (err) {
-		assert.ifError(err);
-		cb();
-	});
+test('open url in specified app with arguments', async () => {
+	await m('http://sindresorhus.com', {app: [chromeName, '--incognito']});
 });
 
-it('should return the child process when called', function () {
-	var cp = opn('index.js');
-	assert('stdout' in cp);
+test('return the child process when called', async t => {
+	const cp = await m('index.js');
+	t.ok('stdout' in cp);
 });

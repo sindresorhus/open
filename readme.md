@@ -22,19 +22,21 @@ $ npm install --save opn
 ## Usage
 
 ```js
-var opn = require('opn');
+const opn = require('opn');
 
-opn('unicorn.png');
 // opens the image in the default image viewer
+opn('unicorn.png').then(() => {
+	// image viewer closed
+});
 
-opn('http://sindresorhus.com');
 // opens the url in the default browser
+opn('http://sindresorhus.com');
 
-opn('http://sindresorhus.com', {app: 'firefox'});
 // specify the app to open in
+opn('http://sindresorhus.com', {app: 'firefox'});
 
-opn('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 // specify app arguments
+opn('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 ```
 
 
@@ -42,9 +44,9 @@ opn('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 
 Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
 
-### opn(target, [options], [callback])
+### opn(target, [options])
 
-Returns the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You'd normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
+Returns a promise for the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You'd normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
 
 #### target
 
@@ -75,12 +77,6 @@ Type: `string`, `array`
 Specify the app to open the `target` with, or an array with the app and app arguments.
 
 The app name is platform dependent. Don't hard code it in reusable modules. Eg. Chrome is `google chrome` on OS X, `google-chrome` on Linux and `chrome` on Windows.
-
-#### callback(error)
-
-Type: `function`
-
-Called when the opened app exits, or if `wait: false`, immediately when opening.
 
 
 ## Related
