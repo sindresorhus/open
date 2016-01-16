@@ -2,15 +2,11 @@
 var path = require('path');
 var childProcess = require('child_process');
 var objectAssign = require('object-assign');
+var Promise = require('pinkie-promise');
 
-module.exports = function (target, opts, cb) {
+module.exports = function (target, opts) {
 	if (typeof target !== 'string') {
-		throw new Error('Expected a `target`');
-	}
-
-	if (typeof opts === 'function') {
-		cb = opts;
-		opts = null;
+		return Promise.reject(new Error('Expected a `target`'));
 	}
 
 	opts = objectAssign({wait: true}, opts);
@@ -28,7 +24,7 @@ module.exports = function (target, opts, cb) {
 	if (process.platform === 'darwin') {
 		cmd = 'open';
 
-		if (cb && opts.wait) {
+		if (opts.wait) {
 			args.push('-W');
 		}
 
@@ -45,7 +41,7 @@ module.exports = function (target, opts, cb) {
 		args.push('/c', 'start');
 		target = target.replace(/&/g, '^&');
 
-		if (cb && opts.wait) {
+		if (opts.wait) {
 			args.push('/wait');
 		}
 
@@ -67,7 +63,7 @@ module.exports = function (target, opts, cb) {
 			args = args.concat(appArgs);
 		}
 
-		if (!(cb && opts.wait)) {
+		if (!opts.wait) {
 			// xdg-open will block the process unless
 			// stdio is ignored even if it's unref'd
 			cpOpts.stdio = 'ignore';
@@ -78,20 +74,22 @@ module.exports = function (target, opts, cb) {
 
 	var cp = childProcess.spawn(cmd, args, cpOpts);
 
-	if (cb) {
-		cp.once('error', cb);
+	if (opts.wait) {
+		return new Promise(function (resolve, reject) {
+			cp.once('error', reject);
 
-		cp.once('close', function (code) {
-			if (code > 0) {
-				cb(new Error('Exited with code ' + code));
-				return;
-			}
+			cp.once('close', function (code) {
+				if (code > 0) {
+					reject(new Error('Exited with code ' + code));
+					return;
+				}
 
-			cb();
+				resolve(cp);
+			});
 		});
-	} else {
-		cp.unref();
 	}
 
-	return cp;
+	cp.unref();
+
+	return Promise.resolve(cp);
 };
