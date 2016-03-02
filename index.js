@@ -38,7 +38,7 @@ module.exports = function (target, opts) {
 		}
 	} else if (process.platform === 'win32') {
 		cmd = 'cmd';
-		args.push('/c', 'start');
+		args.push('/c', 'start', '""');
 		target = target.replace(/&/g, '^&');
 
 		if (opts.wait) {
