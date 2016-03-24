@@ -28,6 +28,10 @@ module.exports = function (target, opts) {
 			args.push('-W');
 		}
 
+		if (opts.args) {
+			args.push(opts.args)
+		}
+
 		if (opts.app) {
 			args.push('-a', opts.app);
 		}
