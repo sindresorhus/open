@@ -38,5 +38,5 @@ test('open url in specified app with arguments', async () => {
 
 test('return the child process when called', async t => {
 	const cp = await m('index.js');
-	t.ok('stdout' in cp);
+	t.true('stdout' in cp);
 });
