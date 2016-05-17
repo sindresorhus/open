@@ -31,11 +31,6 @@ module.exports = function (target, opts) {
 		if (opts.app) {
 			args.push('-a', opts.app);
 		}
-
-		if (appArgs.length > 0) {
-			args.push('--args');
-			args = args.concat(appArgs);
-		}
 	} else if (process.platform === 'win32') {
 		cmd = 'cmd';
 		args.push('/c', 'start', '""');
@@ -71,6 +66,11 @@ module.exports = function (target, opts) {
 	}
 
 	args.push(target);
+
+	if (process.platform === 'darwin' && appArgs.length > 0) {
+		args.push('--args');
+		args = args.concat(appArgs);
+	}
 
 	var cp = childProcess.spawn(cmd, args, cpOpts);
 
