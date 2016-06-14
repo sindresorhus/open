@@ -42,7 +42,7 @@ opn('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 
 ## API
 
-Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
+Uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
 
 ### opn(target, [options])
 
@@ -76,7 +76,7 @@ Type: `string`, `array`
 
 Specify the app to open the `target` with, or an array with the app and app arguments.
 
-The app name is platform dependent. Don't hard code it in reusable modules. Eg. Chrome is `google chrome` on OS X, `google-chrome` on Linux and `chrome` on Windows.
+The app name is platform dependent. Don't hard code it in reusable modules. Eg. Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows.
 
 
 ## Related
