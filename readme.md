@@ -50,20 +50,19 @@ Returns a promise for the [spawned child process](https://nodejs.org/api/child_p
 
 #### target
 
-*Required*  
 Type: `string`
 
 The thing you want to open. Can be a URL, file, or executable.
 
-Opens in the default app for the file type. Eg. URLs opens in your default browser.
+Opens in the default app for the file type. For example, URLs opens in your default browser.
 
 #### options
 
-Type: `object`
+Type: `Object`
 
 ##### wait
 
-Type: `boolean`  
+Type: `boolean`<br>
 Default: `true`
 
 Wait for the opened app to exit before calling the `callback`. If `false` it's called immediately when opening the app.
@@ -72,7 +71,7 @@ On Windows you have to explicitly specify an app for it to be able to wait.
 
 ##### app
 
-Type: `string`, `array`
+Type: `string` `Array`
 
 Specify the app to open the `target` with, or an array with the app and app arguments.
 
@@ -86,4 +85,4 @@ The app name is platform dependent. Don't hard code it in reusable modules. Eg. 
 
 ## License
 
-MIT © [Sindre Sorhus](http://sindresorhus.com)
+MIT © [Sindre Sorhus](https://sindresorhus.com)
