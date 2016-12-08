@@ -46,7 +46,7 @@ Uses the command `open` on macOS, `start` on Windows and `xdg-open` on other pla
 
 ### opn(target, [options])
 
-Returns a promise for the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You'd normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
+Returns a promise for the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
 
 #### target
 
@@ -65,7 +65,7 @@ Type: `Object`
 Type: `boolean`<br>
 Default: `true`
 
-Wait for the opened app to exit before calling the `callback`. If `false` it's called immediately when opening the app.
+Wait for the opened app to exit before fulfilling the promise. If `false` it's fulfilled immediately when opening the app.
 
 On Windows you have to explicitly specify an app for it to be able to wait.
 
@@ -75,7 +75,7 @@ Type: `string` `Array`
 
 Specify the app to open the `target` with, or an array with the app and app arguments.
 
-The app name is platform dependent. Don't hard code it in reusable modules. Eg. Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows.
+The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows.
 
 
 ## Related
