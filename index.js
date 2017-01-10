@@ -1,20 +1,18 @@
 'use strict';
-var path = require('path');
-var childProcess = require('child_process');
-var objectAssign = require('object-assign');
-var Promise = require('pinkie-promise');
+const path = require('path');
+const childProcess = require('child_process');
 
-module.exports = function (target, opts) {
+module.exports = (target, opts) => {
 	if (typeof target !== 'string') {
 		return Promise.reject(new Error('Expected a `target`'));
 	}
 
-	opts = objectAssign({wait: true}, opts);
+	opts = Object.assign({wait: true}, opts);
 
-	var cmd;
-	var appArgs = [];
-	var args = [];
-	var cpOpts = {};
+	let cmd;
+	let appArgs = [];
+	let args = [];
+	const cpOpts = {};
 
 	if (Array.isArray(opts.app)) {
 		appArgs = opts.app.slice(1);
@@ -72,13 +70,13 @@ module.exports = function (target, opts) {
 		args = args.concat(appArgs);
 	}
 
-	var cp = childProcess.spawn(cmd, args, cpOpts);
+	const cp = childProcess.spawn(cmd, args, cpOpts);
 
 	if (opts.wait) {
-		return new Promise(function (resolve, reject) {
+		return new Promise((resolve, reject) => {
 			cp.once('error', reject);
 
-			cp.once('close', function (code) {
+			cp.once('close', code => {
 				if (code > 0) {
 					reject(new Error('Exited with code ' + code));
 					return;
