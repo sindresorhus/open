@@ -24,18 +24,18 @@ $ npm install --save opn
 ```js
 const opn = require('opn');
 
-// opens the image in the default image viewer
+// Opens the image in the default image viewer
 opn('unicorn.png').then(() => {
 	// image viewer closed
 });
 
-// opens the url in the default browser
+// Opens the url in the default browser
 opn('http://sindresorhus.com');
 
-// specify the app to open in
+// Specify the app to open in
 opn('http://sindresorhus.com', {app: 'firefox'});
 
-// specify app arguments
+// Specify app arguments
 opn('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 ```
 
