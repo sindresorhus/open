@@ -32,7 +32,10 @@ module.exports = (target, opts) => {
 	} else if (process.platform === 'win32') {
 		cmd = 'cmd';
 		args.push('/c', 'start', '""');
-		target = target.replace(/&/g, '^&');
+		
+		if(target.indexOf(" ") == -1){
+			target = target.replace(/&/g, '^&');
+		}
 
 		if (opts.wait) {
 			args.push('/wait');
