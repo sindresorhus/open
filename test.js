@@ -40,3 +40,7 @@ test('return the child process when called', async t => {
 	const cp = await m('index.js');
 	t.true('stdout' in cp);
 });
+
+test('open url with spaces and &', async () => {
+	await m('https://www.bing.com/images/search?&q=javascript logo&qft=+filterui:imagesize-large');
+});
