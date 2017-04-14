@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const childProcess = require('child_process');
+const os = require('os');
 
 module.exports = (target, opts) => {
 	if (typeof target !== 'string') {
@@ -13,6 +14,7 @@ module.exports = (target, opts) => {
 	let appArgs = [];
 	let args = [];
 	const cpOpts = {};
+	const isWSL = (os.type() === 'Linux' && os.release().indexOf('Microsoft') > -1);
 
 	if (Array.isArray(opts.app)) {
 		appArgs = opts.app.slice(1);
@@ -29,8 +31,8 @@ module.exports = (target, opts) => {
 		if (opts.app) {
 			args.push('-a', opts.app);
 		}
-	} else if (process.platform === 'win32') {
-		cmd = 'cmd';
+	} else if (process.platform === 'win32' || isWSL) {
+		cmd = 'cmd' + (isWSL ? '.exe' : '');
 		args.push('/c', 'start', '""');
 		target = target.replace(/&/g, '^&');
 
