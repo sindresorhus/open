@@ -1,15 +1,14 @@
-import os from 'os';
 import test from 'ava';
+import isWsl from 'is-wsl';
 import m from './';
 
-const isWSL = (os.type() === 'Linux' && os.release().indexOf('Microsoft') > -1);
 let chromeName;
 let firefoxName;
 
 if (process.platform === 'darwin') {
 	chromeName = 'google chrome canary';
 	firefoxName = 'firefox';
-} else if (process.platform === 'win32' || isWSL) {
+} else if (process.platform === 'win32' || isWsl) {
 	chromeName = 'Chrome';
 	firefoxName = 'C:\\Program Files\\Mozilla Firefox\\firefox.exe';
 } else if (process.platform === 'linux') {

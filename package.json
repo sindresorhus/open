@@ -52,5 +52,8 @@
   },
   "xo": {
     "esnext": true
+  },
+  "dependencies": {
+    "is-wsl": "^1.1.0"
   }
 }
