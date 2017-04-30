@@ -1,17 +1,22 @@
 import test from 'ava';
+import isWsl from 'is-wsl';
 import m from './';
 
 let chromeName;
+let firefoxName;
 
 if (process.platform === 'darwin') {
 	chromeName = 'google chrome canary';
+	firefoxName = 'firefox';
+} else if (process.platform === 'win32' || isWsl) {
+	chromeName = 'Chrome';
+	firefoxName = 'C:\\Program Files\\Mozilla Firefox\\firefox.exe';
 } else if (process.platform === 'linux') {
 	chromeName = 'google-chrome';
-} else if (process.platform === 'win32') {
-	chromeName = 'Chrome';
+	firefoxName = 'firefox';
 }
 
-// tests only checks that opening doesn't return an error
+// Tests only checks that opening doesn't return an error
 // it has no way make sure that it actually opened anything
 
 // these have to be manually verified
@@ -29,7 +34,7 @@ test('open url in default app', async () => {
 });
 
 test('open url in specified app', async () => {
-	await m('http://sindresorhus.com', {app: 'firefox'});
+	await m('http://sindresorhus.com', {app: firefoxName});
 });
 
 test('open url in specified app with arguments', async () => {

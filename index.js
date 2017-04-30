@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const childProcess = require('child_process');
+const isWsl = require('is-wsl');
 
 module.exports = (target, opts) => {
 	if (typeof target !== 'string') {
@@ -29,8 +30,8 @@ module.exports = (target, opts) => {
 		if (opts.app) {
 			args.push('-a', opts.app);
 		}
-	} else if (process.platform === 'win32') {
-		cmd = 'cmd';
+	} else if (process.platform === 'win32' || isWsl) {
+		cmd = 'cmd' + (isWsl ? '.exe' : '');
 		args.push('/c', 'start', '""');
 		target = target.replace(/&/g, '^&');
 
