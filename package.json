@@ -46,14 +46,11 @@
     "website",
     "file"
   ],
+  "dependencies": {
+    "is-wsl": "^1.1.0"
+  },
   "devDependencies": {
     "ava": "*",
     "xo": "*"
-  },
-  "xo": {
-    "esnext": true
-  },
-  "dependencies": {
-    "is-wsl": "^1.1.0"
   }
 }

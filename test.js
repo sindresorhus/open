@@ -1,6 +1,6 @@
 import test from 'ava';
 import isWsl from 'is-wsl';
-import m from './';
+import m from '.';
 
 let chromeName;
 let firefoxName;
