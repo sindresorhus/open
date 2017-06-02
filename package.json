@@ -16,6 +16,7 @@
     "test": "xo && ava"
   },
   "files": [
+    "bin.js",
     "index.js",
     "xdg-open"
   ],
@@ -46,6 +47,9 @@
     "website",
     "file"
   ],
+  "bin": {
+    "opn": "./bin.js"
+  },
   "dependencies": {
     "is-wsl": "^1.1.0"
   },
