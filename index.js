@@ -65,6 +65,13 @@ module.exports = (target, opts) => {
 	}
 
 	args.push(target);
+	
+	// Edge browser can be opened: 'cmd /c "microsoft-edge:"'
+	// To open Edge with a url: 'cmd /c "microsoft-edge:http://www.google.de"
+	if (process.platform === 'win32' && (args[2].indexOf('edge') >= 0 || args[2].indexOf('Edge') >= 0)) {
+		console.log("Trying to launch edge browser ...");
+		args[2] = "microsoft-edge:" + args.pop();
+	}
 
 	if (process.platform === 'darwin' && appArgs.length > 0) {
 		args.push('--args');
