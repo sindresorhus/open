@@ -35,6 +35,10 @@ module.exports = (target, opts) => {
 		args.push('/c', 'start', '""');
 		target = target.replace(/&/g, '^&');
 
+		if (opts.hidden) {
+			args.push('/B');
+		}
+		
 		if (opts.wait) {
 			args.push('/wait');
 		}
