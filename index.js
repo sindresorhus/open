@@ -38,7 +38,7 @@ module.exports = (target, opts) => {
 		if (opts.hidden) {
 			args.push('/B');
 		}
-		
+
 		if (opts.wait) {
 			args.push('/wait');
 		}
