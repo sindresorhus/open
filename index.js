@@ -51,14 +51,15 @@ module.exports = (target, opts) => {
 			args = args.concat(appArgs);
 		}
 	} else {
+		if (appArgs.length > 0) {
+			args = args.concat(appArgs);
+		}
+
 		if (opts.app) {
 			cmd = opts.app;
 		} else {
-			cmd = path.join(__dirname, 'xdg-open');
-		}
-
-		if (appArgs.length > 0) {
-			args = args.concat(appArgs);
+			cmd = path.join('/usr', 'bin', 'env');
+			args.unshift('xdg-open');
 		}
 
 		if (!opts.wait) {
