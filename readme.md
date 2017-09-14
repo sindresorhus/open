@@ -65,7 +65,7 @@ Type: `Object`
 Type: `boolean`<br>
 Default: `true`
 
-Wait for the opened app to exit before fulfilling the promise. If `false` it's fulfilled immediately when opening the app.
+Wait for the opened app to exit before fulfilling the promise. If `false` it's fulfilled immediately when opening the app, and the app is completely detached from the node process that spawned it.
 
 On Windows you have to explicitly specify an app for it to be able to wait.
 
