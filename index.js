@@ -59,8 +59,10 @@ module.exports = (target, opts) => {
 
 		if (!opts.wait) {
 			// `xdg-open` will block the process unless
-			// stdio is ignored even if it's unref'd
-			cpOpts.stdio = 'ignore';
+			// stdio is ignored and it's detached from the parent
+			// even if it's unref'd
+			cpOpts.stdio = 'ignore'; 
+			cpOpts.detached = true;
 		}
 	}
 
