@@ -77,6 +77,15 @@ Specify the app to open the `target` with, or an array with the app and app argu
 
 The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows.
 
+##### escapeAmpersands
+
+Type: `boolean`<br>
+Default: `true`
+
+Escapes ampersands for your target on Windows, this is helpful when launching URL's when
+using query parameters.  If you are launching files from the file system, you probably
+want to set this to `false`.
+
 
 ## Related
 

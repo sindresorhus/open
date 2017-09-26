@@ -8,7 +8,7 @@ module.exports = (target, opts) => {
 		return Promise.reject(new Error('Expected a `target`'));
 	}
 
-	opts = Object.assign({wait: true}, opts);
+	opts = Object.assign({ wait: true, escapeAmpersands: true }, opts);
 
 	let cmd;
 	let appArgs = [];
@@ -33,7 +33,9 @@ module.exports = (target, opts) => {
 	} else if (process.platform === 'win32' || isWsl) {
 		cmd = 'cmd' + (isWsl ? '.exe' : '');
 		args.push('/c', 'start', '""', '/b');
-		target = target.replace(/&/g, '^&');
+		if (opts.escapeAmpersands) {
+			target = target.replace(/&/g, '^&');
+		}
 
 		if (opts.wait) {
 			args.push('/wait');
