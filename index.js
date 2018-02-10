@@ -50,7 +50,7 @@ module.exports = (target, opts) => {
 		if (opts.app) {
 			cmd = opts.app;
 		} else {
-			cmd = path.join(__dirname, 'xdg-open');
+			cmd = path.join('.', 'xdg-open');
 		}
 
 		if (appArgs.length > 0) {
