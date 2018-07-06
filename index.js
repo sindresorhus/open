@@ -33,7 +33,7 @@ module.exports = (target, opts) => {
 	} else if (process.platform === 'win32' || isWsl) {
 		cmd = 'cmd' + (isWsl ? '.exe' : '');
 		args.push('/c', 'start', '""', '/b');
-		target = target.replace(/&/g, '^&');
+		target = target.replace(/&/g, '^&').replace(/[|]/g, '^|');
 
 		if (opts.wait) {
 			args.push('/wait');
