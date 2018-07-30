@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const childProcess = require('child_process');
+const commandExists = require('command-exists')
 const isWsl = require('is-wsl');
 
 module.exports = (target, opts) => {
@@ -49,8 +50,11 @@ module.exports = (target, opts) => {
 	} else {
 		if (opts.app) {
 			cmd = opts.app;
+		} else if (process.platform === 'android') {
+			cmd = 'xdg-open'
 		} else {
-			cmd = process.platform === 'android' ? 'xdg-open' : path.join(__dirname, 'xdg-open');
+			const xdgOpenInstalled = commandExists.sync('xdg-open')
+			cmd = xdgOpenInstalled ? 'xdg-open' : path.join(__dirname, 'xdg-open')
 		}
 
 		if (appArgs.length > 0) {
