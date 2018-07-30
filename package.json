@@ -47,6 +47,7 @@
 		"file"
 	],
 	"dependencies": {
+		"command-exists": "^1.2.7",
 		"is-wsl": "^1.1.0"
 	},
 	"devDependencies": {
