@@ -38,7 +38,7 @@ manualpage()
 cat << _MANUALPAGE
 Name
 
-   xdg-open - opens a file or URL in the user's preferred
+   xdg-open -- opens a file or URL in the user's preferred
    application
 
 Synopsis
@@ -109,7 +109,7 @@ _MANUALPAGE
 usage()
 {
 cat << _USAGE
-   xdg-open - opens a file or URL in the user's preferred
+   xdg-open -- opens a file or URL in the user's preferred
    application
 
 Synopsis
@@ -369,7 +369,7 @@ check_common_commands()
             ;;
 
             --version)
-            echo "xdg-open 1.1.2"
+            echo "xdg-open 1.1.3"
             exit_success
             ;;
         esac
@@ -411,6 +411,10 @@ detectDE()
            ;;
          KDE)
            DE=kde;
+           ;;
+         # Deepin Desktop Environments
+         DEEPIN|Deepin|deepin)
+           DE=dde;
            ;;
          LXDE)
            DE=lxde;
@@ -617,6 +621,21 @@ open_kde()
     else
         kfmclient exec "$1"
         kfmclient_fix_exit_code $?
+    fi
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
+}
+
+open_dde()
+{
+    if dde-open -version >/dev/null 2>&1; then
+        dde-open "$1"
+    else
+        open_generic "$1"
     fi
 
     if [ $? -eq 0 ]; then
@@ -835,6 +854,11 @@ open_generic_xdg_x_scheme_handler()
     fi
 }
 
+has_single_argument()
+{
+  test $# = 1
+}
+
 open_envvar()
 {
     local oldifs="$IFS"
@@ -849,7 +873,10 @@ open_envvar()
         fi
 
         if echo "$browser" | grep -q %s; then
-            $(printf "$browser" "$1")
+            # Avoid argument injection.
+            # See https://bugs.freedesktop.org/show_bug.cgi?id=103807
+            # URIs don't have IFS characters spaces anyway.
+            has_single_argument $1 && $(printf "$browser" "$1")
         else
             $browser "$1"
         fi
@@ -910,8 +937,9 @@ open_generic()
 
 open_lxde()
 {
+
     # pcmanfm only knows how to handle file:// urls and filepaths, it seems.
-    if is_file_url_or_path "$1"; then
+    if pcmanfm --help >/dev/null 2>&1 && is_file_url_or_path "$1"; then
         local file="$(file_url_to_path "$1")"
 
         # handle relative paths
@@ -929,6 +957,11 @@ open_lxde()
     else
         exit_failure_operation_failed
     fi
+}
+
+open_lxqt()
+{
+    open_generic "$1"
 }
 
 [ x"$1" != x"" ] || exit_failure_syntax
@@ -979,6 +1012,10 @@ case "$DE" in
     open_kde "$url"
     ;;
 
+    dde)
+    open_dde "$url"
+    ;;
+
     gnome3|cinnamon)
     open_gnome3 "$url"
     ;;
@@ -995,8 +1032,12 @@ case "$DE" in
     open_xfce "$url"
     ;;
 
-    lxde|lxqt)
+    lxde)
     open_lxde "$url"
+    ;;
+
+    lxqt)
+    open_lxqt "$url"
     ;;
 
     enlightenment)
