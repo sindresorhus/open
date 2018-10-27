@@ -50,7 +50,7 @@ module.exports = (target, opts) => {
 		if (opts.app) {
 			cmd = opts.app;
 		} else {
-			const useSystemXdgOpen = process.versions['electron'] || process.platform === 'android';
+			const useSystemXdgOpen = process.versions.electron || process.platform === 'android';
 			cmd = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
 		}
 
