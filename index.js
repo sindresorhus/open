@@ -1,5 +1,4 @@
 'use strict';
-const path = require('path');
 const childProcess = require('child_process');
 const isWsl = require('is-wsl');
 
@@ -50,7 +49,7 @@ module.exports = (target, opts) => {
 		if (opts.app) {
 			cmd = opts.app;
 		} else {
-			cmd = process.platform === 'android' ? 'xdg-open' : path.join(__dirname, 'xdg-open');
+			cmd = process.platform === 'android' ? 'xdg-open' : require.resolve('./xdg-open');
 		}
 
 		if (appArgs.length > 0) {
