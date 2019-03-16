@@ -85,6 +85,7 @@ The app name is platform dependent. Don't hard code it in reusable modules. For 
 ## Related
 
 - [opn-cli](https://github.com/sindresorhus/opn-cli) - CLI for this module
+- [open-editor](https://github.com/sindresorhus/open-editor) - Open files in your editor at a specific line and column
 
 
 ## License
