@@ -29,25 +29,24 @@ const open = require('opn');
 
 // Opens the image in the default image viewer
 (async () => {
-	await open('unicorn.png');
-
+	await open('unicorn.png', {wait: true});
 	console.log('The image viewer closed');
+
+	// Opens the url in the default browser
+	await open('http://sindresorhus.com');
+
+	// Specify the app to open in
+	await open('http://sindresorhus.com', {app: 'firefox'});
+
+	// Specify app arguments
+	await open('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 })();
-
-// Opens the url in the default browser
-open('http://sindresorhus.com');
-
-// Specify the app to open in
-open('http://sindresorhus.com', {app: 'firefox'});
-
-// Specify app arguments
-open('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
 ```
 
 
 ## API
 
-Uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
+It uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
 
 ### opn(target, [options])
 
@@ -68,11 +67,11 @@ Type: `Object`
 ##### wait
 
 Type: `boolean`<br>
-Default: `true`
+Default: `false`
 
 Wait for the opened app to exit before fulfilling the promise. If `false` it's fulfilled immediately when opening the app.
 
-On Windows you have to explicitly specify an app for it to be able to wait.
+On Windows, you have to explicitly specify an app for it to be able to wait.
 
 ##### app
 

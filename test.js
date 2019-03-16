@@ -29,8 +29,8 @@ test('open file in default app', async () => {
 	await open('index.js');
 });
 
-test('not wait for the app to close if wait: false', async () => {
-	await open('http://sindresorhus.com', {wait: false});
+test('wait for the app to close if wait: true', async () => {
+	await open('http://sindresorhus.com', {wait: true});
 });
 
 test('open url in default app', async () => {

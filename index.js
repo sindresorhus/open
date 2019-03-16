@@ -20,7 +20,7 @@ module.exports = async (target, options) => {
 	}
 
 	options = {
-		wait: true,
+		wait: false,
 		...options
 	};
 
