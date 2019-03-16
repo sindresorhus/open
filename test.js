@@ -1,6 +1,6 @@
 import test from 'ava';
 import isWsl from 'is-wsl';
-import m from '.';
+import open from '.';
 
 let chromeName;
 let firefoxName;
@@ -17,31 +17,31 @@ if (process.platform === 'darwin') {
 }
 
 // Tests only checks that opening doesn't return an error
-// it has no way make sure that it actually opened anything
+// it has no way make sure that it actually opened anything.
 
-// these have to be manually verified
+// These have to be manually verified.
 
 test('open file in default app', async () => {
-	await m('index.js');
+	await open('index.js');
 });
 
 test('not wait for the app to close if wait: false', async () => {
-	await m('http://sindresorhus.com', {wait: false});
+	await open('http://sindresorhus.com', {wait: false});
 });
 
 test('open url in default app', async () => {
-	await m('http://sindresorhus.com');
+	await open('http://sindresorhus.com');
 });
 
 test('open url in specified app', async () => {
-	await m('http://sindresorhus.com', {app: firefoxName});
+	await open('http://sindresorhus.com', {app: firefoxName});
 });
 
 test('open url in specified app with arguments', async () => {
-	await m('http://sindresorhus.com', {app: [chromeName, '--incognito']});
+	await open('http://sindresorhus.com', {app: [chromeName, '--incognito']});
 });
 
 test('return the child process when called', async t => {
-	const cp = await m('index.js');
+	const cp = await open('index.js');
 	t.true('stdout' in cp);
 });

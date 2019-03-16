@@ -3,86 +3,87 @@ const path = require('path');
 const childProcess = require('child_process');
 const isWsl = require('is-wsl');
 
-module.exports = (target, opts) => {
+module.exports = async (target, options) => {
 	if (typeof target !== 'string') {
-		return Promise.reject(new Error('Expected a `target`'));
+		throw new TypeError('Expected a `target`');
 	}
 
-	opts = Object.assign({wait: true}, opts);
+	options = {
+		wait: true,
+		...options
+	};
 
-	let cmd;
-	let appArgs = [];
-	let args = [];
-	const cpOpts = {};
+	let command;
+	let appArguments = [];
+	const cliArguments = [];
+	const childProcessOptions = {};
 
-	if (Array.isArray(opts.app)) {
-		appArgs = opts.app.slice(1);
-		opts.app = opts.app[0];
+	if (Array.isArray(options.app)) {
+		appArguments = options.app.slice(1);
+		options.app = options.app[0];
 	}
 
 	if (process.platform === 'darwin') {
-		cmd = 'open';
+		command = 'open';
 
-		if (opts.wait) {
-			args.push('-W');
+		if (options.wait) {
+			cliArguments.push('-W');
 		}
 
-		if (opts.app) {
-			args.push('-a', opts.app);
+		if (options.app) {
+			cliArguments.push('-a', options.app);
 		}
 	} else if (process.platform === 'win32' || isWsl) {
-		cmd = 'cmd' + (isWsl ? '.exe' : '');
-		args.push('/c', 'start', '""', '/b');
+		command = 'cmd' + (isWsl ? '.exe' : '');
+		cliArguments.push('/c', 'start', '""', '/b');
 		target = target.replace(/&/g, '^&');
 
-		if (opts.wait) {
-			args.push('/wait');
+		if (options.wait) {
+			cliArguments.push('/wait');
 		}
 
-		if (opts.app) {
-			args.push(opts.app);
+		if (options.app) {
+			cliArguments.push(options.app);
 		}
 
-		if (appArgs.length > 0) {
-			args = args.concat(appArgs);
+		if (appArguments.length > 0) {
+			cliArguments.push(...appArguments);
 		}
 	} else {
-		if (opts.app) {
-			cmd = opts.app;
+		if (options.app) {
+			command = options.app;
 		} else {
 			const useSystemXdgOpen = process.versions.electron || process.platform === 'android';
-			cmd = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
+			command = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
 		}
 
-		if (appArgs.length > 0) {
-			args = args.concat(appArgs);
+		if (appArguments.length > 0) {
+			cliArguments.push(...appArguments);
 		}
 
-		if (!opts.wait) {
-			// `xdg-open` will block the process unless
-			// stdio is ignored and it's detached from the parent
-			// even if it's unref'd
-			cpOpts.stdio = 'ignore';
-			cpOpts.detached = true;
+		if (!options.wait) {
+			// `xdg-open` will block the process unless stdio is ignored
+			// and it's detached from the parent even if it's unref'd.
+			childProcessOptions.stdio = 'ignore';
+			childProcessOptions.detached = true;
 		}
 	}
 
-	args.push(target);
+	cliArguments.push(target);
 
-	if (process.platform === 'darwin' && appArgs.length > 0) {
-		args.push('--args');
-		args = args.concat(appArgs);
+	if (process.platform === 'darwin' && appArguments.length > 0) {
+		cliArguments.push('--args', ...appArguments);
 	}
 
-	const cp = childProcess.spawn(cmd, args, cpOpts);
+	const cp = childProcess.spawn(command, cliArguments, childProcessOptions);
 
-	if (opts.wait) {
+	if (options.wait) {
 		return new Promise((resolve, reject) => {
 			cp.once('error', reject);
 
-			cp.once('close', code => {
-				if (code > 0) {
-					reject(new Error('Exited with code ' + code));
+			cp.once('close', exitCode => {
+				if (exitCode > 0) {
+					reject(new Error(`Exited with code ${exitCode}`));
 					return;
 				}
 
