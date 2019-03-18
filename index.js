@@ -8,9 +8,9 @@ const isWsl = require('is-wsl');
 // e.g. /mnt/c/Program Files/Example/MyApp.exe
 //   => C:\Program Files\Example\MyApp.exe
 const wslToWindowsPath = async path => {
-	const { stdout, stderr } = await util.promisify(childProcess.execFile)('wslpath', ['-w', path]);
+	const {stdout} = await util.promisify(childProcess.execFile)('wslpath', ['-w', path]);
 	return stdout.toString().trim();
-}
+};
 
 module.exports = async (target, options) => {
 	if (typeof target !== 'string') {
@@ -53,8 +53,10 @@ module.exports = async (target, options) => {
 
 		if (options.app) {
 			if (isWsl && options.app.startsWith('/mnt/')) {
-				options.app = await wslToWindowsPath(options.app);
+				const winPath = await wslToWindowsPath(options.app);
+				options.app = winPath;
 			}
+
 			cliArguments.push(options.app);
 		}
 
