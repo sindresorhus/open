@@ -1,7 +1,16 @@
 'use strict';
 const path = require('path');
 const childProcess = require('child_process');
+const util = require('util');
 const isWsl = require('is-wsl');
+
+// Converts a path from WSL format to Windows format
+// e.g. /mnt/c/Program Files/Example/MyApp.exe
+//   => C:\Program Files\Example\MyApp.exe
+const wslToWindowsPath = async path => {
+	const { stdout, stderr } = await util.promisify(childProcess.execFile)('wslpath', ['-w', path]);
+	return stdout.toString().trim();
+}
 
 module.exports = async (target, options) => {
 	if (typeof target !== 'string') {
@@ -43,6 +52,9 @@ module.exports = async (target, options) => {
 		}
 
 		if (options.app) {
+			if (isWsl && options.app.startsWith('/mnt/')) {
+				options.app = await wslToWindowsPath(options.app);
+			}
 			cliArguments.push(options.app);
 		}
 
