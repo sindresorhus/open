@@ -12,6 +12,7 @@ If need this for Electron, use [`shell.openItem()`](https://electronjs.org/docs/
 - Safer as it uses `spawn` instead of `exec`.
 - Fixes most of the open `node-open` issues.
 - Includes the latest [`xdg-open` script](http://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux.
+- Supports WSL paths to Windows apps under `/mnt/*`.
 
 
 ## Install
@@ -80,6 +81,8 @@ Type: `string | string[]`
 Specify the app to open the `target` with, or an array with the app and app arguments.
 
 The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows.
+
+You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 
 
 ## Related
