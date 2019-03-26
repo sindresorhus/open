@@ -1,14 +1,13 @@
 'use strict';
+const {promisify} = require('util');
 const path = require('path');
 const childProcess = require('child_process');
-const util = require('util');
 const isWsl = require('is-wsl');
 
-const pExecFile = util.promisify(childProcess.execFile);
+const pExecFile = promisify(childProcess.execFile);
 
-// Converts a path from WSL format to Windows format
-// e.g. /mnt/c/Program Files/Example/MyApp.exe
-//   => C:\Program Files\Example\MyApp.exe
+// Convert a path from WSL format to Windows format:
+// `/mnt/c/Program Files/Example/MyApp.exe` → `C:\Program Files\Example\MyApp.exe``
 const wslToWindowsPath = async path => {
 	const {stdout} = await pExecFile('wslpath', ['-w', path]);
 	return stdout.trim();
@@ -55,8 +54,8 @@ module.exports = async (target, options) => {
 
 		if (options.app) {
 			if (isWsl && options.app.startsWith('/mnt/')) {
-				const winPath = await wslToWindowsPath(options.app);
-				options.app = winPath;
+				const windowsPath = await wslToWindowsPath(options.app);
+				options.app = windowsPath;
 			}
 
 			cliArguments.push(options.app);
@@ -91,24 +90,24 @@ module.exports = async (target, options) => {
 		cliArguments.push('--args', ...appArguments);
 	}
 
-	const cp = childProcess.spawn(command, cliArguments, childProcessOptions);
+	const subprocess = childProcess.spawn(command, cliArguments, childProcessOptions);
 
 	if (options.wait) {
 		return new Promise((resolve, reject) => {
-			cp.once('error', reject);
+			subprocess.once('error', reject);
 
-			cp.once('close', exitCode => {
+			subprocess.once('close', exitCode => {
 				if (exitCode > 0) {
 					reject(new Error(`Exited with code ${exitCode}`));
 					return;
 				}
 
-				resolve(cp);
+				resolve(subprocess);
 			});
 		});
 	}
 
-	cp.unref();
+	subprocess.unref();
 
-	return Promise.resolve(cp);
+	return subprocess;
 };
