@@ -4,6 +4,8 @@ import open from '.';
 
 let chromeName;
 let firefoxName;
+let chromeWslName;
+let firefoxWslName;
 
 if (process.platform === 'darwin') {
 	chromeName = 'google chrome canary';
@@ -11,6 +13,8 @@ if (process.platform === 'darwin') {
 } else if (process.platform === 'win32' || isWsl) {
 	chromeName = 'Chrome';
 	firefoxName = 'C:\\Program Files\\Mozilla Firefox\\firefox.exe';
+	chromeWslName = '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe';
+	firefoxWslName = '/mnt/c/Program Files/Mozilla Firefox/firefox.exe';
 } else if (process.platform === 'linux') {
 	chromeName = 'google-chrome';
 	firefoxName = 'firefox';
@@ -45,3 +49,13 @@ test('return the child process when called', async t => {
 	const cp = await open('index.js');
 	t.true('stdout' in cp);
 });
+
+if (isWsl) {
+	test('open url in specified windows app given a wsl path to the app', async () => {
+		await open('http://sindresorhus.com', {app: firefoxWslName});
+	});
+
+	test('open url in specified windows app with arguments given a wsl path to the app', async () => {
+		await open('http://sindresorhus.com', {app: [chromeWslName, '--incognito']});
+	});
+}
