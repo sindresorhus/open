@@ -30,7 +30,7 @@ const open = require('opn');
 (async () => {
 	await open('unicorn.png');
 
-	console.log('The image viewer clsoed');
+	console.log('The image viewer closed');
 })();
 
 // Opens the url in the default browser
