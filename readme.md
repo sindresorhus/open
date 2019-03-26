@@ -1,16 +1,17 @@
-# opn
+# open
 
-> A better [node-open](https://github.com/pwnall/node-open). Opens stuff like websites, files, executables. Cross-platform.
+> Open stuff like URLs, files, executables. Cross-platform.
 
 If need this for Electron, use [`shell.openItem()`](https://electronjs.org/docs/api/shell#shellopenitemfullpath) instead.
 
+Note: The original [`open` package](https://github.com/pwnall/node-open) was recently deprecated in favor of this package, and we got the name, so this package is now named `open` instead of `opn`. If you're upgrading from the original `open` package (`open@0.0.5` or lower), keep in mind that the API is different.
 
 #### Why?
 
 - Actively maintained.
 - Supports app arguments.
 - Safer as it uses `spawn` instead of `exec`.
-- Fixes most of the open `node-open` issues.
+- Fixes most of the open original `node-open` issues.
 - Includes the latest [`xdg-open` script](http://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux.
 - Supports WSL paths to Windows apps under `/mnt/*`.
 
@@ -18,28 +19,28 @@ If need this for Electron, use [`shell.openItem()`](https://electronjs.org/docs/
 ## Install
 
 ```
-$ npm install opn
+$ npm install open
 ```
 
 
 ## Usage
 
 ```js
-const open = require('opn');
+const open = require('open');
 
 // Opens the image in the default image viewer
 (async () => {
 	await open('unicorn.png', {wait: true});
-	console.log('The image viewer closed');
+	console.log('The image viewer app closed');
 
 	// Opens the url in the default browser
-	await open('http://sindresorhus.com');
+	await open('https://sindresorhus.com');
 
 	// Specify the app to open in
-	await open('http://sindresorhus.com', {app: 'firefox'});
+	await open('https://sindresorhus.com', {app: 'firefox'});
 
 	// Specify app arguments
-	await open('http://sindresorhus.com', {app: ['google chrome', '--incognito']});
+	await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
 })();
 ```
 
@@ -48,7 +49,7 @@ const open = require('opn');
 
 It uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
 
-### opn(target, [options])
+### open(target, [options])
 
 Returns a promise for the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
 

@@ -30,19 +30,19 @@ test('open file in default app', async () => {
 });
 
 test('wait for the app to close if wait: true', async () => {
-	await open('http://sindresorhus.com', {wait: true});
+	await open('https://sindresorhus.com', {wait: true});
 });
 
 test('open url in default app', async () => {
-	await open('http://sindresorhus.com');
+	await open('https://sindresorhus.com');
 });
 
 test('open url in specified app', async () => {
-	await open('http://sindresorhus.com', {app: firefoxName});
+	await open('https://sindresorhus.com', {app: firefoxName});
 });
 
 test('open url in specified app with arguments', async () => {
-	await open('http://sindresorhus.com', {app: [chromeName, '--incognito']});
+	await open('https://sindresorhus.com', {app: [chromeName, '--incognito']});
 });
 
 test('return the child process when called', async t => {
@@ -52,10 +52,10 @@ test('return the child process when called', async t => {
 
 if (isWsl) {
 	test('open url in specified windows app given a wsl path to the app', async () => {
-		await open('http://sindresorhus.com', {app: firefoxWslName});
+		await open('https://sindresorhus.com', {app: firefoxWslName});
 	});
 
 	test('open url in specified windows app with arguments given a wsl path to the app', async () => {
-		await open('http://sindresorhus.com', {app: [chromeWslName, '--incognito']});
+		await open('https://sindresorhus.com', {app: [chromeWslName, '--incognito']});
 	});
 }

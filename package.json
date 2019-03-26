@@ -1,9 +1,9 @@
 {
-	"name": "opn",
+	"name": "open",
 	"version": "5.5.0",
-	"description": "A better node-open. Opens stuff like websites, files, executables. Cross-platform.",
+	"description": "Open stuff like URLs, files, executables. Cross-platform.",
 	"license": "MIT",
-	"repository": "sindresorhus/opn",
+	"repository": "sindresorhus/open",
 	"author": {
 		"name": "Sindre Sorhus",
 		"email": "sindresorhus@gmail.com",
@@ -22,7 +22,6 @@
 	"keywords": [
 		"app",
 		"open",
-		"opn",
 		"opener",
 		"opens",
 		"launch",
