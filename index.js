@@ -20,6 +20,7 @@ module.exports = async (target, options) => {
 
 	options = {
 		wait: false,
+		background: false,
 		...options
 	};
 
@@ -38,6 +39,10 @@ module.exports = async (target, options) => {
 
 		if (options.wait) {
 			cliArguments.push('-W');
+		}
+
+		if (options.background) {
+			cliArguments.push('--background');
 		}
 
 		if (options.app) {
