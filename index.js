@@ -42,7 +42,7 @@ module.exports = async (target, options) => {
 		}
 
 		if (options.background) {
-			cliArguments.push('-g');
+			cliArguments.push('--background');
 		}
 
 		if (options.app) {
