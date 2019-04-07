@@ -83,7 +83,6 @@ Default: `false`
 
 Do not bring the app to the foreground.
 
-
 ##### app
 
 Type: `string | string[]`
