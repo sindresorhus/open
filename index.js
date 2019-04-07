@@ -38,7 +38,7 @@ module.exports = async (target, options) => {
 		command = 'open';
 
 		if (options.wait) {
-			cliArguments.push('-W');
+			cliArguments.push('--wait-apps');
 		}
 
 		if (options.background) {
