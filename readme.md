@@ -76,15 +76,12 @@ Note that it waits for the app to exit, not just for the window to close.
 
 On Windows, you have to explicitly specify an app for it to be able to wait.
 
-
-##### background
+##### background <sup>(macOS only)</sup>
 
 Type: `boolean`<br>
 Default: `false`
 
-Specify if the `target` should be opened in the background.
-
-Note that `background` only applies on macOS.
+Do not bring the app to the foreground.
 
 
 ##### app
