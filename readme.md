@@ -63,7 +63,7 @@ Opens in the default app for the file type. For example, URLs opens in your defa
 
 #### options
 
-Type: `Object`
+Type: `object`
 
 ##### wait
 
