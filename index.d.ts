@@ -30,7 +30,7 @@ declare namespace open {
 
 		You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 		*/
-		readonly app?: string | readonly string[];
+		readonly app?: string | string[];
 	}
 }
 
