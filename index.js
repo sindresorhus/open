@@ -1,5 +1,5 @@
 'use strict';
-const { promisify } = require('util');
+const {promisify} = require('util');
 const path = require('path');
 const childProcess = require('child_process');
 const isWsl = require('is-wsl');
@@ -9,7 +9,7 @@ const pExecFile = promisify(childProcess.execFile);
 // Convert a path from WSL format to Windows format:
 // `/mnt/c/Program Files/Example/MyApp.exe` → `C:\Program Files\Example\MyApp.exe``
 const wslToWindowsPath = async path => {
-	const { stdout } = await pExecFile('wslpath', ['-w', path]);
+	const {stdout} = await pExecFile('wslpath', ['-w', path]);
 	return stdout.trim();
 };
 
@@ -73,7 +73,7 @@ module.exports = async (target, options) => {
 		if (options.app) {
 			command = options.app;
 		} else {
-			// when bundled by webpack there's no installed module and no xdg_open
+			// When bundled by webpack there's no installed module and no xdg_open
 			// we detect this looking at the module installation directory
 			// this will work with the default webpack configuration
 			// if node.__dirname is set to false this won't work, you should either package xdg-open or set options.app
