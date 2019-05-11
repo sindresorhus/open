@@ -73,7 +73,7 @@ module.exports = async (target, options) => {
 		if (options.app) {
 			command = options.app;
 		} else {
-			const useSystemXdgOpen = process.versions.electron || process.platform === 'android';
+			const useSystemXdgOpen = process.versions.electron || process.platform === 'android' || __dirname === '/';
 			command = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
 		}
 
