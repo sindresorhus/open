@@ -73,7 +73,10 @@ module.exports = async (target, options) => {
 		if (options.app) {
 			command = options.app;
 		} else {
-			const useSystemXdgOpen = process.versions.electron || process.platform === 'android';
+			// When bundled by Webpack, there's no actual package file path and no local `xdg-open`.
+			const isBundled = !__dirname || __dirname === '/';
+
+			const useSystemXdgOpen = process.versions.electron || process.platform === 'android' || isBundled;
 			command = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
 		}
 
