@@ -73,12 +73,9 @@ module.exports = async (target, options) => {
 		if (options.app) {
 			command = options.app;
 		} else {
-			// When bundled by webpack there's no installed module and no xdg_open
-			// we detect this looking at the module installation directory
-			// this will work with the default webpack configuration
-			// if node.__dirname is set to false this won't work, you should either package xdg-open or set options.app
-			// Not clear whether this will work for other packagers
+			// When bundled by Webpack, there's no actual package file path and no local `xdg-open`.
 			const isBundled = !__dirname || __dirname === '/';
+
 			const useSystemXdgOpen = process.versions.electron || process.platform === 'android' || isBundled;
 			command = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
 		}
