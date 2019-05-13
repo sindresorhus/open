@@ -96,7 +96,7 @@ You may also pass in the app's full path. For example on WSL, this can be `/mnt/
 
 ## Related
 
-- [opn-cli](https://github.com/sindresorhus/opn-cli) - CLI for this module
+- [open-cli](https://github.com/sindresorhus/open-cli) - CLI for this module
 - [open-editor](https://github.com/sindresorhus/open-editor) - Open files in your editor at a specific line and column
 
 
