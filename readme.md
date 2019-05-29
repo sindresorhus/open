@@ -93,6 +93,17 @@ The app name is platform dependent. Don't hard code it in reusable modules. For 
 
 You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 
+##### useSystemXdgOpen
+
+Type: `boolean`<br>
+Default: `false`
+
+Use system xdg-open instead of the version included.
+
+When disabled (which is default), the system xdg-open will only be used if running in Electron, if running in Android or if the package is bundled by Webpack.
+
+This setting is only used when xdg-open will be used.
+
 
 ## Related
 
