@@ -21,6 +21,7 @@ module.exports = async (target, options) => {
 	options = {
 		wait: false,
 		background: false,
+		useSystemXdgOpen: false,
 		...options
 	};
 
@@ -76,7 +77,7 @@ module.exports = async (target, options) => {
 			// When bundled by Webpack, there's no actual package file path and no local `xdg-open`.
 			const isBundled = !__dirname || __dirname === '/';
 
-			const useSystemXdgOpen = process.versions.electron || process.platform === 'android' || isBundled;
+			const useSystemXdgOpen = process.versions.electron || process.platform === 'android' || isBundled || options.useSystemXdgOpen;
 			command = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
 		}
 
