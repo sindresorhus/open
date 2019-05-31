@@ -49,7 +49,7 @@ const open = require('open');
 
 It uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
 
-### open(target, [options])
+### open(target, options?)
 
 Returns a promise for the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
 
@@ -100,6 +100,14 @@ You may also pass in the app's full path. For example on WSL, this can be `/mnt/
 - [open-editor](https://github.com/sindresorhus/open-editor) - Open files in your editor at a specific line and column
 
 
-## License
+---
 
-MIT © [Sindre Sorhus](https://sindresorhus.com)
+<div align="center">
+	<b>
+		<a href="https://tidelift.com/subscription/pkg/npm-opn?utm_source=npm-opn&utm_medium=referral&utm_campaign=readme">Get professional support for this package with a Tidelift subscription</a>
+	</b>
+	<br>
+	<sub>
+		Tidelift helps make open source sustainable for maintainers while giving companies<br>assurances about security, maintenance, and licensing for their dependencies.
+	</sub>
+</div>
