@@ -2,12 +2,16 @@
 const {promisify} = require('util');
 const path = require('path');
 const childProcess = require('child_process');
+const isExe = require('executable');
 const isWsl = require('is-wsl');
 
 const pExecFile = promisify(childProcess.execFile);
 
+// Path to included `xdg-open`
+const localXdgOpenPath = path.join(__dirname, 'xdg-open');
+
 // Convert a path from WSL format to Windows format:
-// `/mnt/c/Program Files/Example/MyApp.exe` → `C:\Program Files\Example\MyApp.exe``
+// `/mnt/c/Program Files/Example/MyApp.exe` → `C:\Program Files\Example\MyApp.exe`
 const wslToWindowsPath = async path => {
 	const {stdout} = await pExecFile('wslpath', ['-w', path]);
 	return stdout.trim();
@@ -76,8 +80,15 @@ module.exports = async (target, options) => {
 			// When bundled by Webpack, there's no actual package file path and no local `xdg-open`.
 			const isBundled = !__dirname || __dirname === '/';
 
-			const useSystemXdgOpen = process.versions.electron || process.platform === 'android' || isBundled;
-			command = useSystemXdgOpen ? 'xdg-open' : path.join(__dirname, 'xdg-open');
+			// Check if local `xdg-open` exists and is executable.
+			let exeLocalXdgOpen = false;
+			try {
+				exeLocalXdgOpen = await isExe(localXdgOpenPath);
+			} catch (error) {}
+
+			const useSystemXdgOpen = process.versions.electron ||
+				process.platform === 'android' || isBundled || !exeLocalXdgOpen;
+			command = useSystemXdgOpen ? 'xdg-open' : localXdgOpenPath;
 		}
 
 		if (appArguments.length > 0) {
