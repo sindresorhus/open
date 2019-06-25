@@ -28,15 +28,17 @@ $ npm install open
 ```js
 const open = require('open');
 
-// Opens the image in the default image viewer
+
 (async () => {
-	await open('unicorn.png', {wait: true});
+        // Opens the image in the default image viewer
+	await open('unicorn.png', {wait: true}); 
+	//"wait" for the opened app to exit
 	console.log('The image viewer app closed');
 
 	// Opens the url in the default browser
 	await open('https://sindresorhus.com');
 
-	// Specify the app to open in
+	// Specify the app to open
 	await open('https://sindresorhus.com', {app: 'firefox'});
 
 	// Specify app arguments
