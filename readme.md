@@ -30,8 +30,8 @@ const open = require('open');
 
 (async () => {
 	// Opens the image in the default image viewer
-	await open('unicorn.png', {wait: true}); 
 	// "wait" for the opened app to exit
+	await open('unicorn.png', {wait: true}); 
 	console.log('The image viewer app closed');
 
 	// Opens the url in the default browser
