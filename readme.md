@@ -37,7 +37,7 @@ const open = require('open');
 	// Opens the url in the default browser
 	await open('https://sindresorhus.com');
 
-	// Specify the app to open
+	// Specify the app to open the URL in
 	await open('https://sindresorhus.com', {app: 'firefox'});
 
 	// Specify app arguments
