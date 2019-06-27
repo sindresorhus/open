@@ -2,9 +2,10 @@
 const {promisify} = require('util');
 const path = require('path');
 const childProcess = require('child_process');
-const isExe = require('executable');
+const fs = require('fs');
 const isWsl = require('is-wsl');
 
+const pAccess = promisify(fs.access);
 const pExecFile = promisify(childProcess.execFile);
 
 // Path to included `xdg-open`
@@ -83,7 +84,8 @@ module.exports = async (target, options) => {
 			// Check if local `xdg-open` exists and is executable.
 			let exeLocalXdgOpen = false;
 			try {
-				exeLocalXdgOpen = await isExe(localXdgOpenPath);
+				await pAccess(localXdgOpenPath, fs.constants.X_OK);
+				exeLocalXdgOpen = true;
 			} catch (error) {}
 
 			const useSystemXdgOpen = process.versions.electron ||
