@@ -113,22 +113,22 @@ module.exports = async (target, options) => {
 
 	const subprocess = childProcess.spawn(command, cliArguments, childProcessOptions);
 
-	if (options.wait) {
-		return new Promise((resolve, reject) => {
-			subprocess.once('error', reject);
+	return new Promise((resolve, reject) => {
+		subprocess.once('error', reject);
 
-			subprocess.once('close', exitCode => {
-				if (exitCode > 0) {
-					reject(new Error(`Exited with code ${exitCode}`));
-					return;
-				}
+		subprocess.once('close', exitCode => {
+			if (exitCode > 0) {
+				reject(new Error(`Exited with code ${exitCode}`));
+				return;
+			}
 
+			if (options.wait) {
 				resolve(subprocess);
-			});
+			}
+
 		});
-	}
-
-	subprocess.unref();
-
-	return subprocess;
+		if (!options.wait) {
+			setTimeout(() => {	resolve(subprocess);}, 100);
+		}
+	});
 };
