@@ -56,7 +56,13 @@ module.exports = async (target, options) => {
 	} else if (process.platform === 'win32' || isWsl) {
 		command = 'cmd' + (isWsl ? '.exe' : '');
 		cliArguments.push('/c', 'start', '""', '/b');
-		target = target.replace(/&/g, '^&');
+
+		// Always quoting target allows for urls/paths to have spaces and unmarked characters, as cmd will
+		// interpret them as plain text to be forwarded as one unique argument. Enabling windowsVerbatimArguments
+		// disables node's default quotes and escapes handling (https://git.io/fjdem).
+		// References: Issues #17, #44, #55, #77, #101 and #115 / Pull requests: #74 and #98
+		target = `"${target}"`;
+		childProcessOptions.windowsVerbatimArguments = true;
 
 		if (options.wait) {
 			cliArguments.push('/wait');
