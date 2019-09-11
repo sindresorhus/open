@@ -47,7 +47,7 @@
 		"file"
 	],
 	"dependencies": {
-		"is-wsl": "^1.1.0"
+		"is-wsl": "^2.1.0"
 	},
 	"devDependencies": {
 		"@types/node": "^11.13.6",
