@@ -4,7 +4,7 @@
 
 If need this for Electron, use [`shell.openItem()`](https://electronjs.org/docs/api/shell#shellopenitemfullpath) instead.
 
-Note: The original [`open` package](https://github.com/pwnall/node-open) was recently deprecated in favor of this package, and we got the name, so this package is now named `open` instead of `opn`. If you're upgrading from the original `open` package (`open@0.0.5` or lower), keep in mind that the API is different.
+Note: The original [`open` package](https://github.com/pwnall/node-open) was previously deprecated in favor of this package, and we got the name, so this package is now named `open` instead of `opn`. If you're upgrading from the original `open` package (`open@0.0.5` or lower), keep in mind that the API is different.
 
 #### Why?
 
@@ -29,17 +29,17 @@ $ npm install open
 const open = require('open');
 
 (async () => {
-	// Opens the image in the default image viewer and waits for the opened app to quit
-	await open('unicorn.png', {wait: true}); 
+	// Opens the image in the default image viewer and waits for the opened app to quit.
+	await open('unicorn.png', {wait: true});
 	console.log('The image viewer app quit');
 
-	// Opens the URL in the default browser
+	// Opens the URL in the default browser.
 	await open('https://sindresorhus.com');
 
-	// Opens the URL in a specified browser
+	// Opens the URL in a specified browser.
 	await open('https://sindresorhus.com', {app: 'firefox'});
 
-	// Specify app arguments
+	// Specify app arguments.
 	await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
 })();
 ```
