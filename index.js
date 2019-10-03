@@ -55,7 +55,7 @@ module.exports = async (target, options) => {
 		}
 	} else if (process.platform === 'win32' || isWsl) {
 		command = 'cmd' + (isWsl ? '.exe' : '');
-		cliArguments.push('/c', 'start', '""', '/b');
+		cliArguments.push('/s', '/c', 'start', '""', '/b');
 
 		// Always quoting target allows for URLs/paths to have spaces and unmarked characters, as `cmd.exe` will
 		// interpret them as plain text to be forwarded as one unique argument. Enabling `windowsVerbatimArguments`
