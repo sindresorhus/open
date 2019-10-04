@@ -33,6 +33,10 @@ test('wait for the app to close if wait: true', async () => {
 	await open('https://sindresorhus.com', {wait: true});
 });
 
+test('encode url if url: true', async () => {
+	await open('https://sindresorhus.com', {url: true});
+});
+
 test('open url in default app', async () => {
 	await open('https://sindresorhus.com');
 });

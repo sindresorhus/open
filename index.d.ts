@@ -31,6 +31,17 @@ declare namespace open {
 		You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 		*/
 		readonly app?: string | readonly string[];
+
+		/**
+		Uses `encodeURI` to encode the `target` before executing it.
+
+		The use with targets that are not URLs is not recommended.
+
+		Especially useful when dealing with the [double-quotes on Windows](https://github.com/sindresorhus/open#double-quotes-on-windows) caveat.
+
+		@default false
+		*/
+		readonly url?: boolean;
 	}
 }
 
@@ -38,6 +49,8 @@ declare namespace open {
 Open stuff like URLs, files, executables. Cross-platform.
 
 Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
+
+There is a caveat for [double-quotes on Windows](https://github.com/sindresorhus/open#double-quotes-on-windows) where all double-quotes are stripped from the `target`.
 
 @param target - The thing you want to open. Can be a URL, file, or executable. Opens in the default app for the file type. For example, URLs open in your default browser.
 @returns The [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
