@@ -33,6 +33,10 @@ test('wait for the app to close if wait: true', async () => {
 	await open('https://sindresorhus.com', {wait: true});
 });
 
+test('encode url if url: true', async () => {
+	await open('https://sindresorhus.com', {url: true});
+});
+
 test('open url in default app', async () => {
 	await open('https://sindresorhus.com');
 });
@@ -48,6 +52,30 @@ test('open url in specified app with arguments', async () => {
 test('return the child process when called', async t => {
 	const cp = await open('index.js');
 	t.true('stdout' in cp);
+});
+
+test('open url with query strings', async () => {
+	await open('https://sindresorhus.com/?abc=123&def=456');
+});
+
+test('open url with a fragment', async () => {
+	await open('https://sindresorhus.com#projects');
+});
+
+test('open url with query strings and spaces', async () => {
+	await open('https://sindresorhus.com/?abc=123&def=456&ghi=with spaces');
+});
+
+test('open url with query strings and a fragment', async () => {
+	await open('https://sindresorhus.com/?abc=123&def=456#projects');
+});
+
+test('open url with query strings and pipes', async () => {
+	await open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h');
+});
+
+test('open url with query strings, spaces, pipes and a fragment', async () => {
+	await open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h spaces#projects');
 });
 
 if (isWsl) {

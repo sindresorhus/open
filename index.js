@@ -26,6 +26,7 @@ module.exports = async (target, options) => {
 	options = {
 		wait: false,
 		background: false,
+		url: false,
 		...options
 	};
 
@@ -37,6 +38,13 @@ module.exports = async (target, options) => {
 	if (Array.isArray(options.app)) {
 		appArguments = options.app.slice(1);
 		options.app = options.app[0];
+	}
+
+	// Encodes the target as if it were an URL. Especially useful to get
+	// double-quotes through the double-quotes on windows caveat, but it
+	// can be used in any platform.
+	if (options.url) {
+		target = encodeURI(target);
 	}
 
 	if (process.platform === 'darwin') {
@@ -55,8 +63,16 @@ module.exports = async (target, options) => {
 		}
 	} else if (process.platform === 'win32' || isWsl) {
 		command = 'cmd' + (isWsl ? '.exe' : '');
-		cliArguments.push('/c', 'start', '""', '/b');
-		target = target.replace(/&/g, '^&');
+		cliArguments.push('/s', '/c', 'start', '""', '/b');
+
+		// Always quoting target allows for URLs/paths to have spaces and unmarked characters, as `cmd.exe` will
+		// interpret them as plain text to be forwarded as one unique argument. Enabling `windowsVerbatimArguments`
+		// disables Node.js's default quotes and escapes handling (https://git.io/fjdem).
+		// References: Issues #17, #44, #55, #77, #101 and #115 / Pull requests: #74 and #98
+		//
+		// As a result, all double-quotes are stripped from the `target` and do not get to your desired destination.
+		target = `"${target}"`;
+		childProcessOptions.windowsVerbatimArguments = true;
 
 		if (options.wait) {
 			cliArguments.push('/wait');

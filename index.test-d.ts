@@ -9,3 +9,4 @@ expectType<Promise<ChildProcess>>(open('foo', {app: 'bar'}));
 expectType<Promise<ChildProcess>>(open('foo', {app: ['bar', '--arg']}));
 expectType<Promise<ChildProcess>>(open('foo', {wait: true}));
 expectType<Promise<ChildProcess>>(open('foo', {background: true}));
+expectType<Promise<ChildProcess>>(open('foo', {url: true}));
