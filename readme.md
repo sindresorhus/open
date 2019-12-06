@@ -2,6 +2,8 @@
 
 > Open stuff like URLs, files, executables. Cross-platform.
 
+This is meant to be used in command-line tools and scripts, not in the browser.
+
 If need this for Electron, use [`shell.openItem()`](https://electronjs.org/docs/api/shell#shellopenitemfullpath) instead.
 
 Note: The original [`open` package](https://github.com/pwnall/node-open) was previously deprecated in favor of this package, and we got the name, so this package is now named `open` instead of `opn`. If you're upgrading from the original `open` package (`open@0.0.5` or lower), keep in mind that the API is different.
@@ -15,13 +17,11 @@ Note: The original [`open` package](https://github.com/pwnall/node-open) was pre
 - Includes the latest [`xdg-open` script](http://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux.
 - Supports WSL paths to Windows apps under `/mnt/*`.
 
-
 ## Install
 
 ```
 $ npm install open
 ```
-
 
 ## Usage
 
@@ -43,7 +43,6 @@ const open = require('open');
 	await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
 })();
 ```
-
 
 ## API
 
@@ -67,7 +66,7 @@ Type: `object`
 
 ##### wait
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Wait for the opened app to exit before fulfilling the promise. If `false` it's fulfilled immediately when opening the app.
@@ -78,7 +77,7 @@ On Windows, you have to explicitly specify an app for it to be able to wait.
 
 ##### background <sup>(macOS only)</sup>
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Do not bring the app to the foreground.
@@ -95,14 +94,13 @@ You may also pass in the app's full path. For example on WSL, this can be `/mnt/
 
 ##### url
 
-Type: `boolean`<br>
+Type: `boolean`\
 Default: `false`
 
 Uses `encodeURI` to encode the target before executing it.<br>
 We do not recommend using it on targets that are not URLs.
 
 Especially useful when dealing with the [double-quotes on Windows](#double-quotes-on-windows) caveat.
-
 
 ## Caveats
 
@@ -128,7 +126,6 @@ The solution ([#146](https://github.com/sindresorhus/open/pull/146)) to this and
 The option that solved all of the problems was the second one, and for additional behavior consistency we're also now using the `/S` switch, so we **always** get the second option. The caveat is that this built-in double-quotes handling ends up stripping all of them from the command line and so far we weren't able to find an escaping method that works (if you do, please feel free to contribute!).
 
 To make this caveat somewhat less impactful (at least for URLs), check out the [url option](#url). Double-quotes will be "preserved" when using it with an URL.
-
 
 ## Related
 
