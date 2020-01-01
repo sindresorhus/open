@@ -83,7 +83,6 @@ module.exports = async (target, options) => {
 		if (options.app) {
 			if (isWsl && options.app.startsWith('/mnt/')) {
 				const windowsPath = await wslToWindowsPath(options.app);
-				// eslint-disable-next-line require-atomic-updates
 				options.app = windowsPath;
 			}
 
