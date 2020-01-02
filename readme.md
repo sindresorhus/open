@@ -102,6 +102,13 @@ We do not recommend using it on targets that are not URLs.
 
 Especially useful when dealing with the [double-quotes on Windows](#double-quotes-on-windows) caveat.
 
+##### rejectWithPositive
+
+Type: `boolean`\
+Default: `true`
+
+Reject for positive exit code
+
 ## Caveats
 
 ### Double-quotes on Windows

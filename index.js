@@ -27,6 +27,7 @@ module.exports = async (target, options) => {
 		wait: false,
 		background: false,
 		url: false,
+		rejectWithPositive: true,
 		...options
 	};
 
@@ -136,7 +137,7 @@ module.exports = async (target, options) => {
 			subprocess.once('error', reject);
 
 			subprocess.once('close', exitCode => {
-				if (exitCode > 0) {
+				if (options.rejectWithPositive && exitCode > 0) {
 					reject(new Error(`Exited with code ${exitCode}`));
 					return;
 				}
