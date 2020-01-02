@@ -86,7 +86,7 @@ module.exports = async (target, options) => {
 				options.app = windowsPath;
 			}
 
-			cliArguments.push(options.app);
+			cliArguments.push(`"${options.app}"`);
 		}
 
 		if (appArguments.length > 0) {
