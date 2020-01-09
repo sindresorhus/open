@@ -102,6 +102,13 @@ We do not recommend using it on targets that are not URLs.
 
 Especially useful when dealing with the [double-quotes on Windows](#double-quotes-on-windows) caveat.
 
+##### cwd
+
+Type: `string`\
+Default: `null`
+
+Manually setting the current working directory for the child process.
+
 ## Caveats
 
 ### Double-quotes on Windows

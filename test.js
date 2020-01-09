@@ -78,6 +78,10 @@ test('open URL with query strings, spaces, pipes and a fragment', async () => {
 	await open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h spaces#projects');
 });
 
+test('get cwd for the child process', async () => {
+	await open('https://sindresorhus.com', {cwd: __dirname});
+});
+
 if (isWsl) {
 	test('open URL in specified windows app given a wsl path to the app', async () => {
 		await open('https://sindresorhus.com', {app: firefoxWslName});

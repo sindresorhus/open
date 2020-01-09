@@ -47,6 +47,10 @@ module.exports = async (target, options) => {
 		target = encodeURI(target);
 	}
 
+	if (options.cwd) {
+		childProcessOptions.cwd = options.cwd;
+	}
+
 	if (process.platform === 'darwin') {
 		command = 'open';
 
