@@ -65,16 +65,18 @@ module.exports = async (target, options) => {
 		command = 'cmd' + (isWsl ? '.exe' : '');
 		cliArguments.push('/s', '/c', 'start', '""', '/b');
 
-		// Always quoting target allows for URLs/paths to have spaces and unmarked characters, as `cmd.exe` will
-		// interpret them as plain text to be forwarded as one unique argument. Enabling `windowsVerbatimArguments`
-		// disables Node.js's default quotes and escapes handling (https://git.io/fjdem).
-		// References:
-		// - Issues #17, #44, #55, #77, #101, #115
-		// - Pull requests: #74, #98
-		//
-		// As a result, all double-quotes are stripped from the `target` and do not get to your desired destination.
-		target = `"${target}"`;
-		childProcessOptions.windowsVerbatimArguments = true;
+		if (!isWsl) {
+			// Always quoting target allows for URLs/paths to have spaces and unmarked characters, as `cmd.exe` will
+			// interpret them as plain text to be forwarded as one unique argument. Enabling `windowsVerbatimArguments`
+			// disables Node.js's default quotes and escapes handling (https://git.io/fjdem).
+			// References:
+			// - Issues #17, #44, #55, #77, #101, #115
+			// - Pull requests: #74, #98
+			//
+			// As a result, all double-quotes are stripped from the `target` and do not get to your desired destination.
+			target = `"${target}"`;
+			childProcessOptions.windowsVerbatimArguments = true;
+		}
 
 		if (options.wait) {
 			cliArguments.push('/wait');
