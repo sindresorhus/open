@@ -132,7 +132,6 @@ To make this caveat somewhat less impactful (at least for URLs), check out the [
 - [open-cli](https://github.com/sindresorhus/open-cli) - CLI for this module
 - [open-editor](https://github.com/sindresorhus/open-editor) - Open files in your editor at a specific line and column
 
-
 ---
 
 <div align="center">
