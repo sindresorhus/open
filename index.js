@@ -4,7 +4,7 @@ const path = require('path');
 const childProcess = require('child_process');
 const fs = require('fs');
 const isWsl = require('is-wsl');
-const isDocker = require('is-docker')();
+const isDocker = require('is-docker');
 
 const pAccess = promisify(fs.access);
 const pExecFile = promisify(childProcess.execFile);
@@ -62,7 +62,7 @@ module.exports = async (target, options) => {
 		if (options.app) {
 			cliArguments.push('-a', options.app);
 		}
-	} else if (process.platform === 'win32' || (isWsl && !isDocker)) {
+	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
 		command = 'cmd' + (isWsl ? '.exe' : '');
 		cliArguments.push('/s', '/c', 'start', '""', '/b');
 
