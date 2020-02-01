@@ -62,7 +62,7 @@ module.exports = async (target, options) => {
 		if (options.app) {
 			cliArguments.push('-a', options.app);
 		}
-	} else if (process.platform === 'win32' || (isWsl && !isDocker)) {
+	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
 		command = 'cmd' + (isWsl ? '.exe' : '');
 		cliArguments.push('/s', '/c', 'start', '""', '/b');
 
