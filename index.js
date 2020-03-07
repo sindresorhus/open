@@ -77,6 +77,9 @@ module.exports = async (target, options) => {
 			// As a result, all double-quotes are stripped from the `target` and do not get to your desired destination.
 			target = `"${target}"`;
 			childProcessOptions.windowsVerbatimArguments = true;
+			if (options.app) {
+				options.app = `"${options.app}"`;
+			}
 		}
 
 		if (options.wait) {
