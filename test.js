@@ -79,11 +79,19 @@ test('open URL with query strings, spaces, pipes and a fragment', async () => {
 });
 
 if (isWsl) {
-	test('open URL in specified windows app given a wsl path to the app', async () => {
+	test('open URL in specified Windows app given a WSL path to the app', async () => {
 		await open('https://sindresorhus.com', {app: firefoxWslName});
 	});
 
-	test('open URL in specified windows app with arguments given a wsl path to the app', async () => {
+	test('open URL in specified Windows app with arguments given a WSL path to the app', async () => {
 		await open('https://sindresorhus.com', {app: [chromeWslName, '--incognito']});
+	});
+
+	test('open URL with query strings and spaces works with `url` option', async () => {
+		await open('https://sindresorhus.com/?abc=123&def=456&ghi=with spaces', {url: true});
+	});
+
+	test('open URL with query strings works with `url` option', async () => {
+		await open('https://sindresorhus.com/?abc=123&def=456', {url: true});
 	});
 }
