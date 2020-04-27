@@ -102,6 +102,13 @@ We do not recommend using it on targets that are not URLs.
 
 Especially useful when dealing with the [double-quotes on Windows](#double-quotes-on-windows) caveat.
 
+##### allowNonzeroExitCode
+
+Type: `boolean`\
+Default: `true`
+
+Use to allow non zero exit code. the convention for success exit code was 0, But in some cases there is an app that doesn't return 0 for the success exit code.
+
 ## Caveats
 
 ### Double-quotes on Windows

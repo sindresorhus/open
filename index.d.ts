@@ -42,6 +42,14 @@ declare namespace open {
 		@default false
 		*/
 		readonly url?: boolean;
+
+		/**
+		Use to allow non zero exit code. 
+		the convention for success exit code was 0, But in some cases there is an app that doesn't return 0 for the success exit code.
+
+		@default true
+		 */
+		readonly allowNonzeroExitCode?: boolean;
 	}
 }
 
