@@ -105,9 +105,11 @@ Especially useful when dealing with the [double-quotes on Windows](#double-quote
 ##### allowNonzeroExitCode
 
 Type: `boolean`\
-Default: `true`
+Default: `false`
 
-Use to allow non zero exit code. the convention for success exit code was 0, But in some cases there is an app that doesn't return 0 for the success exit code.
+Option to allow the opened app resolve the promise with nonzero exit code when `wait` option value `true`.
+
+We do not recommend using it because by default the app convention for success exit code was 0.
 
 ## Caveats
 

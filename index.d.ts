@@ -1,5 +1,5 @@
 /// <reference types="node"/>
-import {ChildProcess} from 'child_process';
+import { ChildProcess } from "child_process";
 
 declare namespace open {
 	interface Options {
@@ -44,11 +44,11 @@ declare namespace open {
 		readonly url?: boolean;
 
 		/**
-		Use to allow non zero exit code. 
+		Use to allow nonzero exit code. 
 		the convention for success exit code was 0, But in some cases there is an app that doesn't return 0 for the success exit code.
 
-		@default true
-		 */
+		@default false
+		*/
 		readonly allowNonzeroExitCode?: boolean;
 	}
 }

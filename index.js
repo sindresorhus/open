@@ -28,7 +28,7 @@ module.exports = async (target, options) => {
 		wait: false,
 		background: false,
 		url: false,
-		allowNonzeroExitCode: true,
+		allowNonzeroExitCode: false,
 		...options
 	};
 
