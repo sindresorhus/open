@@ -78,6 +78,14 @@ test('open URL with query strings, spaces, pipes and a fragment', async () => {
 	await open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h spaces#projects');
 });
 
+test('open URL with query strings and uriReserved characters', async () => {
+	await open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F');
+});
+
+test('open URL with query strings and uriReserved characters with `url` option', async () => {
+	await open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F', {url: true});
+});
+
 if (isWsl) {
 	test('open URL in specified Windows app given a WSL path to the app', async () => {
 		await open('https://sindresorhus.com', {app: firefoxWslName});
