@@ -97,7 +97,7 @@ You may also pass in the app's full path. For example on WSL, this can be `/mnt/
 Type: `boolean`\
 Default: `false`
 
-Uses `encodeURI` to encode the target before executing it.<br>
+Uses `URL` to encode the target before executing it.<br>
 We do not recommend using it on targets that are not URLs.
 
 Especially useful when dealing with the [double-quotes on Windows](#double-quotes-on-windows) caveat.

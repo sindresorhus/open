@@ -33,7 +33,7 @@ declare namespace open {
 		readonly app?: string | readonly string[];
 
 		/**
-		Uses `encodeURI` to encode the `target` before executing it.
+		Uses `URL` to encode the `target` before executing it.
 
 		The use with targets that are not URLs is not recommended.
 

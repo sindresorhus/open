@@ -3,6 +3,7 @@ const {promisify} = require('util');
 const path = require('path');
 const childProcess = require('child_process');
 const fs = require('fs');
+const url = require('url');
 const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 
@@ -45,7 +46,7 @@ module.exports = async (target, options) => {
 	// double-quotes through the “double-quotes on Windows caveat”, but it
 	// can be used on any platform.
 	if (options.url) {
-		target = encodeURI(target);
+		target = new url.URL(target).href;
 
 		if (isWsl) {
 			target = target.replace(/&/g, '^&');
