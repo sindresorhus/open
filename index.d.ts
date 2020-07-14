@@ -1,5 +1,5 @@
 /// <reference types="node"/>
-import { ChildProcess } from "child_process";
+import {ChildProcess} from 'child_process';
 
 declare namespace open {
 	interface Options {
@@ -44,9 +44,9 @@ declare namespace open {
 		readonly url?: boolean;
 
 		/**
-		Option to allow the opened app resolve the promise with nonzero exit code when `wait` option value `true`.
+		Allow the opened app resolve the promise with nonzero exit code when `wait` option value `true`.
 		
-		We do not recommend using it because by default the app convention for success exit code was 0.
+		We do not recommend using it because by default the app convention for success exit code is 0.
 
 		@default false
 		*/
