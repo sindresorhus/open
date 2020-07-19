@@ -107,8 +107,8 @@ Especially useful when dealing with the [double-quotes on Windows](#double-quote
 Type: `boolean`\
 Default: `false`
 
-Option to allow the opened app resolve the promise with nonzero exit code when `wait` option value `true`.
-We do not recommend using it because by default the app convention for success exit code was 0.
+Allow the opened app resolve the promise with nonzero exit code when `wait` option value `true`.
+We do not recommend using it because by default the app convention for success exit code is 0.
 
 ## Caveats
 
