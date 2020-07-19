@@ -44,9 +44,9 @@ declare namespace open {
 		readonly url?: boolean;
 
 		/**
-		Allow the opened app resolve the promise with nonzero exit code when `wait` option value `true`.
+		Allow the opened app to exit with nonzero exit code when the `wait` option is `true`.
 		
-		We do not recommend using it because by default the app convention for success exit code is 0.
+		We do not recommend setting this option. The convention for success is exit code zero.
 
 		@default false
 		*/
