@@ -34,24 +34,19 @@ module.exports = async (target, options) => {
 	};
 
 	let command;
+	let app;
 	let appArguments = [];
 	const cliArguments = [];
 	const childProcessOptions = {};
 
 	if (Array.isArray(options.app)) {
 		appArguments = options.app.slice(1);
-		options.app = options.app[0];
+		app = options.app[0];
 	}
 
-	// Encodes the target as if it were an URL. Especially useful to get
-	// double-quotes through the “double-quotes on Windows caveat”, but it
-	// can be used on any platform.
+	// Encodes the target as a URL.
 	if (options.url) {
 		target = new url.URL(target).href;
-
-		if (isWsl) {
-			target = target.replace(/&/g, '^&');
-		}
 	}
 
 	if (process.platform === 'darwin') {
@@ -65,49 +60,54 @@ module.exports = async (target, options) => {
 			cliArguments.push('--background');
 		}
 
-		if (options.app) {
-			cliArguments.push('-a', options.app);
+		if (app) {
+			cliArguments.push('-a', app);
 		}
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
-		command = 'cmd' + (isWsl ? '.exe' : '');
-		cliArguments.push('/s', '/c', 'start', '""', '/b');
+		command = 'powershell' + (isWsl ? '.exe' : '');
+		cliArguments.push(
+			'-NoProfile',
+			'-NonInteractive',
+			'–ExecutionPolicy',
+			'Bypass',
+			'-EncodedCommand'
+		);
 
 		if (!isWsl) {
-			// Always quoting target allows for URLs/paths to have spaces and unmarked characters, as `cmd.exe` will
-			// interpret them as plain text to be forwarded as one unique argument. Enabling `windowsVerbatimArguments`
-			// disables Node.js's default quotes and escapes handling (https://git.io/fjdem).
-			// References:
-			// - Issues #17, #44, #55, #77, #101, #115
-			// - Pull requests: #74, #98
-			//
-			// As a result, all double-quotes are stripped from the `target` and do not get to your desired destination.
-			target = `"${target}"`;
 			childProcessOptions.windowsVerbatimArguments = true;
-
-			if (options.app) {
-				options.app = `"${options.app}"`;
-			}
 		}
+
+		const encodedArguments = ['Start'];
 
 		if (options.wait) {
-			cliArguments.push('/wait');
+			encodedArguments.push('-Wait');
 		}
 
-		if (options.app) {
-			if (isWsl && options.app.startsWith('/mnt/')) {
-				const windowsPath = await wslToWindowsPath(options.app);
-				options.app = windowsPath;
+		if (app) {
+			if (isWsl && app.startsWith('/mnt/')) {
+				const windowsPath = await wslToWindowsPath(app);
+				app = windowsPath;
 			}
 
-			cliArguments.push(options.app);
+			// Double quote - with double quotes - to ensure the inner quotes are passed through
+			// Inner quotes are delimited - for powershell interpretation - with back-ticks
+			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
+			appArguments.unshift(target);
+		} else {
+			encodedArguments.push(`"\`"${target}\`""`);
 		}
 
+
 		if (appArguments.length > 0) {
-			cliArguments.push(...appArguments);
+			appArguments = appArguments.map(arg => `"\`"${arg}\`""`);
+			encodedArguments.push(appArguments.join(','));
 		}
+
+		// Use base64 encoded command, accepted by powershell, to allow special characters
+		target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
 	} else {
-		if (options.app) {
-			command = options.app;
+		if (app) {
+			command = app;
 		} else {
 			// When bundled by Webpack, there's no actual package file path and no local `xdg-open`.
 			const isBundled = !__dirname || __dirname === '/';
