@@ -97,7 +97,6 @@ module.exports = async (target, options) => {
 			encodedArguments.push(`"\`"${target}\`""`);
 		}
 
-
 		if (appArguments.length > 0) {
 			appArguments = appArguments.map(arg => `"\`"${arg}\`""`);
 			encodedArguments.push(appArguments.join(','));
