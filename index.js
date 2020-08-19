@@ -3,7 +3,6 @@ const {promisify} = require('util');
 const path = require('path');
 const childProcess = require('child_process');
 const fs = require('fs');
-const url = require('url');
 const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 
@@ -28,7 +27,6 @@ module.exports = async (target, options) => {
 	options = {
 		wait: false,
 		background: false,
-		url: false,
 		allowNonzeroExitCode: false,
 		...options
 	};
@@ -42,11 +40,6 @@ module.exports = async (target, options) => {
 	if (Array.isArray(options.app)) {
 		appArguments = options.app.slice(1);
 		app = options.app[0];
-	}
-
-	// Encodes the target as a URL.
-	if (options.url) {
-		target = new url.URL(target).href;
 	}
 
 	if (process.platform === 'darwin') {

@@ -33,13 +33,9 @@ declare namespace open {
 		readonly app?: string | readonly string[];
 
 		/**
-		Uses `URL` to encode the `target` before executing it.
+		__deprecated__
 
-		The use with targets that are not URLs is not recommended.
-
-		Especially useful when dealing with the [double-quotes on Windows](https://github.com/sindresorhus/open#double-quotes-on-windows) caveat.
-
-		@default false
+		This option will be removed in the next major release.
 		*/
 		readonly url?: boolean;
 
