@@ -82,8 +82,8 @@ module.exports = async (target, options) => {
 				app = windowsPath;
 			}
 
-			// Double quote - with double quotes - to ensure the inner quotes are passed through
-			// Inner quotes are delimited - for powershell interpretation - with back-ticks
+			// Double quote with double quotes to ensure the inner quotes are passed through.
+			// Inner quotes are delimited for PowerShell interpretation with backticks.
 			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
 			appArguments.unshift(target);
 		} else {
@@ -95,7 +95,7 @@ module.exports = async (target, options) => {
 			encodedArguments.push(appArguments.join(','));
 		}
 
-		// Use base64 encoded command, accepted by powershell, to allow special characters
+		// Use Base64-encoded command, accepted by PowerShell, to allow special characters.
 		target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
 	} else {
 		if (app) {
