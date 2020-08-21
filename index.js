@@ -95,7 +95,7 @@ module.exports = async (target, options) => {
 			encodedArguments.push(appArguments.join(','));
 		}
 
-		// Use Base64-encoded command, accepted by PowerShell, to allow special characters.
+		// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
 		target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
 	} else {
 		if (app) {
