@@ -32,14 +32,14 @@ module.exports = async (target, options) => {
 	};
 
 	let command;
-	let app;
+	let {app} = options;
 	let appArguments = [];
 	const cliArguments = [];
 	const childProcessOptions = {};
 
-	if (Array.isArray(options.app)) {
-		appArguments = options.app.slice(1);
-		app = options.app[0];
+	if (Array.isArray(app)) {
+		appArguments = app.slice(1);
+		app = app[0];
 	}
 
 	if (process.platform === 'darwin') {
