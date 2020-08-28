@@ -32,7 +32,7 @@ module.exports = async (target, options) => {
 	};
 
 	let command;
-	let app;
+	let app = options.app;
 	let appArguments = [];
 	const cliArguments = [];
 	const childProcessOptions = {};
