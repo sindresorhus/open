@@ -1,6 +1,6 @@
 {
 	"name": "open",
-	"version": "7.2.0",
+	"version": "7.2.1",
 	"description": "Open stuff like URLs, files, executables. Cross-platform.",
 	"license": "MIT",
 	"repository": "sindresorhus/open",
