@@ -102,4 +102,8 @@ if (isWsl) {
 	test('open URL with query strings works with `url` option', async () => {
 		await open('https://sindresorhus.com/?abc=123&def=456', {url: true});
 	});
+
+	test('open URL in wslview', async () => {
+		await open('https://sindresorhus.com', {app: 'wslview'});
+	});
 }
