@@ -57,14 +57,18 @@ module.exports = async (target, options) => {
 			cliArguments.push('-a', app);
 		}
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
-		command = 'powershell' + (isWsl ? '.exe' : '');
-		cliArguments.push(
-			'-NoProfile',
-			'-NonInteractive',
-			'–ExecutionPolicy',
-			'Bypass',
-			'-EncodedCommand'
-		);
+		if (app === 'wslview') {
+			command = 'wslview';
+		} else {
+			command = 'powershell' + (isWsl ? '.exe' : '');
+			cliArguments.push(
+				'-NoProfile',
+				'-NonInteractive',
+				'–ExecutionPolicy',
+				'Bypass',
+				'-EncodedCommand'
+			);
+		}
 
 		if (!isWsl) {
 			childProcessOptions.windowsVerbatimArguments = true;
@@ -95,8 +99,10 @@ module.exports = async (target, options) => {
 			encodedArguments.push(appArguments.join(','));
 		}
 
-		// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
-		target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
+		if (app !== 'wslview') {
+			// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
+			target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
+		}
 	} else {
 		if (app) {
 			command = app;
