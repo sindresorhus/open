@@ -14,19 +14,19 @@ const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 // Convert a path from WSL format to Windows format:
 // `/mnt/c/Program Files/Example/MyApp.exe` → `C:\Program Files\Example\MyApp.exe`
-const wslToWindowsPath = async (path) => {
+const wslToWindowsPath = async path => {
 	const {stdout} = await pExecFile('wslpath', ['-w', path]);
 	return stdout.trim();
 };
 
 // Convert a path from Windows format to WSL format
-const windowsToWslPath = async (path) => {
+const windowsToWslPath = async path => {
 	const {stdout} = await pExecFile('wslpath', [path]);
 	return stdout.trim();
 };
 
 // Get an Environment Variable from Windows
-const wslGetWindowsEnvVar = async (envVar) => {
+const wslGetWindowsEnvVar = async envVar => {
 	const {stdout} = await pExecFile('wslvar', [envVar]);
 	return stdout.trim();
 };
