@@ -10,8 +10,6 @@ declare namespace open {
 
 		On Windows, you have to explicitly specify an app for it to be able to wait.
 
-		On WSL if app is set to `wslview` this option will be ignored.
-
 		@default false
 		*/
 		readonly wait?: boolean;
