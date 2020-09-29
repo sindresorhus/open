@@ -19,6 +19,18 @@ const wslToWindowsPath = async path => {
 	return stdout.trim();
 };
 
+// Convert a path from Windows format to WSL format
+const windowsToWslPath = async path => {
+	const {stdout} = await pExecFile('wslpath', [path]);
+	return stdout.trim();
+};
+
+// Get an environment variable from Windows
+const wslGetWindowsEnvVar = async envVar => {
+	const {stdout} = await pExecFile('wslvar', [envVar]);
+	return stdout.trim();
+};
+
 module.exports = async (target, options) => {
 	if (typeof target !== 'string') {
 		throw new TypeError('Expected a `target`');
@@ -57,7 +69,8 @@ module.exports = async (target, options) => {
 			cliArguments.push('-a', app);
 		}
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
-		command = 'powershell' + (isWsl ? '.exe' : '');
+		const windowsRoot = isWsl ? await wslGetWindowsEnvVar('systemroot') : process.env.SYSTEMROOT;
+		command = String.raw`${windowsRoot}\System32\WindowsPowerShell\v1.0\powershell${isWsl ? '.exe' : ''}`;
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
@@ -66,7 +79,9 @@ module.exports = async (target, options) => {
 			'-EncodedCommand'
 		);
 
-		if (!isWsl) {
+		if (isWsl) {
+			command = await windowsToWslPath(command);
+		} else {
 			childProcessOptions.windowsVerbatimArguments = true;
 		}
 
