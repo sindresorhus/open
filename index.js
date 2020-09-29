@@ -25,7 +25,7 @@ const windowsToWslPath = async path => {
 	return stdout.trim();
 };
 
-// Get an Environment Variable from Windows
+// Get an environment variable from Windows
 const wslGetWindowsEnvVar = async envVar => {
 	const {stdout} = await pExecFile('wslvar', [envVar]);
 	return stdout.trim();
