@@ -8,6 +8,7 @@ const isDocker = require('is-docker');
 
 const pAccess = promisify(fs.access);
 const pExecFile = promisify(childProcess.execFile);
+const {lookpath} = require('lookpath');
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
@@ -69,8 +70,16 @@ module.exports = async (target, options) => {
 			cliArguments.push('-a', app);
 		}
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
-		const windowsRoot = isWsl ? await wslGetWindowsEnvVar('systemroot') : process.env.SYSTEMROOT;
-		command = String.raw`${windowsRoot}\System32\WindowsPowerShell\v1.0\powershell${isWsl ? '.exe' : ''}`;
+		// If powershell is in PATH set command to absolute path of executable, otherwise undefined
+		command = await lookpath('powershell.exe');
+
+		// When powershell is not in PATH construct path to executable
+		if (!command) {
+			const windowsRoot = isWsl ? await wslGetWindowsEnvVar('systemroot') : process.env.SYSTEMROOT;
+			const windowsPowerShellPath = String.raw`${windowsRoot}\System32\WindowsPowerShell\v1.0\powershell.exe`;
+			command = isWsl ? await windowsToWslPath(windowsPowerShellPath) : windowsPowerShellPath;
+		}
+
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
@@ -79,9 +88,7 @@ module.exports = async (target, options) => {
 			'-EncodedCommand'
 		);
 
-		if (isWsl) {
-			command = await windowsToWslPath(command);
-		} else {
+		if (!isWsl) {
 			childProcessOptions.windowsVerbatimArguments = true;
 		}
 
