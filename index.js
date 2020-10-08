@@ -88,9 +88,7 @@ module.exports = async (target, options) => {
 			'-EncodedCommand'
 		);
 
-		if (isWsl) {
-			command = await windowsToWslPath(command);
-		} else {
+		if (!isWsl) {
 			childProcessOptions.windowsVerbatimArguments = true;
 		}
 
