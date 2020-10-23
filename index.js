@@ -8,6 +8,7 @@ const isDocker = require('is-docker');
 
 const pAccess = promisify(fs.access);
 const pExecFile = promisify(childProcess.execFile);
+const pReaddir = promisify(fs.readdir);
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
@@ -19,16 +20,47 @@ const wslToWindowsPath = async path => {
 	return stdout.trim();
 };
 
-// Convert a path from Windows format to WSL format
-const windowsToWslPath = async path => {
-	const {stdout} = await pExecFile('wslpath', [path]);
-	return stdout.trim();
+// Get the directory where fixed drives are automatically mounted in WSL
+const wslAutoMountRoot = async () => {
+	let rootDirectory = '/mnt/';
+	try {
+		const {stdout} = await pExecFile('awk', [
+			'-F',
+			'=',
+			'/root/ {print $2}',
+			'/etc/wsl.conf' // Path to per distro launch settings for WSL
+		]);
+		rootDirectory = stdout.trim();
+	} catch (_) {}
+
+	// Make sure it always ends with a slash
+	if (!rootDirectory.endsWith('/')) {
+		rootDirectory += '/';
+	}
+
+	return rootDirectory;
 };
 
-// Get an environment variable from Windows
-const wslGetWindowsEnvVar = async envVar => {
-	const {stdout} = await pExecFile('wslvar', [envVar]);
-	return stdout.trim();
+// Search for the Windows install directory in WSL
+const wslSystemDirectory = async () => {
+	const rootDirectory = await wslAutoMountRoot();
+	let systemDrive = 'c';
+	const systemDirectory = '/Windows/System32';
+
+	try {
+		// List the contents of the root directory.
+		const paths = await pReaddir(rootDirectory);
+
+		/* eslint-disable no-await-in-loop */
+		for (const path of paths) {
+			await pAccess(`${path}${systemDirectory}`, fs.constants.R_OK);
+			systemDrive = path;
+			break;
+		}
+		/* eslint-enable no-await-in-loop */
+	} catch (_) {}
+
+	return rootDirectory + systemDrive + systemDirectory;
 };
 
 module.exports = async (target, options) => {
@@ -69,8 +101,8 @@ module.exports = async (target, options) => {
 			cliArguments.push('-a', app);
 		}
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
-		const windowsRoot = isWsl ? await wslGetWindowsEnvVar('systemroot') : process.env.SYSTEMROOT;
-		command = String.raw`${windowsRoot}\System32\WindowsPowerShell\v1.0\powershell${isWsl ? '.exe' : ''}`;
+		const systemDirectory = isWsl ? await wslSystemDirectory() : String.raw`${process.env.SYSTEMROOT}\System32`;
+		command = String.raw`${[systemDirectory, 'WindowsPowerShell', 'v1.0', 'powershell'].join(isWsl ? '/' : '\\')}${isWsl ? '.exe' : ''}`;
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
@@ -79,9 +111,7 @@ module.exports = async (target, options) => {
 			'-EncodedCommand'
 		);
 
-		if (isWsl) {
-			command = await windowsToWslPath(command);
-		} else {
+		if (!isWsl) {
 			childProcessOptions.windowsVerbatimArguments = true;
 		}
 
