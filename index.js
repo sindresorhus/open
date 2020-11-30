@@ -39,7 +39,8 @@ module.exports = async (target, options) => {
 	options = {
 		wait: false,
 		background: false,
-		allowNonzeroExitCode: false,
+    newWindow: false,
+    allowNonzeroExitCode: false,
 		...options
 	};
 
@@ -64,6 +65,10 @@ module.exports = async (target, options) => {
 		if (options.background) {
 			cliArguments.push('--background');
 		}
+
+    if (options.newWindow) {
+      cliArguments.push('-n');
+    }
 
 		if (app) {
 			cliArguments.push('-a', app);
