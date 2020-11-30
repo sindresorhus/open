@@ -148,11 +148,11 @@ module.exports = async (target, options) => {
 		}
 	}
 
-	cliArguments.push(target);
+  if (process.platform === 'darwin' && appArguments.length > 0) {
+    cliArguments.push('--args', ...appArguments);
+  }
 
-	if (process.platform === 'darwin' && appArguments.length > 0) {
-		cliArguments.push('--args', ...appArguments);
-	}
+  cliArguments.push(target);
 
 	const subprocess = childProcess.spawn(command, cliArguments, childProcessOptions);
 
