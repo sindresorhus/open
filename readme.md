@@ -82,6 +82,13 @@ Default: `false`
 
 Do not bring the app to the foreground.
 
+##### newWindow <sup>(macOS only)</sup>
+
+Type: `boolean`\
+Default: `false`
+
+Open the specified url in a new window. This is useful when the app is expected to already be open.
+
 ##### app
 
 Type: `string | string[]`
