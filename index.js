@@ -73,11 +73,10 @@ module.exports = async (target, options) => {
 		if (app) {
 			cliArguments.push('-a', app);
 		}
-		
-		if(appArguments.length > 0) {
+
+		if (appArguments.length > 0) {
 			cliArguments.push('--args', ...appArguments);
 		}
-		
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
 		const windowsRoot = isWsl ? await wslGetWindowsEnvVar('systemroot') : process.env.SYSTEMROOT;
 		command = String.raw`${windowsRoot}\System32\WindowsPowerShell\v1.0\powershell${isWsl ? '.exe' : ''}`;
