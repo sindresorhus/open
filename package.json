@@ -48,6 +48,7 @@
 		"file"
 	],
 	"dependencies": {
+		"child_process": "^1.0.2",
 		"is-docker": "^2.0.0",
 		"is-wsl": "^2.1.1"
 	},

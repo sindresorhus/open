@@ -39,8 +39,8 @@ module.exports = async (target, options) => {
 	options = {
 		wait: false,
 		background: false,
-    newWindow: false,
-    allowNonzeroExitCode: false,
+		newWindow: false,
+		allowNonzeroExitCode: false,
 		...options
 	};
 
@@ -66,18 +66,18 @@ module.exports = async (target, options) => {
 			cliArguments.push('--background');
 		}
 
-    if (options.newWindow) {
-      cliArguments.push('-n');
-    }
+		if (options.newWindow) {
+			cliArguments.push('-n');
+		}
 
 		if (app) {
 			cliArguments.push('-a', app);
-    }
-    
-    if(appArguments.length > 0) {
-      cliArguments.push('--args', ...appArguments);
-    }
-    
+		}
+		
+		if(appArguments.length > 0) {
+			cliArguments.push('--args', ...appArguments);
+		}
+		
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
 		const windowsRoot = isWsl ? await wslGetWindowsEnvVar('systemroot') : process.env.SYSTEMROOT;
 		command = String.raw`${windowsRoot}\System32\WindowsPowerShell\v1.0\powershell${isWsl ? '.exe' : ''}`;
@@ -153,7 +153,7 @@ module.exports = async (target, options) => {
 		}
 	}
 
-  cliArguments.push(target);
+	cliArguments.push(target);
 
 	const subprocess = childProcess.spawn(command, cliArguments, childProcessOptions);
 

@@ -21,16 +21,16 @@ declare namespace open {
 
 		@default false
 		*/
-    readonly background?: boolean;
-    
-    /**
-    __macOS only__
+		readonly background?: boolean;
 
-    Open the specified url in a new window. This is useful when the app is expected to already be open.
+		/**
+		__macOS only__
 
-    @default false
-    */
-    readonly newWindow?: boolean;
+		Open the specified url in a new window. This is useful when the app is expected to already be open.
+
+		@default false
+		*/
+		readonly newWindow?: boolean;
 
 		/**
 		Specify the app to open the `target` with, or an array with the app and app arguments.
