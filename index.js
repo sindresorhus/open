@@ -92,7 +92,7 @@ module.exports = async (target, options) => {
 		}
 
 		if (app) {
-			if (isWsl && app.startsWith('/mnt/')) {
+			if (isWsl && app.startsWith('/')) {
 				const windowsPath = await wslToWindowsPath(app);
 				app = windowsPath;
 			}
