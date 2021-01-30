@@ -7,29 +7,9 @@ const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 
 const pAccess = promisify(fs.access);
-const pExecFile = promisify(childProcess.execFile);
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
-
-// Convert a path from WSL format to Windows format:
-// `/mnt/c/Program Files/Example/MyApp.exe` → `C:\Program Files\Example\MyApp.exe`
-const wslToWindowsPath = async path => {
-	const {stdout} = await pExecFile('wslpath', ['-w', path]);
-	return stdout.trim();
-};
-
-// Convert a path from Windows format to WSL format
-const windowsToWslPath = async path => {
-	const {stdout} = await pExecFile('wslpath', [path]);
-	return stdout.trim();
-};
-
-// Get an environment variable from Windows
-const wslGetWindowsEnvVar = async envVar => {
-	const {stdout} = await pExecFile('wslvar', [envVar]);
-	return stdout.trim();
-};
 
 module.exports = async (target, options) => {
 	if (typeof target !== 'string') {
@@ -69,8 +49,10 @@ module.exports = async (target, options) => {
 			cliArguments.push('-a', app);
 		}
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
-		const windowsRoot = isWsl ? await wslGetWindowsEnvVar('systemroot') : process.env.SYSTEMROOT;
-		command = String.raw`${windowsRoot}\System32\WindowsPowerShell\v1.0\powershell${isWsl ? '.exe' : ''}`;
+		command = isWsl ?
+			'/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe' :
+			`${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
+
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
@@ -79,9 +61,7 @@ module.exports = async (target, options) => {
 			'-EncodedCommand'
 		);
 
-		if (isWsl) {
-			command = await windowsToWslPath(command);
-		} else {
+		if (!isWsl) {
 			childProcessOptions.windowsVerbatimArguments = true;
 		}
 
@@ -92,11 +72,6 @@ module.exports = async (target, options) => {
 		}
 
 		if (app) {
-			if (isWsl && app.startsWith('/')) {
-				const windowsPath = await wslToWindowsPath(app);
-				app = windowsPath;
-			}
-
 			// Double quote with double quotes to ensure the inner quotes are passed through.
 			// Inner quotes are delimited for PowerShell interpretation with backticks.
 			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
