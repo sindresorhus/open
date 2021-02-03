@@ -26,10 +26,8 @@ const getWslMountPoint = async () => {
 		const conf = await pReadFile(confFile, {encoding: 'utf-8'});
 		const value = (/root\s*=\s*(.*)/g.exec(conf)[1] || '').trim();
 
-		if (!!value) {
-			return  value.endsWith('/')
-				? value
-				: value.concat('/');
+		if (value) {
+			return value.endsWith('/') ? value : value.concat('/');
 		}
 	}
 
