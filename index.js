@@ -24,9 +24,13 @@ const getWslMountPoint = async () => {
 
 	if (fs.existsSync(confFile)) {
 		const conf = await pReadFile(confFile, {encoding: 'utf-8'});
-		const value = /root\s*=\s*(.*)/g.exec(conf)[1];
+		const value = (/root\s*=\s*(.*)/g.exec(conf)[1] || '').trim();
 
-		return value;
+		if (!!value) {
+			return  value.endsWith('/')
+				? value
+				: value.concat('/');
+		}
 	}
 
 	// Default value for "root" param
