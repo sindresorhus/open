@@ -7,7 +7,6 @@ const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 
 const pAccess = promisify(fs.access);
-const pReadFile = promisify(fs.readFile);
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
@@ -15,26 +14,34 @@ const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 /**
  * Returns the mount point for fixed drives in WSL
  *
- * @async
  * @inner
  * @returns {string} Mount point
  */
-const getWslMountPoint = async () => {
-	const confFile = '/etc/wsl.conf';
+const getWslDrivesMountPoint = (() => {
+	let mountPoint = null;
 
-	if (fs.existsSync(confFile)) {
-		const conf = await pReadFile(confFile, {encoding: 'utf-8'});
-		const value = (/root\s*=\s*(.*)/g.exec(conf)[1] || '').trim();
-
-		if (value) {
-			return value.endsWith('/') ? value : value.concat('/');
+	return function () {
+		if (mountPoint) {
+			// Return memoized mount point value
+			return mountPoint;
 		}
-	}
 
-	// Default value for "root" param
-	// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
-	return '/mnt/';
-};
+		const confFile = '/etc/wsl.conf';
+
+		if (!fs.existsSync(confFile)) {
+			// Default value for "root" param
+			// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
+			return '/mnt/';
+		}
+
+		const confContent = fs.readFileSync(confFile, {encoding: 'utf-8'});
+
+		mountPoint = (/root\s*=\s*(.*)/g.exec(confContent)[1] || '').trim();
+		mountPoint = mountPoint.endsWith('/') ? mountPoint : mountPoint.concat('/');
+
+		return mountPoint;
+	};
+})();
 
 module.exports = async (target, options) => {
 	if (typeof target !== 'string') {
@@ -74,7 +81,7 @@ module.exports = async (target, options) => {
 			cliArguments.push('-a', app);
 		}
 	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
-		const mountPoint = await getWslMountPoint();
+		const mountPoint = getWslDrivesMountPoint();
 
 		command = isWsl ?
 			`${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` :
