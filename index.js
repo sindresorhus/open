@@ -77,7 +77,7 @@ module.exports = async (target, options) => {
 			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
 			appArguments.unshift(target);
 		} else {
-			encodedArguments.push(`"\`"${target}\`""`);
+			encodedArguments.push(`"${target}"`);
 		}
 
 		if (appArguments.length > 0) {
