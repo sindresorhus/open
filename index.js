@@ -35,7 +35,7 @@ const getWslDrivesMountPoint = (() => {
 			return '/mnt/';
 		}
 
-		const configContent = await pReadFile(configFilePath, {encoding: 'utf-8'});
+		const configContent = await pReadFile(configFilePath, {encoding: 'utf8'});
 
 		mountPoint = (/root\s*=\s*(.*)/g.exec(configContent)[1] || '').trim();
 		mountPoint = mountPoint.endsWith('/') ? mountPoint : mountPoint + '/';
