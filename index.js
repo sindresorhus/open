@@ -12,11 +12,11 @@ const pAccess = promisify(fs.access);
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 /**
- * Returns the mount point for fixed drives in WSL
- *
- * @inner
- * @returns {string} Mount point
- */
+Get the mount point for fixed drives in WSL.
+
+@inner
+@returns {string} The mount point.
+*/
 const getWslDrivesMountPoint = (() => {
 	let mountPoint = null;
 
