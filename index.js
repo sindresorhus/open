@@ -29,7 +29,13 @@ const getWslDrivesMountPoint = (() => {
 
 		const configFilePath = '/etc/wsl.conf';
 
-		if (!fs.existsSync(configFilePath)) {
+		let isConfigFileExists = false;
+		try {
+			await pAccess(configFilePath, fs.constants.F_OK);
+			isConfigFileExists = true;
+		} catch (_) {}
+
+		if (!isConfigFileExists) {
 			// Default value for "root" param
 			// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
 			return '/mnt/';
