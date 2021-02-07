@@ -15,7 +15,7 @@ Note: The original [`open` package](https://github.com/pwnall/node-open) was pre
 - Safer as it uses `spawn` instead of `exec`.
 - Fixes most of the open original `node-open` issues.
 - Includes the latest [`xdg-open` script](https://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux.
-- Supports WSL paths to Windows apps under `/mnt/*`.
+- Supports WSL paths to Windows apps.
 
 ## Install
 
@@ -108,7 +108,7 @@ Type: `boolean`\
 Default: `false`
 
 Allow the opened app to exit with nonzero exit code when the `wait` option is `true`.
-		
+
 We do not recommend setting this option. The convention for success is exit code zero.
 
 ## Caveats
