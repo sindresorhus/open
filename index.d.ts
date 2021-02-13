@@ -30,42 +30,53 @@ declare namespace open {
 
 		You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 		*/
-		readonly app?: string | readonly string[];
-
-		/**
-		__deprecated__
-
-		This option will be removed in the next major release.
-		*/
-		readonly url?: boolean;
+		readonly app?: App | readonly App[];
 
 		/**
 		Allow the opened app to exit with nonzero exit code when the `wait` option is `true`.
-		
+
 		We do not recommend setting this option. The convention for success is exit code zero.
 
 		@default false
 		*/
 		readonly allowNonzeroExitCode?: boolean;
 	}
+
+	type App = {name: string | readonly string[]; arguments?: readonly string[]};
 }
 
-/**
-Open stuff like URLs, files, executables. Cross-platform.
+declare const open: {
+	/**
+	An object containing auto-detected binary names for common apps. Useful to work around cross-platform issues.
 
-Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
+	@example
+	```
+	import open, {apps} from 'open';
 
-There is a caveat for [double-quotes on Windows](https://github.com/sindresorhus/open#double-quotes-on-windows) where all double-quotes are stripped from the `target`.
+	await open('https://google.com', {
+		app: {
+			name: apps.chrome
+		}
+	});
+	```
+	*/
+	apps: Record<string, string>;
 
-@param target - The thing you want to open. Can be a URL, file, or executable. Opens in the default app for the file type. For example, URLs open in your default browser.
-@returns The [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
+	/**
+	Open stuff like URLs, files, executables. Cross-platform.
 
-@example
-```
-import open = require('open');
+	Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
 
-// Opens the image in the default image viewer
-(async () => {
+	There is a caveat for [double-quotes on Windows](https://github.com/sindresorhus/open#double-quotes-on-windows) where all double-quotes are stripped from the `target`.
+
+	@param target - The thing you want to open. Can be a URL, file, or executable. Opens in the default app for the file type. For example, URLs open in your default browser.
+	@returns The [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
+
+	@example
+	```
+	import open from 'open';
+
+	// Opens the image in the default image viewer
 	await open('unicorn.png', {wait: true});
 	console.log('The image viewer app closed');
 
@@ -77,12 +88,12 @@ import open = require('open');
 
 	// Specify app arguments
 	await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
-})();
-```
-*/
-declare function open(
-	target: string,
-	options?: open.Options
-): Promise<ChildProcess>;
+	```
+	*/
+	(
+		target: string,
+		options?: open.Options
+	): Promise<ChildProcess>;
+};
 
-export = open;
+export default open;

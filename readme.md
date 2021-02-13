@@ -26,22 +26,20 @@ $ npm install open
 ## Usage
 
 ```js
-const open = require('open');
+import open from 'open';
 
-(async () => {
-	// Opens the image in the default image viewer and waits for the opened app to quit.
-	await open('unicorn.png', {wait: true});
-	console.log('The image viewer app quit');
+// Opens the image in the default image viewer and waits for the opened app to quit.
+await open('unicorn.png', {wait: true});
+console.log('The image viewer app quit');
 
-	// Opens the URL in the default browser.
-	await open('https://sindresorhus.com');
+// Opens the URL in the default browser.
+await open('https://sindresorhus.com');
 
-	// Opens the URL in a specified browser.
-	await open('https://sindresorhus.com', {app: 'firefox'});
+// Opens the URL in a specified browser.
+await open('https://sindresorhus.com', {app: 'firefox'});
 
-	// Specify app arguments.
-	await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
-})();
+// Specify app arguments.
+await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
 ```
 
 ## API
@@ -84,23 +82,13 @@ Do not bring the app to the foreground.
 
 ##### app
 
-Type: `string | string[]`
+Type: `{name: string | string[], arguments?: string[]} | Array<{name: string | string[], arguments: string[]}>`
 
-Specify the app to open the `target` with, or an array with the app and app arguments.
+Specify the `name` of the app to open the `target` with and optionally, app `arguments`. `app` can be an array of apps to try to open and `name` can be an array of app names to try.
 
-The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows.
+The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`open.apps`](#openapps) which auto-detects the correct binary to use.
 
 You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
-
-##### url
-
-Type: `boolean`\
-Default: `false`
-
-Uses `URL` to encode the target before executing it.<br>
-We do not recommend using it on targets that are not URLs.
-
-Especially useful when dealing with the [double-quotes on Windows](#double-quotes-on-windows) caveat.
 
 ##### allowNonzeroExitCode
 
@@ -110,6 +98,20 @@ Default: `false`
 Allow the opened app to exit with nonzero exit code when the `wait` option is `true`.
 
 We do not recommend setting this option. The convention for success is exit code zero.
+
+### open.apps
+
+An object containing auto-detected binary names for common apps. Useful to work around [cross-platform issues](#app).
+
+```js
+import open, {apps} from 'open';
+
+await open('https://google.com', {
+	app: {
+		name: apps.chrome
+	}
+});
+```
 
 ## Caveats
 
