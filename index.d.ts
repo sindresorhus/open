@@ -60,7 +60,7 @@ declare const open: {
 	});
 	```
 	*/
-	apps: Record<string, string>;
+	apps: Record<string, string | string[]>;
 
 	/**
 	Open stuff like URLs, files, executables. Cross-platform.
