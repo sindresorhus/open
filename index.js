@@ -19,6 +19,10 @@ Get the mount point for fixed drives in WSL.
 @returns {string} The mount point.
 */
 const getWslDrivesMountPoint = (() => {
+	// Default value for "root" param
+	// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
+	const defaultMountPoint = '/mnt/';
+
 	let mountPoint;
 
 	return async function () {
@@ -36,14 +40,17 @@ const getWslDrivesMountPoint = (() => {
 		} catch (_) {}
 
 		if (!isConfigFileExists) {
-			// Default value for "root" param
-			// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
-			return '/mnt/';
+			return defaultMountPoint;
 		}
 
 		const configContent = await pReadFile(configFilePath, {encoding: 'utf8'});
+		const configMountPoint = /root\s*=\s*(.*)/g.exec(configContent);
 
-		mountPoint = (/root\s*=\s*(.*)/g.exec(configContent)[1] || '').trim();
+		if (!configMountPoint) {
+			return defaultMountPoint;
+		}
+
+		mountPoint = configMountPoint[1].trim();
 		mountPoint = mountPoint.endsWith('/') ? mountPoint : mountPoint + '/';
 
 		return mountPoint;
