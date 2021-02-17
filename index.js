@@ -22,6 +22,10 @@ Get the mount point for fixed drives in WSL.
 @returns {string} The mount point.
 */
 const getWslDrivesMountPoint = (() => {
+	// Default value for "root" param
+	// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
+	const defaultMountPoint = '/mnt/';
+
 	let mountPoint;
 
 	return async function () {
@@ -39,15 +43,17 @@ const getWslDrivesMountPoint = (() => {
 		} catch {}
 
 		if (!isConfigFileExists) {
-			// Default value for "root" param
-			// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
-			return '/mnt/';
+			return defaultMountPoint;
 		}
 
-		const configContent = await fs.readFile(configFilePath, {encoding: 'utf8'});
+		const configContent = await pReadFile(configFilePath, {encoding: 'utf8'});
+		const configMountPoint = /root\s*=\s*(?<mountPoint>.*)/g.exec(configContent)?.groups?.mountPoint?.trim();
 
-		mountPoint = (/root\s*=\s*(?<mountPoint>.*)/g.exec(configContent)?.groups?.mountPoint || '').trim();
-		mountPoint = mountPoint.endsWith('/') ? mountPoint : mountPoint + '/';
+		if (!configMountPoint) {
+			return defaultMountPoint;
+		}
+
+		mountPoint = configMountPoint.endsWith('/') ? configMountPoint : `${configMountPoint}/`;
 
 		return mountPoint;
 	};
@@ -147,7 +153,7 @@ const open = async (target, options) => {
 			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
 			appArguments.unshift(target);
 		} else {
-			encodedArguments.push(`"\`"${target}\`""`);
+			encodedArguments.push(`"${target}"`);
 		}
 
 		if (appArguments.length > 0) {
