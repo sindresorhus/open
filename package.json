@@ -10,9 +10,8 @@
 		"email": "sindresorhus@gmail.com",
 		"url": "https://sindresorhus.com"
 	},
-	"type": "module",
 	"engines": {
-		"node": ">=12"
+		"node": ">=10"
 	},
 	"scripts": {
 		"test": "xo && tsd"

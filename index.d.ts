@@ -51,11 +51,11 @@ declare const open: {
 
 	@example
 	```
-	import open, {apps} from 'open';
+	import open = require('open');
 
 	await open('https://google.com', {
 		app: {
-			name: apps.chrome
+			name: open.apps.chrome
 		}
 	});
 	```
@@ -74,7 +74,7 @@ declare const open: {
 
 	@example
 	```
-	import open from 'open';
+	import open = require('open');
 
 	// Opens the image in the default image viewer
 	await open('unicorn.png', {wait: true});
@@ -96,4 +96,4 @@ declare const open: {
 	): Promise<ChildProcess>;
 };
 
-export default open;
+export = open;

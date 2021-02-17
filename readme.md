@@ -26,7 +26,7 @@ $ npm install open
 ## Usage
 
 ```js
-import open from 'open';
+const open = require('open');
 
 // Opens the image in the default image viewer and waits for the opened app to quit.
 await open('unicorn.png', {wait: true});
@@ -104,11 +104,11 @@ We do not recommend setting this option. The convention for success is exit code
 An object containing auto-detected binary names for common apps. Useful to work around [cross-platform issues](#app).
 
 ```js
-import open, {apps} from 'open';
+const open = require('open');
 
 await open('https://google.com', {
 	app: {
-		name: apps.chrome
+		name: open.apps.chrome
 	}
 });
 ```

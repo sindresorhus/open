@@ -1,5 +1,5 @@
-import test from 'ava';
-import open from './index.js';
+const test = require('ava');
+const open = require('.');
 
 // Tests only checks that opening doesn't return an error
 // it has no way make sure that it actually opened anything.

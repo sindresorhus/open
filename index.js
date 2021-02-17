@@ -1,17 +1,13 @@
-import path from 'path';
-import childProcess from 'child_process';
-import {promises as fs} from 'fs';
-import {fileURLToPath} from 'url';
-import isWsl from 'is-wsl';
-import isDocker from 'is-docker';
-import defineLazyProperty from 'define-lazy-prop';
-import AggregateError from 'aggregate-error';
-
-// Node.js ESM doesn't expose __dirname (https://stackoverflow.com/a/50052194/8384910)
-const currentDirectoryName = path.dirname(fileURLToPath(import.meta.url));
+const path = require('path');
+const childProcess = require('child_process');
+const {promises: fs} = require('fs');
+const isWsl = require('is-wsl');
+const isDocker = require('is-docker');
+const defineLazyProperty = require('define-lazy-prop');
+const AggregateError = require('aggregate-error');
 
 // Path to included `xdg-open`.
-const localXdgOpenPath = path.join(currentDirectoryName, 'xdg-open');
+const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 const {platform} = process;
 
@@ -51,7 +47,7 @@ const getWslDrivesMountPoint = (() => {
 			return defaultMountPoint;
 		}
 
-		const mountPoint = configMountPoint.groups.mountPoint.trim()
+		const mountPoint = configMountPoint.groups.mountPoint.trim();
 
 		return mountPoint.endsWith('/') ? mountPoint : `${mountPoint}/`;
 	};
@@ -62,7 +58,7 @@ const pTryEach = async (array, mapper) => {
 
 	for (const item of array) {
 		try {
-			return await mapper(item);
+			return await mapper(item); // eslint-disable-line no-await-in-loop
 		} catch (error) {
 			errors.push(error);
 		}
@@ -166,7 +162,7 @@ const open = async (target, options) => {
 			command = app;
 		} else {
 			// When bundled by Webpack, there's no actual package file path and no local `xdg-open`.
-			const isBundled = !currentDirectoryName || currentDirectoryName === '/';
+			const isBundled = !__dirname || __dirname === '/';
 
 			// Check if local `xdg-open` exists and is executable.
 			let exeLocalXdgOpen = false;

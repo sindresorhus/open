@@ -1,6 +1,6 @@
 import {expectType} from 'tsd';
 import {ChildProcess} from 'child_process';
-import open from './index.js';
+import open = require('.');
 
 const options: open.Options = {};
 
