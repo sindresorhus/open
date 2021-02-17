@@ -26,8 +26,6 @@ const getWslDrivesMountPoint = (() => {
 	// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
 	const defaultMountPoint = '/mnt/';
 
-	let mountPoint;
-
 	return async function () {
 		if (mountPoint) {
 			// Return memoized mount point value
@@ -47,22 +45,22 @@ const getWslDrivesMountPoint = (() => {
 		}
 
 		const configContent = await fs.readFile(configFilePath, {encoding: 'utf8'});
-		const configMountPoint = /root\s*=\s*(?<mountPoint>.*)/g.exec(configContent)?.groups?.mountPoint?.trim();
+		const configMountPoint = /root\s*=\s*(?<mountPoint>.*)/g.exec(configContent);
 
 		if (!configMountPoint) {
 			return defaultMountPoint;
 		}
 
-		mountPoint = configMountPoint.endsWith('/') ? configMountPoint : `${configMountPoint}/`;
+		const mountPoint = configMountPoint.groups.mountPoint.trim()
 
-		return mountPoint;
+		return mountPoint.endsWith('/') ? mountPoint : `${mountPoint}/`;
 	};
 })();
 
 const pTryEach = async (array, mapper) => {
 	const errors = [];
 
-	for await (const item of array) {
+	for (const item of array) {
 		try {
 			return await mapper(item);
 		} catch (error) {

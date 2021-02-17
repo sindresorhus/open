@@ -7,27 +7,27 @@ import open from './index.js';
 // These have to be manually verified.
 
 test('open file in default app', async t => {
-	await t.notThrowsAsync(() => open('index.js'));
+	await t.notThrowsAsync(open('index.js'));
 });
 
 test('wait for the app to close if wait: true', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com', {wait: true}));
+	await t.notThrowsAsync(open('https://sindresorhus.com', {wait: true}));
 });
 
 test('encode URL if url: true', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com', {url: true}));
+	await t.notThrowsAsync(open('https://sindresorhus.com', {url: true}));
 });
 
 test('open URL in default app', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com'));
+	await t.notThrowsAsync(open('https://sindresorhus.com'));
 });
 
 test('open URL in specified app', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com', {app: {name: open.apps.chrome}}));
+	await t.notThrowsAsync(open('https://sindresorhus.com', {app: {name: open.apps.chrome}}));
 });
 
 test('open URL in specified app with arguments', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com', {app: {name: open.apps.chrome, arguments: ['--incognito']}}));
+	await t.notThrowsAsync(open('https://sindresorhus.com', {app: {name: open.apps.chrome, arguments: ['--incognito']}}));
 });
 
 test('return the child process when called', async t => {
@@ -36,33 +36,33 @@ test('return the child process when called', async t => {
 });
 
 test('open URL with query strings', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com/?abc=123&def=456'));
+	await t.notThrowsAsync(open('https://sindresorhus.com/?abc=123&def=456'));
 });
 
 test('open URL with a fragment', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com#projects'));
+	await t.notThrowsAsync(open('https://sindresorhus.com#projects'));
 });
 
 test('open URL with query strings and spaces', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com/?abc=123&def=456&ghi=with spaces'));
+	await t.notThrowsAsync(open('https://sindresorhus.com/?abc=123&def=456&ghi=with spaces'));
 });
 
 test('open URL with query strings and a fragment', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com/?abc=123&def=456#projects'));
+	await t.notThrowsAsync(open('https://sindresorhus.com/?abc=123&def=456#projects'));
 });
 
 test('open URL with query strings and pipes', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h'));
+	await t.notThrowsAsync(open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h'));
 });
 
 test('open URL with query strings, spaces, pipes and a fragment', async t => {
-	await t.notThrowsAsync(() => open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h spaces#projects'));
+	await t.notThrowsAsync(open('https://sindresorhus.com/?abc=123&def=456&ghi=w|i|t|h spaces#projects'));
 });
 
 test('open URL with query strings and URL reserved characters', async t => {
-	await t.notThrowsAsync(() => open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F'));
+	await t.notThrowsAsync(open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F'));
 });
 
 test('open URL with query strings and URL reserved characters with `url` option', async t => {
-	await t.notThrowsAsync(() => open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F', {url: true}));
+	await t.notThrowsAsync(open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F', {url: true}));
 });
