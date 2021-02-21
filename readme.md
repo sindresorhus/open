@@ -84,7 +84,7 @@ Do not bring the app to the foreground.
 
 Type: `{name: string | string[], arguments?: string[]} | Array<{name: string | string[], arguments: string[]}>`
 
-Specify the `name` of the app to open the `target` with and optionally, app `arguments`. `app` can be an array of apps to try to open and `name` can be an array of app names to try.
+Specify the `name` of the app to open the `target` with and optionally, app `arguments`. `app` can be an array of apps to try to open and `name` can be an array of app names to try. If each app fails, the last error will be thrown.
 
 The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`open.apps`](#openapps) which auto-detects the correct binary to use.
 

@@ -4,7 +4,6 @@ const {promises: fs} = require('fs');
 const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 const defineLazyProperty = require('define-lazy-prop');
-const AggregateError = require('aggregate-error');
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
@@ -54,17 +53,17 @@ const getWslDrivesMountPoint = (() => {
 })();
 
 const pTryEach = async (array, mapper) => {
-	const errors = [];
+	let latestError
 
 	for (const item of array) {
 		try {
 			return await mapper(item); // eslint-disable-line no-await-in-loop
 		} catch (error) {
-			errors.push(error);
+			latestError = error
 		}
 	}
 
-	throw new AggregateError(errors);
+	throw latestError
 };
 
 const open = async (target, options) => {
