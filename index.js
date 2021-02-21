@@ -53,17 +53,17 @@ const getWslDrivesMountPoint = (() => {
 })();
 
 const pTryEach = async (array, mapper) => {
-	let latestError
+	let latestError;
 
 	for (const item of array) {
 		try {
 			return await mapper(item); // eslint-disable-line no-await-in-loop
 		} catch (error) {
-			latestError = error
+			latestError = error;
 		}
 	}
 
-	throw latestError
+	throw latestError;
 };
 
 const open = async (target, options) => {
