@@ -83,11 +83,11 @@ declare const open: {
 	// Opens the url in the default browser
 	await open('https://sindresorhus.com');
 
-	// Specify the app to open in
-	await open('https://sindresorhus.com', {app: 'firefox'});
+	// Opens the URL in a specified browser.
+	await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 
-	// Specify app arguments
-	await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
+	// Specify app arguments.
+	await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: '--incognito'}});
 	```
 	*/
 	(
