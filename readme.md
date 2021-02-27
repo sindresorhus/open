@@ -36,10 +36,10 @@ console.log('The image viewer app quit');
 await open('https://sindresorhus.com');
 
 // Opens the URL in a specified browser.
-await open('https://sindresorhus.com', {app: 'firefox'});
+await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 
 // Specify app arguments.
-await open('https://sindresorhus.com', {app: ['google chrome', '--incognito']});
+await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: '--incognito'}});
 ```
 
 ## API
@@ -101,7 +101,7 @@ We do not recommend setting this option. The convention for success is exit code
 
 ### open.apps
 
-An object containing auto-detected binary names for common apps. Useful to work around [cross-platform issues](#app).
+An object containing auto-detected binary names for common apps. Useful to work around [cross-platform differences](#app).
 
 ```js
 const open = require('open');
