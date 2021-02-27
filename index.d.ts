@@ -24,11 +24,11 @@ declare namespace open {
 		readonly background?: boolean;
 
 		/**
-	Specify the `name` of the app to open the `target` with and optionally, app `arguments`. `app` can be an array of apps to try to open and `name` can be an array of app names to try. If each app fails, the last error will be thrown.
+		Specify the `name` of the app to open the `target` with and optionally, app `arguments`. `app` can be an array of apps to try to open and `name` can be an array of app names to try. If each app fails, the last error will be thrown.
 
-	The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`open.apps`](#openapps) which auto-detects the correct binary to use.
+		The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`open.apps`](#openapps) which auto-detects the correct binary to use.
 
-	You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
+		You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 		*/
 		readonly app?: App | readonly App[];
 
@@ -47,7 +47,7 @@ declare namespace open {
 
 declare const open: {
 	/**
-	An object containing auto-detected binary names for common apps. Useful to work around cross-platform issues.
+	An object containing auto-detected binary names for common apps. Useful to work around cross-platform differences.
 
 	@example
 	```
