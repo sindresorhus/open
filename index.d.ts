@@ -46,7 +46,7 @@ declare namespace open {
 		| 'chrome'
 		| 'firefox';
 
-	type App = {name: AppName | readonly AppName[]; arguments?: readonly string[]};
+	type App = {name: string | readonly string[]; arguments?: readonly string[]};
 }
 
 declare const open: {
@@ -64,7 +64,7 @@ declare const open: {
 	});
 	```
 	*/
-	apps: Record<string, string | string[]>;
+	apps: Record<AppName, string | string[]>;
 
 	/**
 	Open stuff like URLs, files, executables. Cross-platform.
