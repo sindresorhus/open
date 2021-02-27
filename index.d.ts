@@ -42,7 +42,11 @@ declare namespace open {
 		readonly allowNonzeroExitCode?: boolean;
 	}
 
-	type App = {name: string | readonly string[]; arguments?: readonly string[]};
+	type AppName =
+		| 'chrome'
+		| 'firefox';
+
+	type App = {name: AppName | readonly AppName[]; arguments?: readonly string[]};
 }
 
 declare const open: {
