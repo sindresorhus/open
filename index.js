@@ -247,4 +247,4 @@ defineLazyProperty(apps, 'firefox', () => detectPlatformBinary(new Map([
 
 open.apps = apps;
 
-export default open;
+module.exports = open;
