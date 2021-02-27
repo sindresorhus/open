@@ -113,6 +113,11 @@ await open('https://google.com', {
 });
 ```
 
+#### Supported apps
+
+- [`chrome`](https://www.google.com/chrome) - Web browser
+- [`firefox`](https://www.mozilla.org/firefox) - Web browser
+
 ## Caveats
 
 ### Double-quotes on Windows
