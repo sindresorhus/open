@@ -11,7 +11,7 @@
 		"url": "https://sindresorhus.com"
 	},
 	"engines": {
-		"node": "^10.17"
+		"node": ">=10.17"
 	},
 	"scripts": {
 		"test": "xo && tsd"
@@ -57,5 +57,15 @@
 		"ava": "^3.15.0",
 		"tsd": "^0.14.0",
 		"xo": "^0.37.1"
+	},
+	"xo": {
+		"rules": {
+			"node/no-unsupported-features/node-builtins": [
+				"error",
+				{
+					"ignores": ["fs.promises"]
+				}
+			]
+		}
 	}
 }

@@ -8,7 +8,7 @@ const defineLazyProperty = require('define-lazy-prop');
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
-const {platform} = process;
+const {platform, arch} = process;
 
 /**
 Get the mount point for fixed drives in WSL.
@@ -215,33 +215,50 @@ const open = async (target, options) => {
 	return subprocess;
 };
 
-function detectPlatformBinary(platformMap, {wsl}) {
-	if (wsl && isWsl) {
-		return wsl;
+function detectArchBinary(binary) {
+	if (typeof binary === 'string') {
+		return binary;
 	}
 
-	if (!platformMap.has(platform)) {
+	const {[arch]: archBinary} = binary;
+
+	if (!archBinary) {
+		throw new Error(`${arch} is not supported`);
+	}
+
+	return archBinary;
+}
+
+function detectPlatformBinary({[platform]: platformBinary}, {wsl}) {
+	if (wsl && isWsl) {
+		return detectArchBinary(wsl);
+	}
+
+	if (!platformBinary) {
 		throw new Error(`${platform} is not supported`);
 	}
 
-	return platformMap.get(platform);
+	return detectArchBinary(platformBinary);
 }
 
 const apps = {};
 
-defineLazyProperty(apps, 'chrome', () => detectPlatformBinary(new Map([
-	['darwin', 'google chrome canary'],
-	['win32', 'Chrome'],
-	['linux', ['google-chrome', 'google-chrome-stable']]
-]), {
-	wsl: '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
+	darwin: 'google chrome canary',
+	win32: 'chrome',
+	linux: ['google-chrome', 'google-chrome-stable']
+}, {
+	wsl: {
+		ia32: '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
+		x64: ['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe']
+	}
 }));
 
-defineLazyProperty(apps, 'firefox', () => detectPlatformBinary(new Map([
-	['darwin', 'firefox'],
-	['win32', 'C:\\Program Files\\Mozilla Firefox\\firefox.exe'],
-	['linux', 'firefox']
-]), {
+defineLazyProperty(apps, 'firefox', () => detectPlatformBinary({
+	darwin: 'firefox',
+	win32: 'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
+	linux: 'firefox'
+}, {
 	wsl: '/mnt/c/Program Files/Mozilla Firefox/firefox.exe'
 }));
 
