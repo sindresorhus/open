@@ -1,16 +1,14 @@
-'use strict';
-const {promisify} = require('util');
 const path = require('path');
 const childProcess = require('child_process');
-const fs = require('fs');
+const {promises: fs} = require('fs');
 const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
-
-const pAccess = promisify(fs.access);
-const pReadFile = promisify(fs.readFile);
+const defineLazyProperty = require('define-lazy-prop');
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
+
+const {platform} = process;
 
 /**
 Get the mount point for fixed drives in WSL.
@@ -23,8 +21,6 @@ const getWslDrivesMountPoint = (() => {
 	// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
 	const defaultMountPoint = '/mnt/';
 
-	let mountPoint;
-
 	return async function () {
 		if (mountPoint) {
 			// Return memoized mount point value
@@ -35,29 +31,42 @@ const getWslDrivesMountPoint = (() => {
 
 		let isConfigFileExists = false;
 		try {
-			await pAccess(configFilePath, fs.constants.F_OK);
+			await fs.access(configFilePath, fs.constants.F_OK);
 			isConfigFileExists = true;
-		} catch (_) {}
+		} catch {}
 
 		if (!isConfigFileExists) {
 			return defaultMountPoint;
 		}
 
-		const configContent = await pReadFile(configFilePath, {encoding: 'utf8'});
-		const configMountPoint = /root\s*=\s*(.*)/g.exec(configContent);
+		const configContent = await fs.readFile(configFilePath, {encoding: 'utf8'});
+		const configMountPoint = /root\s*=\s*(?<mountPoint>.*)/g.exec(configContent);
 
 		if (!configMountPoint) {
 			return defaultMountPoint;
 		}
 
-		mountPoint = configMountPoint[1].trim();
-		mountPoint = mountPoint.endsWith('/') ? mountPoint : mountPoint + '/';
+		const mountPoint = configMountPoint.groups.mountPoint.trim();
 
-		return mountPoint;
+		return mountPoint.endsWith('/') ? mountPoint : `${mountPoint}/`;
 	};
 })();
 
-module.exports = async (target, options) => {
+const pTryEach = async (array, mapper) => {
+	let latestError;
+
+	for (const item of array) {
+		try {
+			return await mapper(item); // eslint-disable-line no-await-in-loop
+		} catch (error) {
+			latestError = error;
+		}
+	}
+
+	throw latestError;
+};
+
+const open = async (target, options) => {
 	if (typeof target !== 'string') {
 		throw new TypeError('Expected a `target`');
 	}
@@ -69,18 +78,30 @@ module.exports = async (target, options) => {
 		...options
 	};
 
+	if (Array.isArray(options.app)) {
+		return pTryEach(options.app, singleApp => open(target, {
+			...options,
+			app: singleApp
+		}));
+	}
+
+	let {name: app, appArguments = []} = options.app ?? {};
+
+	if (Array.isArray(app)) {
+		return pTryEach(app, appName => open(target, {
+			...options,
+			app: {
+				name: appName,
+				arguments: appArguments
+			}
+		}));
+	}
+
 	let command;
-	let {app} = options;
-	let appArguments = [];
 	const cliArguments = [];
 	const childProcessOptions = {};
 
-	if (Array.isArray(app)) {
-		appArguments = app.slice(1);
-		app = app[0];
-	}
-
-	if (process.platform === 'darwin') {
+	if (platform === 'darwin') {
 		command = 'open';
 
 		if (options.wait) {
@@ -94,7 +115,7 @@ module.exports = async (target, options) => {
 		if (app) {
 			cliArguments.push('-a', app);
 		}
-	} else if (process.platform === 'win32' || (isWsl && !isDocker())) {
+	} else if (platform === 'win32' || (isWsl && !isDocker())) {
 		const mountPoint = await getWslDrivesMountPoint();
 
 		command = isWsl ?
@@ -145,12 +166,12 @@ module.exports = async (target, options) => {
 			// Check if local `xdg-open` exists and is executable.
 			let exeLocalXdgOpen = false;
 			try {
-				await pAccess(localXdgOpenPath, fs.constants.X_OK);
+				await fs.access(localXdgOpenPath, fs.constants.X_OK);
 				exeLocalXdgOpen = true;
-			} catch (_) {}
+			} catch {}
 
 			const useSystemXdgOpen = process.versions.electron ||
-				process.platform === 'android' || isBundled || !exeLocalXdgOpen;
+				platform === 'android' || isBundled || !exeLocalXdgOpen;
 			command = useSystemXdgOpen ? 'xdg-open' : localXdgOpenPath;
 		}
 
@@ -168,7 +189,7 @@ module.exports = async (target, options) => {
 
 	cliArguments.push(target);
 
-	if (process.platform === 'darwin' && appArguments.length > 0) {
+	if (platform === 'darwin' && appArguments.length > 0) {
 		cliArguments.push('--args', ...appArguments);
 	}
 
@@ -193,3 +214,37 @@ module.exports = async (target, options) => {
 
 	return subprocess;
 };
+
+function detectPlatformBinary(platformMap, {wsl}) {
+	if (wsl && isWsl) {
+		return wsl;
+	}
+
+	if (!platformMap.has(platform)) {
+		throw new Error(`${platform} is not supported`);
+	}
+
+	return platformMap.get(platform);
+}
+
+const apps = {};
+
+defineLazyProperty(apps, 'chrome', () => detectPlatformBinary(new Map([
+	['darwin', 'google chrome canary'],
+	['win32', 'Chrome'],
+	['linux', ['google-chrome', 'google-chrome-stable']]
+]), {
+	wsl: '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+}));
+
+defineLazyProperty(apps, 'firefox', () => detectPlatformBinary(new Map([
+	['darwin', 'firefox'],
+	['win32', 'C:\\Program Files\\Mozilla Firefox\\firefox.exe'],
+	['linux', 'firefox']
+]), {
+	wsl: '/mnt/c/Program Files/Mozilla Firefox/firefox.exe'
+}));
+
+open.apps = apps;
+
+module.exports = open;
