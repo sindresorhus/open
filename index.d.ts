@@ -46,7 +46,10 @@ declare namespace open {
 		| 'chrome'
 		| 'firefox';
 
-	type App = {name: string | readonly string[]; arguments?: readonly string[]};
+	type App = {
+		name: string | readonly string[];
+		arguments?: readonly string[];
+	};
 }
 
 declare const open: {
@@ -64,12 +67,12 @@ declare const open: {
 	});
 	```
 	*/
-	apps: Record<open.AppName, string | string[]>;
+	apps: Record<open.AppName, string | readonly string[]>;
 
 	/**
 	Open stuff like URLs, files, executables. Cross-platform.
 
-	Uses the command `open` on OS X, `start` on Windows and `xdg-open` on other platforms.
+	Uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
 
 	There is a caveat for [double-quotes on Windows](https://github.com/sindresorhus/open#double-quotes-on-windows) where all double-quotes are stripped from the `target`.
 
