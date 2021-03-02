@@ -85,7 +85,7 @@ const open = async (target, options) => {
 		}));
 	}
 
-	let {name: app, appArguments = []} = options.app ?? {};
+	let {name: app, appArguments = []} = options.app || {};
 
 	if (Array.isArray(app)) {
 		return pTryEach(app, appName => open(target, {
