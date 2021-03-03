@@ -39,7 +39,7 @@ await open('https://sindresorhus.com');
 await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 
 // Specify app arguments.
-await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: '--incognito'}});
+await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
 ```
 
 ## API
