@@ -20,7 +20,7 @@ const getWslDrivesMountPoint = (() => {
 	// Default value for "root" param
 	// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
 	const defaultMountPoint = '/mnt/';
-	
+
 	let mountPoint;
 
 	return async function () {
@@ -50,7 +50,7 @@ const getWslDrivesMountPoint = (() => {
 
 		mountPoint = configMountPoint.groups.mountPoint.trim();
 		mountPoint = mountPoint.endsWith('/') ? mountPoint : `${mountPoint}/`;
-		
+
 		return mountPoint;
 	};
 })();
