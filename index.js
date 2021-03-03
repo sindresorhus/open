@@ -21,6 +21,8 @@ const getWslDrivesMountPoint = (() => {
 	// according to https://docs.microsoft.com/en-us/windows/wsl/wsl-config
 	const defaultMountPoint = '/mnt/';
 
+	let mountPoint;
+
 	return async function () {
 		if (mountPoint) {
 			// Return memoized mount point value
@@ -46,9 +48,10 @@ const getWslDrivesMountPoint = (() => {
 			return defaultMountPoint;
 		}
 
-		const mountPoint = configMountPoint.groups.mountPoint.trim();
+		mountPoint = configMountPoint.groups.mountPoint.trim();
+		mountPoint = mountPoint.endsWith('/') ? mountPoint : `${mountPoint}/`;
 
-		return mountPoint.endsWith('/') ? mountPoint : `${mountPoint}/`;
+		return mountPoint;
 	};
 })();
 
