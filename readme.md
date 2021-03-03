@@ -13,7 +13,7 @@ Note: The original [`open` package](https://github.com/pwnall/node-open) was pre
 - Actively maintained.
 - Supports app arguments.
 - Safer as it uses `spawn` instead of `exec`.
-- Fixes most of the open original `node-open` issues.
+- Fixes most of the original `node-open` issues.
 - Includes the latest [`xdg-open` script](https://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux.
 - Supports WSL paths to Windows apps.
 
@@ -39,7 +39,7 @@ await open('https://sindresorhus.com');
 await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 
 // Specify app arguments.
-await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: '--incognito'}});
+await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
 ```
 
 ## API
