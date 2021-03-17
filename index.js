@@ -130,6 +130,8 @@ const open = async (target, options) => {
 			'-NonInteractive',
 			'–ExecutionPolicy',
 			'Bypass',
+			'–WindowStyle',
+			'Hidden',
 			'-EncodedCommand'
 		);
 
