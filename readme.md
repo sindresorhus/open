@@ -80,6 +80,13 @@ Default: `false`
 
 Do not bring the app to the foreground.
 
+##### hiddenTerminal <sup>(Windows only)</sup>
+
+Type: `boolean`\
+Default: `false`
+
+Hide PowerShell terminal. If your node script is called from some gui application (from pkg-bundled app, from nodegui, etc.), than addition PowerShell window would be spawned. With this option `true` this window will be hidden.
+
 ##### app
 
 Type: `{name: string | string[], arguments?: string[]} | Array<{name: string | string[], arguments: string[]}>`

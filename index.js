@@ -77,6 +77,7 @@ const open = async (target, options) => {
 	options = {
 		wait: false,
 		background: false,
+		hiddenTerminal: false,
 		allowNonzeroExitCode: false,
 		...options
 	};
@@ -125,13 +126,15 @@ const open = async (target, options) => {
 			`${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` :
 			`${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
 
+		if (options.hiddenTerminal) {
+			cliArguments.push('–WindowStyle', 'Hidden');
+		}
+
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
 			'–ExecutionPolicy',
 			'Bypass',
-			'–WindowStyle',
-			'Hidden',
 			'-EncodedCommand'
 		);
 
