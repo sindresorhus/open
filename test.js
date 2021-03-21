@@ -27,7 +27,10 @@ test('open URL in specified app', async t => {
 });
 
 test('open URL in specified app with arguments', async t => {
-	await t.notThrowsAsync(open('https://sindresorhus.com', {app: {name: open.apps.chrome, arguments: ['--incognito']}}));
+	await t.notThrowsAsync(async () => {
+		const proc = await open('https://sindresorhus.com', {app: {name: open.apps.chrome, arguments: ['--incognito']}});
+		t.deepEqual(proc.spawnargs, ['open', '-a', open.apps.chrome, 'https://sindresorhus.com', '--args', '--incognito']);
+	});
 });
 
 test('return the child process when called', async t => {
