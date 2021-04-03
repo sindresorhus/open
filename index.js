@@ -249,7 +249,7 @@ function detectPlatformBinary({[platform]: platformBinary}, {wsl}) {
 const apps = {};
 
 defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
-	darwin: 'google chrome canary',
+	darwin: 'google chrome',
 	win32: 'chrome',
 	linux: ['google-chrome', 'google-chrome-stable']
 }, {
