@@ -1,6 +1,6 @@
 const path = require('path');
 const childProcess = require('child_process');
-const {promises: fs} = require('fs');
+const {promises: fs, constants: fsConstants} = require('fs');
 const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 const defineLazyProperty = require('define-lazy-prop');
@@ -33,7 +33,7 @@ const getWslDrivesMountPoint = (() => {
 
 		let isConfigFileExists = false;
 		try {
-			await fs.access(configFilePath, fs.constants.F_OK);
+			await fs.access(configFilePath, fsConstants.F_OK);
 			isConfigFileExists = true;
 		} catch {}
 
@@ -171,7 +171,7 @@ const open = async (target, options) => {
 			// Check if local `xdg-open` exists and is executable.
 			let exeLocalXdgOpen = false;
 			try {
-				await fs.access(localXdgOpenPath, fs.constants.X_OK);
+				await fs.access(localXdgOpenPath, fsConstants.X_OK);
 				exeLocalXdgOpen = true;
 			} catch {}
 
