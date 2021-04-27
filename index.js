@@ -221,7 +221,7 @@ const open = async (target, options) => {
 };
 
 function detectArchBinary(binary) {
-	if (typeof binary === 'string') {
+	if (typeof binary === 'string' || Array.isArray(binary)) {
 		return binary;
 	}
 
