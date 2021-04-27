@@ -1,4 +1,3 @@
-/// <reference types="node"/>
 import {ChildProcess} from 'child_process';
 
 declare namespace open {
@@ -52,6 +51,7 @@ declare namespace open {
 	};
 }
 
+// eslint-disable-next-line no-redeclare
 declare const open: {
 	/**
 	An object containing auto-detected binary names for common apps. Useful to work around cross-platform differences.

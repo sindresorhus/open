@@ -2,6 +2,7 @@ import {expectType} from 'tsd';
 import {ChildProcess} from 'child_process';
 import open = require('.');
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const options: open.Options = {};
 
 expectType<Promise<ChildProcess>>(open('foo'));
