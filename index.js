@@ -42,7 +42,7 @@ const getWslDrivesMountPoint = (() => {
 		}
 
 		const configContent = await fs.readFile(configFilePath, {encoding: 'utf8'});
-		const configMountPoint = /root\s*=\s*(?<mountPoint>.*)/g.exec(configContent);
+		const configMountPoint = /(?<!#.*)root\s*=\s*(?<mountPoint>.*)/g.exec(configContent);
 
 		if (!configMountPoint) {
 			return defaultMountPoint;
