@@ -22,6 +22,17 @@ declare namespace open {
 		*/
 		readonly background?: boolean;
 
+                /**
+                __macOS only__
+
+                Open a new instance of the application(s) even if one is already running.
+
+                On other platforms, this is always to open a new instance.
+
+                @default false
+                */
+                readonly newInstance?: boolean;
+
 		/**
 		Specify the `name` of the app to open the `target` with and optionally, app `arguments`. `app` can be an array of apps to try to open and `name` can be an array of app names to try. If each app fails, the last error will be thrown.
 

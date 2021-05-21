@@ -77,6 +77,7 @@ const open = async (target, options) => {
 	options = {
 		wait: false,
 		background: false,
+		newInstance: false,
 		allowNonzeroExitCode: false,
 		...options
 	};
@@ -113,6 +114,10 @@ const open = async (target, options) => {
 
 		if (options.background) {
 			cliArguments.push('--background');
+		}
+
+		if (options.newInstance) {
+			cliArguments.push('-n');
 		}
 
 		if (app) {
