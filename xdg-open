@@ -926,7 +926,7 @@ open_generic()
     if [ x"$BROWSER" = x"" ]; then
         BROWSER=www-browser:links2:elinks:links:lynx:w3m
         if has_display; then
-            BROWSER=x-www-browser:firefox:iceweasel:seamonkey:mozilla:epiphany:konqueror:chromium:chromium-browser:google-chrome:$BROWSER
+            BROWSER=x-www-browser:firefox:iceweasel:seamonkey:mozilla:epiphany:konqueror:chromium:chromium-browser:google-chrome:microsoft-edge:$BROWSER
         fi
     fi
 
