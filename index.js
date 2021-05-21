@@ -270,7 +270,7 @@ defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 	win32: 'msedge',
 	linux: 'microsoft-edge'
 }, {
-	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 }));
 
 open.apps = apps;
