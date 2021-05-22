@@ -117,6 +117,7 @@ await open('https://google.com', {
 
 - [`chrome`](https://www.google.com/chrome) - Web browser
 - [`firefox`](https://www.mozilla.org/firefox) - Web browser
+- [`edge`](https://www.microsoft.com/edge) - Web browser
 
 ## Caveats
 

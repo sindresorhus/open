@@ -265,6 +265,14 @@ defineLazyProperty(apps, 'firefox', () => detectPlatformBinary({
 	wsl: '/mnt/c/Program Files/Mozilla Firefox/firefox.exe'
 }));
 
+defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
+	darwin: 'microsoft edge',
+	win32: 'msedge',
+	linux: 'microsoft-edge'
+}, {
+	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+}));
+
 open.apps = apps;
 
 module.exports = open;

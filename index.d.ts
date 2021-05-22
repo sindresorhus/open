@@ -43,7 +43,8 @@ declare namespace open {
 
 	type AppName =
 		| 'chrome'
-		| 'firefox';
+		| 'firefox'
+		| 'edge';
 
 	type App = {
 		name: string | readonly string[];
