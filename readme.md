@@ -87,7 +87,7 @@ Default: `false`
 
 Open a new instance of the app even it's already running.
 
-For other platforms, this value is always to be true.
+A new instance is always opened on other platforms.
 
 ##### app
 
