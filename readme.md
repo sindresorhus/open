@@ -80,6 +80,15 @@ Default: `false`
 
 Do not bring the app to the foreground.
 
+##### newInstance <sup>(macOS only)</sup>
+
+Type: `boolean`\
+Default: `false`
+
+Open a new instance of the app even it's already running.
+
+A new instance is always opened on other platforms.
+
 ##### app
 
 Type: `{name: string | string[], arguments?: string[]} | Array<{name: string | string[], arguments: string[]}>`
