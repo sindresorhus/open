@@ -117,7 +117,7 @@ const open = async (target, options) => {
 		}
 
 		if (options.newInstance) {
-			cliArguments.push('-n');
+			cliArguments.push('--new');
 		}
 
 		if (app) {
