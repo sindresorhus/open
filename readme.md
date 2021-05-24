@@ -85,9 +85,9 @@ Do not bring the app to the foreground.
 Type: `boolean`\
 Default: `false`
 
-Open a new instance of the application(s) even if one is already running.
+Open a new instance of the app even it's already running.
 
-On other platforms, this is always to open a new instance.
+For other platforms, this value is always to be true.
 
 ##### app
 
