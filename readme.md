@@ -128,31 +128,6 @@ await open('https://google.com', {
 - [`firefox`](https://www.mozilla.org/firefox) - Web browser
 - [`edge`](https://www.microsoft.com/edge) - Web browser
 
-## Caveats
-
-### Double-quotes on Windows
-
-TL;DR: All double-quotes are stripped from the `target` and do not get to your desired destination (on Windows!).
-
-Due to specific behaviors of Window's Command Prompt (`cmd.exe`) regarding ampersand (`&`) characters breaking commands and URLs, double-quotes are now a special case.
-
-The solution ([#146](https://github.com/sindresorhus/open/pull/146)) to this and other problems was to leverage the fact that `cmd.exe` interprets a double-quoted argument as a plain text argument just by quoting it (like Node.js already does). Unfortunately, `cmd.exe` can only do **one** of two things: handle them all **OR** not handle them at all. As per its own documentation:
-
->*If /C or /K is specified, then the remainder of the command line after the switch is processed as a command line, where the following logic is used to process quote (") characters:*
->
->    1.  *If all of the following conditions are met, then quote characters on the command line are preserved:*
->        - *no /S switch*
->        - *exactly two quote characters*
->        - *no special characters between the two quote characters, where special is one of: &<>()@^|*
->        - *there are one or more whitespace characters between the two quote characters*
->        - *the string between the two quote characters is the name of an executable file.*
->
->    2.  *Otherwise, old behavior is to see if the first character is a quote character and if so, strip the leading character and remove the last quote character on the command line, preserving any text after the last quote character.*
-
-The option that solved all of the problems was the second one, and for additional behavior consistency we're also now using the `/S` switch, so we **always** get the second option. The caveat is that this built-in double-quotes handling ends up stripping all of them from the command line and so far we weren't able to find an escaping method that works (if you do, please feel free to contribute!).
-
-To make this caveat somewhat less impactful (at least for URLs), check out the [url option](#url). Double-quotes will be "preserved" when using it with an URL.
-
 ## Related
 
 - [open-cli](https://github.com/sindresorhus/open-cli) - CLI for this module
