@@ -66,22 +66,6 @@ declare namespace open {
 // eslint-disable-next-line no-redeclare
 declare const open: {
 	/**
-	An object containing auto-detected binary names for common apps. Useful to work around cross-platform differences.
-
-	@example
-	```
-	import open = require('open');
-
-	await open('https://google.com', {
-		app: {
-			name: open.apps.chrome
-		}
-	});
-	```
-	*/
-	apps: Record<open.AppName, string | readonly string[]>;
-
-	/**
 	Open stuff like URLs, files, executables. Cross-platform.
 
 	Uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
@@ -113,6 +97,22 @@ declare const open: {
 		target: string,
 		options?: open.Options
 	): Promise<ChildProcess>;
+
+	/**
+	An object containing auto-detected binary names for common apps. Useful to work around cross-platform differences.
+
+	@example
+	```
+	import open = require('open');
+
+	await open('https://google.com', {
+		app: {
+			name: open.apps.chrome
+		}
+	});
+	```
+	*/
+	apps: Record<open.AppName, string | readonly string[]>;
 };
 
 export = open;
