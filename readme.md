@@ -40,6 +40,9 @@ await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 
 // Specify app arguments.
 await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
+
+//Opens the data URL in a specified browser
+await open('', {app: {name: 'chrome', arguments: ['--new-window', '--app=data:text/html,<h1>Hello World!</h1>']}})
 ```
 
 ## API
