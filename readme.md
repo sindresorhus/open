@@ -6,7 +6,7 @@ This is meant to be used in command-line tools and scripts, not in the browser.
 
 If you need this for Electron, use [`shell.openPath()`](https://www.electronjs.org/docs/api/shell#shellopenpathpath) instead.
 
-Note: The original [`open` package](https://github.com/pwnall/node-open) was previously deprecated in favor of this package, and we got the name, so this package is now named `open` instead of `opn`. If you're upgrading from the original `open` package (`open@0.0.5` or lower), keep in mind that the API is different.
+This package does not make any security guarantees. If you pass in untrusted input, it's up to you to properly sanitize it.
 
 #### Why?
 
