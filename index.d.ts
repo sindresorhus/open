@@ -115,6 +115,32 @@ declare const open: {
 	```
 	*/
 	apps: Record<open.AppName, string | readonly string[]>;
+
+	/**
+	Open an application. Cross-platform.
+
+	Uses the command `open` on macOS, `start` on Windows and `xdg-open` on other platforms.
+
+	There is a caveat for [double-quotes on Windows](https://github.com/sindresorhus/open#double-quotes-on-windows) where all double-quotes are stripped from the `target`.
+
+	@param name - The application you want to open. Can be either builtin supported `open.apps` names or other name supported in platform.
+	@returns The [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
+
+	@example
+	```
+	const {apps, openApp} = require('open');
+
+	// Open Firefox
+	await openApp(apps.firefox);
+
+	// Open Chrome incognito mode
+	await openApp(apps.chrome, ['--incognito']);
+
+	// Open Xcode
+	await openApp('xcode');
+	```
+	*/
+	openApp: (name: string, appArguments?: string[], options?: open.Options) => Promise<ChildProcess>;
 };
 
 export = open;

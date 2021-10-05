@@ -1,5 +1,6 @@
 const test = require('ava');
 const open = require('.');
+const {openApp} = open;
 
 // Tests only checks that opening doesn't return an error
 // it has no way make sure that it actually opened anything.
@@ -68,4 +69,12 @@ test('open URL with query strings and URL reserved characters', async t => {
 
 test('open URL with query strings and URL reserved characters with `url` option', async t => {
 	await t.notThrowsAsync(open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F', {url: true}));
+});
+
+test('open Firefox without arguments', async t => {
+	await t.notThrowsAsync(openApp(open.apps.firefox));
+});
+
+test('open Chrome in incognito mode', async t => {
+	await t.notThrowsAsync(openApp(open.apps.chrome, ['--incognito'], {newInstance: true}));
 });

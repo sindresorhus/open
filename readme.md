@@ -40,6 +40,12 @@ await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 
 // Specify app arguments.
 await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
+
+// Open app
+await open.openApp('xcode');
+
+// Open app with arguments
+await open.openApp(open.apps.chrome, ['--incognito']);
 ```
 
 ## API
@@ -129,6 +135,24 @@ await open('https://google.com', {
 - [`chrome`](https://www.google.com/chrome) - Web browser
 - [`firefox`](https://www.mozilla.org/firefox) - Web browser
 - [`edge`](https://www.microsoft.com/edge) - Web browser
+
+### open.openApp(name, appArguments?, options?)
+
+Returns a promise for the [spawned child process](https://nodejs.org/api/child_process.html#child_process_class_childprocess). You would normally not need to use this for anything, but it can be useful if you'd like to attach custom event listeners or perform other operations directly on the spawned process.
+
+#### name
+
+The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`open.apps`](#openapps) which auto-detects the correct binary to use.
+
+You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
+
+#### appArguments
+
+The `appArguments` are app dependent. Check the app's documentation for what arguments it accepts.
+
+#### options
+
+The options are like the options in `open` except `options.app` is not supported here.
 
 ## Related
 
