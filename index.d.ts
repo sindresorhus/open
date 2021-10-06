@@ -147,7 +147,7 @@ declare const open: {
 	await openApp('xcode');
 	```
 	*/
-	openApp: (name: open.App.name, options?: open.OpenAppOptions) => Promise<ChildProcess>;
+	openApp: (name: open.App['name'], options?: open.OpenAppOptions) => Promise<ChildProcess>;
 };
 
 export = open;
