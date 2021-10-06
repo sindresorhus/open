@@ -76,5 +76,5 @@ test('open Firefox without arguments', async t => {
 });
 
 test('open Chrome in incognito mode', async t => {
-	await t.notThrowsAsync(openApp(open.apps.chrome, ['--incognito'], {newInstance: true}));
+	await t.notThrowsAsync(openApp(open.apps.chrome, {arguments: ['--incognito'], newInstance: true}));
 });

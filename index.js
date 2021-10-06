@@ -69,7 +69,7 @@ const pTryEach = async (array, mapper) => {
 	throw latestError;
 };
 
-const _openImpl = async options => {
+const baseOpen = async options => {
 	options = {
 		wait: false,
 		background: false,
@@ -79,7 +79,7 @@ const _openImpl = async options => {
 	};
 
 	if (Array.isArray(options.app)) {
-		return pTryEach(options.app, singleApp => _openImpl({
+		return pTryEach(options.app, singleApp => baseOpen({
 			...options,
 			app: singleApp
 		}));
@@ -89,7 +89,7 @@ const _openImpl = async options => {
 	appArguments = [...appArguments];
 
 	if (Array.isArray(app)) {
-		return pTryEach(app, appName => _openImpl({
+		return pTryEach(app, appName => baseOpen({
 			...options,
 			app: {
 				name: appName,
@@ -229,26 +229,27 @@ const open = (target, options) => {
 		throw new TypeError('Expected a `target`');
 	}
 
-	return _openImpl({
+	return baseOpen({
 		...options,
 		target
 	});
 };
 
-const openApp = (name, appArguments, options) => {
+const openApp = (name, options) => {
 	if (typeof name !== 'string') {
 		throw new TypeError('Expected a `name`');
 	}
 
+	const {arguments: appArguments = []} = options || {};
 	if (appArguments !== undefined && appArguments !== null && !Array.isArray(appArguments)) {
 		throw new TypeError('Expected `appArguments` as Array type');
 	}
 
-	return _openImpl({
+	return baseOpen({
 		...options,
 		app: {
 			name,
-			arguments: appArguments || []
+			arguments: appArguments
 		}
 	});
 };
