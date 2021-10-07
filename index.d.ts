@@ -56,11 +56,11 @@ declare namespace open {
 
 	interface OpenAppOptions extends Omit<Options, 'app'> {
 		/**
-		Optional arguments to open.
+		Arguments passed to the app.
 
-		The app `arguments` are app dependent. Check the app's documentation for what arguments it accepts.
-		 */
-		readonly arguments?: string[];
+		These arguments are app dependent. Check the app's documentation for what arguments it accepts.
+		*/
+		readonly arguments?: readonly string[];
 	}
 
 	type AppName =

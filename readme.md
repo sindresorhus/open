@@ -154,11 +154,11 @@ You may also pass in the app's full path. For example on WSL, this can be `/mnt/
 
 Type: `object`
 
-The options are like the options in [`open`](#options) except to remove `options.app` and add the following options.
+Same options as [`open`](#options) except `app` and with the following additions:
 
 ##### arguments
 
-Type: `Array<string>`
+Type: `string[]`\
 Default: `[]`
 
 The `arguments` are app dependent. Check the app's documentation for what arguments it accepts.
