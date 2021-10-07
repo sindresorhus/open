@@ -161,7 +161,9 @@ Same options as [`open`](#options) except `app` and with the following additions
 Type: `string[]`\
 Default: `[]`
 
-The `arguments` are app dependent. Check the app's documentation for what arguments it accepts.
+Arguments passed to the app.
+
+These arguments are app dependent. Check the app's documentation for what arguments it accepts.
 
 ## Related
 
