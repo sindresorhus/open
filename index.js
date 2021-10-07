@@ -69,11 +69,7 @@ const pTryEach = async (array, mapper) => {
 	throw latestError;
 };
 
-const open = async (target, options) => {
-	if (typeof target !== 'string') {
-		throw new TypeError('Expected a `target`');
-	}
-
+const baseOpen = async options => {
 	options = {
 		wait: false,
 		background: false,
@@ -83,7 +79,7 @@ const open = async (target, options) => {
 	};
 
 	if (Array.isArray(options.app)) {
-		return pTryEach(options.app, singleApp => open(target, {
+		return pTryEach(options.app, singleApp => baseOpen({
 			...options,
 			app: singleApp
 		}));
@@ -93,7 +89,7 @@ const open = async (target, options) => {
 	appArguments = [...appArguments];
 
 	if (Array.isArray(app)) {
-		return pTryEach(app, appName => open(target, {
+		return pTryEach(app, appName => baseOpen({
 			...options,
 			app: {
 				name: appName,
@@ -153,9 +149,11 @@ const open = async (target, options) => {
 			// Double quote with double quotes to ensure the inner quotes are passed through.
 			// Inner quotes are delimited for PowerShell interpretation with backticks.
 			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
-			appArguments.unshift(target);
-		} else {
-			encodedArguments.push(`"${target}"`);
+			if (options.target) {
+				appArguments.unshift(options.target);
+			}
+		} else if (options.target) {
+			encodedArguments.push(`"${options.target}"`);
 		}
 
 		if (appArguments.length > 0) {
@@ -164,7 +162,7 @@ const open = async (target, options) => {
 		}
 
 		// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
-		target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
+		options.target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
 	} else {
 		if (app) {
 			command = app;
@@ -196,7 +194,9 @@ const open = async (target, options) => {
 		}
 	}
 
-	cliArguments.push(target);
+	if (options.target) {
+		cliArguments.push(options.target);
+	}
 
 	if (platform === 'darwin' && appArguments.length > 0) {
 		cliArguments.push('--args', ...appArguments);
@@ -222,6 +222,36 @@ const open = async (target, options) => {
 	subprocess.unref();
 
 	return subprocess;
+};
+
+const open = (target, options) => {
+	if (typeof target !== 'string') {
+		throw new TypeError('Expected a `target`');
+	}
+
+	return baseOpen({
+		...options,
+		target
+	});
+};
+
+const openApp = (name, options) => {
+	if (typeof name !== 'string') {
+		throw new TypeError('Expected a `name`');
+	}
+
+	const {arguments: appArguments = []} = options || {};
+	if (appArguments !== undefined && appArguments !== null && !Array.isArray(appArguments)) {
+		throw new TypeError('Expected `appArguments` as Array type');
+	}
+
+	return baseOpen({
+		...options,
+		app: {
+			name,
+			arguments: appArguments
+		}
+	});
 };
 
 function detectArchBinary(binary) {
@@ -280,5 +310,6 @@ defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 }));
 
 open.apps = apps;
+open.openApp = openApp;
 
 module.exports = open;
