@@ -285,7 +285,7 @@ const apps = {};
 defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
 	darwin: 'google chrome',
 	win32: 'chrome',
-	linux: ['google-chrome', 'google-chrome-stable']
+	linux: ['google-chrome', 'google-chrome-stable', 'chromium']
 }, {
 	wsl: {
 		ia32: '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
@@ -304,7 +304,7 @@ defineLazyProperty(apps, 'firefox', () => detectPlatformBinary({
 defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 	darwin: 'microsoft edge',
 	win32: 'msedge',
-	linux: 'microsoft-edge'
+	linux: ['microsoft-edge', 'microsoft-edge-dev']
 }, {
 	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 }));
