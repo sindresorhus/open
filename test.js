@@ -1,6 +1,6 @@
 const test = require('ava');
 const open = require('.');
-const {openApp} = open;
+const { openApp } = open;
 
 // Tests only checks that opening doesn't return an error
 // it has no way make sure that it actually opened anything.
@@ -12,11 +12,11 @@ test('open file in default app', async t => {
 });
 
 test('wait for the app to close if wait: true', async t => {
-	await t.notThrowsAsync(open('https://sindresorhus.com', {wait: true}));
+	await t.notThrowsAsync(open('https://sindresorhus.com', { wait: true }));
 });
 
 test('encode URL if url: true', async t => {
-	await t.notThrowsAsync(open('https://sindresorhus.com', {url: true}));
+	await t.notThrowsAsync(open('https://sindresorhus.com', { url: true }));
 });
 
 test('open URL in default app', async t => {
@@ -24,12 +24,12 @@ test('open URL in default app', async t => {
 });
 
 test('open URL in specified app', async t => {
-	await t.notThrowsAsync(open('https://sindresorhus.com', {app: {name: open.apps.chrome}}));
+	await t.notThrowsAsync(open('https://sindresorhus.com', { app: { name: open.apps.chrome } }));
 });
 
 test('open URL in specified app with arguments', async t => {
 	await t.notThrowsAsync(async () => {
-		const proc = await open('https://sindresorhus.com', {app: {name: open.apps.chrome, arguments: ['--incognito']}});
+		const proc = await open('https://sindresorhus.com', { app: { name: open.apps.chrome, arguments: ['--incognito'] } });
 		t.deepEqual(proc.spawnargs, ['open', '-a', open.apps.chrome, 'https://sindresorhus.com', '--args', '--incognito']);
 	});
 });
@@ -68,7 +68,7 @@ test('open URL with query strings and URL reserved characters', async t => {
 });
 
 test('open URL with query strings and URL reserved characters with `url` option', async t => {
-	await t.notThrowsAsync(open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F', {url: true}));
+	await t.notThrowsAsync(open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F', { url: true }));
 });
 
 test('open Firefox without arguments', async t => {
@@ -76,5 +76,13 @@ test('open Firefox without arguments', async t => {
 });
 
 test('open Chrome in incognito mode', async t => {
-	await t.notThrowsAsync(openApp(open.apps.chrome, {arguments: ['--incognito'], newInstance: true}));
+	await t.notThrowsAsync(openApp(open.apps.chrome, { arguments: ['--incognito'], newInstance: true }));
+});
+
+test('open file in default app with option "windowsHide" ', async t => {
+	await t.notThrowsAsync(open('index.js', { windowsHide: true }));
+});
+
+test('open URL in default app with option "windowsHide"', async t => {
+	await t.notThrowsAsync(open('https://sindresorhus.com', { windowsHide: true }));
 });

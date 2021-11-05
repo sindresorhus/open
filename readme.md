@@ -79,6 +79,15 @@ Note that it waits for the app to exit, not just for the window to close.
 
 On Windows, you have to explicitly specify an app for it to be able to wait.
 
+##### windowsHide
+
+Type: `boolean`\
+Default: `false`
+
+The option `windowsHide` of `child_process.spawn`.
+
+Hide the subprocess console window that would normally be created on Windows systems. Default: `false`.
+
 ##### background <sup>(macOS only)</sup>
 
 Type: `boolean`\

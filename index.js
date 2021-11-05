@@ -1,6 +1,6 @@
 const path = require('path');
 const childProcess = require('child_process');
-const {promises: fs, constants: fsConstants} = require('fs');
+const { promises: fs, constants: fsConstants } = require('fs');
 const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 const defineLazyProperty = require('define-lazy-prop');
@@ -8,7 +8,7 @@ const defineLazyProperty = require('define-lazy-prop');
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
-const {platform, arch} = process;
+const { platform, arch } = process;
 
 /**
 Get the mount point for fixed drives in WSL.
@@ -35,13 +35,13 @@ const getWslDrivesMountPoint = (() => {
 		try {
 			await fs.access(configFilePath, fsConstants.F_OK);
 			isConfigFileExists = true;
-		} catch {}
+		} catch { }
 
 		if (!isConfigFileExists) {
 			return defaultMountPoint;
 		}
 
-		const configContent = await fs.readFile(configFilePath, {encoding: 'utf8'});
+		const configContent = await fs.readFile(configFilePath, { encoding: 'utf8' });
 		const configMountPoint = /(?<!#.*)root\s*=\s*(?<mountPoint>.*)/g.exec(configContent);
 
 		if (!configMountPoint) {
@@ -85,7 +85,7 @@ const baseOpen = async options => {
 		}));
 	}
 
-	let {name: app, arguments: appArguments = []} = options.app || {};
+	let { name: app, arguments: appArguments = [] } = options.app || {};
 	appArguments = [...appArguments];
 
 	if (Array.isArray(app)) {
@@ -141,6 +141,10 @@ const baseOpen = async options => {
 
 		const encodedArguments = ['Start'];
 
+		if (options.windowsHide) {
+			childProcessOptions.windowsHide = true
+		}
+
 		if (options.wait) {
 			encodedArguments.push('-Wait');
 		}
@@ -175,7 +179,7 @@ const baseOpen = async options => {
 			try {
 				await fs.access(localXdgOpenPath, fsConstants.X_OK);
 				exeLocalXdgOpen = true;
-			} catch {}
+			} catch { }
 
 			const useSystemXdgOpen = process.versions.electron ||
 				platform === 'android' || isBundled || !exeLocalXdgOpen;
@@ -240,7 +244,7 @@ const openApp = (name, options) => {
 		throw new TypeError('Expected a `name`');
 	}
 
-	const {arguments: appArguments = []} = options || {};
+	const { arguments: appArguments = [] } = options || {};
 	if (appArguments !== undefined && appArguments !== null && !Array.isArray(appArguments)) {
 		throw new TypeError('Expected `appArguments` as Array type');
 	}
@@ -259,7 +263,7 @@ function detectArchBinary(binary) {
 		return binary;
 	}
 
-	const {[arch]: archBinary} = binary;
+	const { [arch]: archBinary } = binary;
 
 	if (!archBinary) {
 		throw new Error(`${arch} is not supported`);
@@ -268,7 +272,7 @@ function detectArchBinary(binary) {
 	return archBinary;
 }
 
-function detectPlatformBinary({[platform]: platformBinary}, {wsl}) {
+function detectPlatformBinary({ [platform]: platformBinary }, { wsl }) {
 	if (wsl && isWsl) {
 		return detectArchBinary(wsl);
 	}

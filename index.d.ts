@@ -1,4 +1,4 @@
-import {ChildProcess} from 'child_process';
+import { ChildProcess } from 'child_process';
 
 declare namespace open {
 	interface Options {
@@ -13,6 +13,12 @@ declare namespace open {
 		*/
 		readonly wait?: boolean;
 
+		/**
+		 * The option `windowsHide` of `child_process.spawn`.
+		 * Hide the subprocess console window that would normally be created on Windows systems. Default: `false`.
+		 * @default false
+		 */
+		readonly windowsHide?: boolean;
 		/**
 		__macOS only__
 
