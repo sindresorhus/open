@@ -85,6 +85,13 @@ const baseOpen = async options => {
 		}));
 	}
 
+    if (options.app == 'browser') {
+        return pTryEach([open.apps.chrome, open.apps.firefox, open.apps.edge], singleApp => baseOpen({
+			...options,
+			app: singleApp
+		}));
+    }
+
 	let {name: app, arguments: appArguments = []} = options.app || {};
 	appArguments = [...appArguments];
 
