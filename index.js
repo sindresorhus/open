@@ -245,6 +245,21 @@ const openApp = (name, options) => {
 		throw new TypeError('Expected `appArguments` as Array type');
 	}
 
+    if (name == 'firefox' && appArguments.includes('-private')) {
+        newAppArguments = appArguments.filter(argument => {
+            argument != '-private'
+        });
+        newAppArguments.push('--incognito');
+
+        return baseOpen({
+            ...options,
+            app: {
+                name,
+                arguments: newAppArguments
+            }
+        });
+    }
+
 	return baseOpen({
 		...options,
 		app: {
