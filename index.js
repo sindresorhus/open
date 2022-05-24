@@ -35,7 +35,9 @@ const getWslDrivesMountPoint = (() => {
 		try {
 			await fs.access(configFilePath, fsConstants.F_OK);
 			isConfigFileExists = true;
-		} catch {}
+		} catch (error) {
+			console.error("Access error in npm module 'open'.");
+		}
 
 		if (!isConfigFileExists) {
 			return defaultMountPoint;
