@@ -14,13 +14,13 @@ This package does not make any security guarantees. If you pass in untrusted inp
 - Supports app arguments.
 - Safer as it uses `spawn` instead of `exec`.
 - Fixes most of the original `node-open` issues.
-- Includes the latest [`xdg-open` script](https://cgit.freedesktop.org/xdg/xdg-utils/commit/?id=c55122295c2a480fa721a9614f0e2d42b2949c18) for Linux.
+- Includes the latest [`xdg-open` script](https://gitlab.freedesktop.org/xdg/xdg-utils/-/blob/master/scripts/xdg-open.in) for Linux.
 - Supports WSL paths to Windows apps.
 
 ## Install
 
-```
-$ npm install open
+```sh
+npm install open
 ```
 
 ## Usage
