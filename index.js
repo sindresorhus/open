@@ -217,11 +217,16 @@ const baseOpen = async options => {
 				resolve(subprocess);
 			});
 		});
+	} else {
+		return new Promise((resolve, reject) => {
+			subprocess.once('error', reject);
+
+			setTimeout(() => {
+				subprocess.unref();
+				resolve(subprocess);
+			}, 50)
+		})
 	}
-
-	subprocess.unref();
-
-	return subprocess;
 };
 
 const open = (target, options) => {
