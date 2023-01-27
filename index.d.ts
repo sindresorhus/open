@@ -66,7 +66,9 @@ declare namespace open {
 	type AppName =
 		| 'chrome'
 		| 'firefox'
-		| 'edge';
+		| 'edge'
+		| 'browser'
+		| 'browserPrivate';
 
 	type App = {
 		name: string | readonly string[];
@@ -102,6 +104,9 @@ declare const open: {
 
 	// Specify app arguments.
 	await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
+
+	// Opens the url in the default browser incognito mode
+	await open('https://sindresorhus.com', {app: {name: open.apps.browserPrivate}});
 	```
 	*/
 	(
@@ -140,8 +145,14 @@ declare const open: {
 	// Open Firefox
 	await openApp(apps.firefox);
 
-	// Open Chrome incognito mode
+	// Open Chrome in incognito mode
 	await openApp(apps.chrome, {arguments: ['--incognito']});
+
+	// Open default browser
+	await openApp(apps.browser);
+
+	// Open default browser in incognito mode
+	await openApp(apps.browserPrivate);
 
 	// Open Xcode
 	await openApp('xcode');
