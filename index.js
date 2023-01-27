@@ -4,6 +4,7 @@ const {promises: fs, constants: fsConstants} = require('fs');
 const isWsl = require('is-wsl');
 const isDocker = require('is-docker');
 const defineLazyProperty = require('define-lazy-prop');
+const defaultBrowser = require('x-default-browser');
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
@@ -98,6 +99,49 @@ const baseOpen = async options => {
 		}));
 	}
 
+	if (app === 'browser') {
+		return defaultBrowser((error, browser) => {
+			if (error) {
+				throw error;
+			}
+
+			const browserName = browser.commonName;
+
+			baseOpen({
+				...options,
+				app: {
+					name: open.apps[browserName],
+					arguments: appArguments
+				}
+			});
+		});
+	}
+
+	if (app === 'browserPrivate') {
+		// Incognito or equivalent flags for each of the browser in open.apps
+		const flags = {
+			chrome: '--incognito',
+			firefox: '--private-window',
+			edge: '--inPrivate'
+		};
+
+		return defaultBrowser((error, browser) => {
+			if (error) {
+				throw error;
+			}
+
+			const browserName = browser.commonName;
+
+			baseOpen({
+				...options,
+				app: {
+					name: open.apps[browserName],
+					arguments: [...appArguments, flags[browserName]]
+				}
+			});
+		});
+	}
+
 	let command;
 	const cliArguments = [];
 	const childProcessOptions = {};
@@ -130,7 +174,7 @@ const baseOpen = async options => {
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
-			'–ExecutionPolicy',
+			'-ExecutionPolicy',
 			'Bypass',
 			'-EncodedCommand'
 		);
@@ -148,9 +192,9 @@ const baseOpen = async options => {
 		if (app) {
 			// Double quote with double quotes to ensure the inner quotes are passed through.
 			// Inner quotes are delimited for PowerShell interpretation with backticks.
-			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
+			encodedArguments.push(`"\`"${app}\`""`);
 			if (options.target) {
-				appArguments.unshift(options.target);
+				appArguments.push(options.target);
 			}
 		} else if (options.target) {
 			encodedArguments.push(`"${options.target}"`);
@@ -158,7 +202,7 @@ const baseOpen = async options => {
 
 		if (appArguments.length > 0) {
 			appArguments = appArguments.map(arg => `"\`"${arg}\`""`);
-			encodedArguments.push(appArguments.join(','));
+			encodedArguments.push('-ArgumentList', appArguments.join(','));
 		}
 
 		// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
@@ -308,6 +352,10 @@ defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 }, {
 	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 }));
+
+defineLazyProperty(apps, 'browser', () => 'browser');
+
+defineLazyProperty(apps, 'browserPrivate', () => 'browserPrivate');
 
 open.apps = apps;
 open.openApp = openApp;
