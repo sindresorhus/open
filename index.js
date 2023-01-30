@@ -1,4 +1,5 @@
 import path from 'path';
+import {fileURLToPath} from 'url';
 import childProcess from 'child_process';
 import {promises as fs, constants as fsConstants} from 'fs';
 import isWsl from 'is-wsl';
@@ -7,6 +8,7 @@ import defineLazyProperty from 'define-lazy-prop';
 import defaultBrowser from 'default-browser';
 
 // Path to included `xdg-open`.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 const {platform, arch} = process;
