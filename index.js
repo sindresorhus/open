@@ -120,7 +120,7 @@ const baseOpen = async options => {
 		if (app) {
 			cliArguments.push('-a', app);
 		}
-	} else if (platform === 'win32' || (isWsl && !isDocker())) {
+	} else if (platform === 'win32' || (isWsl && !isDocker() && !app)) {
 		const mountPoint = await getWslDrivesMountPoint();
 
 		command = isWsl ?
