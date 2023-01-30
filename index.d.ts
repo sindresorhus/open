@@ -90,13 +90,13 @@ declare const open: {
 
 	@example
 	```
-	import open = require('open');
+	import {open} from 'open';
 
-	// Opens the image in the default image viewer
+	// Opens the image in the default image viewer.
 	await open('unicorn.png', {wait: true});
-	console.log('The image viewer app closed');
+	console.log('The image viewer app quit');
 
-	// Opens the url in the default browser
+	// Opens the URL in the default browser.
 	await open('https://sindresorhus.com');
 
 	// Opens the URL in a specified browser.
@@ -105,7 +105,7 @@ declare const open: {
 	// Specify app arguments.
 	await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
 
-	// Opens the url in the default browser incognito mode
+	// Opens the URL in the default browser in incognito mode.
 	await open('https://sindresorhus.com', {app: {name: open.apps.browserPrivate}});
 	```
 	*/
@@ -119,7 +119,7 @@ declare const open: {
 
 	@example
 	```
-	import open = require('open');
+	import {open} from 'open';
 
 	await open('https://google.com', {
 		app: {
@@ -140,21 +140,22 @@ declare const open: {
 
 	@example
 	```
-	const {apps, openApp} = require('open');
+	import {open} from 'open';
+	const {apps, openApp} = open;
 
-	// Open Firefox
+	// Open Firefox.
 	await openApp(apps.firefox);
 
-	// Open Chrome in incognito mode
+	// Open Chrome in incognito mode.
 	await openApp(apps.chrome, {arguments: ['--incognito']});
 
-	// Open default browser
+	// Open default browser.
 	await openApp(apps.browser);
 
-	// Open default browser in incognito mode
+	// Open default browser in incognito mode.
 	await openApp(apps.browserPrivate);
 
-	// Open Xcode
+	// Open Xcode.
 	await openApp('xcode');
 	```
 	*/
