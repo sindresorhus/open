@@ -1,5 +1,5 @@
-const test = require('ava');
-const open = require('.');
+import test from 'ava';
+import {open} from './index.js';
 const {openApp} = open;
 
 // Tests only checks that opening doesn't return an error

@@ -1,6 +1,6 @@
 {
 	"name": "open",
-	"version": "8.4.2",
+	"version": "8.4.0",
 	"description": "Open stuff like URLs, files, executables. Cross-platform.",
 	"license": "MIT",
 	"repository": "sindresorhus/open",
@@ -14,7 +14,7 @@
 		"node": ">=12"
 	},
 	"scripts": {
-		"test": "xo && tsd"
+		"test": "xo && tsd && ava"
 	},
 	"files": [
 		"index.js",
@@ -51,6 +51,7 @@
 		"define-lazy-prop": "^2.0.0",
 		"is-docker": "^2.1.1",
 		"is-wsl": "^2.2.0",
+		"default-browser": "^3.1.0",
 		"x-default-browser": "^0.5.0"
 	},
 	"devDependencies": {

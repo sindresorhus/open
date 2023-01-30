@@ -1,10 +1,10 @@
-const path = require('path');
-const childProcess = require('child_process');
-const {promises: fs, constants: fsConstants} = require('fs');
-const isWsl = require('is-wsl');
-const isDocker = require('is-docker');
-const defineLazyProperty = require('define-lazy-prop');
-const defaultBrowser = require('x-default-browser');
+import path from 'path';
+import childProcess from 'child_process';
+import {promises as fs, constants as fsConstants} from 'fs';
+import isWsl from 'is-wsl';
+import isDocker from 'is-docker';
+import defineLazyProperty from 'define-lazy-prop';
+import defaultBrowser from 'default-browser';
 
 // Path to included `xdg-open`.
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
@@ -119,20 +119,14 @@ const baseOpen = async options => {
 	}
 
 	if (app === 'browser') {
-		return defaultBrowser((error, browser) => {
-			if (error) {
-				throw error;
+		const browser = await defaultBrowser();
+		const browserName = browser.name.toLowerCase();
+		return baseOpen({
+			...options,
+			app: {
+				name: open.apps[browserName],
+				arguments: appArguments
 			}
-
-			const browserName = browser.commonName;
-
-			baseOpen({
-				...options,
-				app: {
-					name: open.apps[browserName],
-					arguments: appArguments
-				}
-			});
 		});
 	}
 
@@ -144,20 +138,14 @@ const baseOpen = async options => {
 			edge: '--inPrivate'
 		};
 
-		return defaultBrowser((error, browser) => {
-			if (error) {
-				throw error;
+		const browser = await defaultBrowser();
+		const browserName = browser.name.toLowerCase();
+		return baseOpen({
+			...options,
+			app: {
+				name: open.apps[browserName],
+				arguments: [...appArguments, flags[browserName]]
 			}
-
-			const browserName = browser.commonName;
-
-			baseOpen({
-				...options,
-				app: {
-					name: open.apps[browserName],
-					arguments: [...appArguments, flags[browserName]]
-				}
-			});
 		});
 	}
 
@@ -379,4 +367,4 @@ defineLazyProperty(apps, 'browserPrivate', () => 'browserPrivate');
 open.apps = apps;
 open.openApp = openApp;
 
-module.exports = open;
+export {open};
