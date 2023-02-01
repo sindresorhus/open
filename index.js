@@ -101,20 +101,8 @@ const baseOpen = async options => {
 		}));
 	}
 
-	if (app === 'browser') {
-		const browser = await defaultBrowser();
-		const browserName = browser.name.toLowerCase();
-		return baseOpen({
-			...options,
-			app: {
-				name: open.apps[browserName],
-				arguments: appArguments
-			}
-		});
-	}
-
-	if (app === 'browserPrivate') {
-		// Incognito or equivalent flags for each of the browser in open.apps
+	if (app === 'browser' || app === 'browserPrivate') {
+		// Incognito or equivalent flags for each browser in open.apps
 		const flags = {
 			chrome: '--incognito',
 			firefox: '--private-window',
@@ -123,13 +111,25 @@ const baseOpen = async options => {
 
 		const browser = await defaultBrowser();
 		const browserName = browser.name.toLowerCase();
-		return baseOpen({
-			...options,
-			app: {
-				name: open.apps[browserName],
-				arguments: [...appArguments, flags[browserName]]
+
+		const supportedBrowsers = Object.keys(flags);
+		for (const supportedBrowser of supportedBrowsers) {
+			if (browserName.includes(supportedBrowser)) {
+				if (app === 'browserPrivate') {
+					appArguments.push(flags[supportedBrowser]);
+				}
+
+				return baseOpen({
+					...options,
+					app: {
+						name: open.apps[supportedBrowser],
+						arguments: appArguments
+					}
+				});
 			}
-		});
+		}
+
+		throw new Error(`${browserName} as the default browser is not supported`);
 	}
 
 	let command;
@@ -350,4 +350,5 @@ defineLazyProperty(apps, 'browserPrivate', () => 'browserPrivate');
 open.apps = apps;
 open.openApp = openApp;
 
-export {open};
+export {apps};
+export default open;

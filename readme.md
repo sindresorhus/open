@@ -26,7 +26,7 @@ npm install open
 ## Usage
 
 ```js
-import {open} from 'open';
+import open from 'open';
 
 // Opens the image in the default image viewer and waits for the opened app to quit.
 await open('unicorn.png', {wait: true});
@@ -124,7 +124,7 @@ We do not recommend setting this option. The convention for success is exit code
 An object containing auto-detected binary names for common apps. Useful to work around [cross-platform differences](#app).
 
 ```js
-import {open} from 'open';
+import open from 'open';
 
 await open('https://google.com', {
 	app: {
@@ -141,6 +141,8 @@ await open('https://google.com', {
 - [`edge`](https://www.microsoft.com/edge) - Web browser
 - `browser` - Default web browser
 - `browserPrivate` - Default web browser in incognito mode
+
+`browser` and `browserPrivate` currently support `chrome`, `firefox` and `edge`.
 
 ### open.openApp(name, options?)
 
