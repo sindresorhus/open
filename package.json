@@ -51,7 +51,6 @@
 		"define-lazy-prop": "^2.0.0",
 		"is-docker": "^2.1.1",
 		"is-wsl": "^2.2.0",
-		"url": "^0.11.0",
 		"default-browser": "^3.1.0"
 	},
 	"devDependencies": {
