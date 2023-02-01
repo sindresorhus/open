@@ -90,7 +90,7 @@ declare const open: {
 
 	@example
 	```
-	import {open} from 'open';
+	import open from 'open';
 
 	// Opens the image in the default image viewer.
 	await open('unicorn.png', {wait: true});
@@ -119,7 +119,7 @@ declare const open: {
 
 	@example
 	```
-	import {open} from 'open';
+	import open from 'open';
 
 	await open('https://google.com', {
 		app: {
@@ -140,7 +140,7 @@ declare const open: {
 
 	@example
 	```
-	import {open} from 'open';
+	import open from 'open';
 	const {apps, openApp} = open;
 
 	// Open Firefox.
