@@ -169,15 +169,3 @@ These arguments are app dependent. Check the app's documentation for what argume
 
 - [open-cli](https://github.com/sindresorhus/open-cli) - CLI for this module
 - [open-editor](https://github.com/sindresorhus/open-editor) - Open files in your editor at a specific line and column
-
----
-
-<div align="center">
-	<b>
-		<a href="https://tidelift.com/subscription/pkg/npm-opn?utm_source=npm-opn&utm_medium=referral&utm_campaign=readme">Get professional support for this package with a Tidelift subscription</a>
-	</b>
-	<br>
-	<sub>
-		Tidelift helps make open source sustainable for maintainers while giving companies<br>assurances about security, maintenance, and licensing for their dependencies.
-	</sub>
-</div>
