@@ -209,7 +209,7 @@ const baseOpen = async options => {
 			subprocess.once('error', reject);
 
 			subprocess.once('close', exitCode => {
-				if (options.allowNonzeroExitCode && exitCode > 0) {
+				if (!options.allowNonzeroExitCode && exitCode > 0) {
 					reject(new Error(`Exited with code ${exitCode}`));
 					return;
 				}
