@@ -10,6 +10,25 @@ const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 const {platform, arch} = process;
 
+// Podman detection
+const hasContainerEnv = () => {
+	try {
+		fs.statSync('/run/.containerenv');
+		return true;
+	} catch {
+		return false;
+	}
+};
+
+let cachedResult;
+function isInsideContainer() {
+	if (cachedResult === undefined) {
+		cachedResult = hasContainerEnv() || isDocker();
+	}
+
+	return cachedResult;
+}
+
 /**
 Get the mount point for fixed drives in WSL.
 
@@ -120,7 +139,7 @@ const baseOpen = async options => {
 		if (app) {
 			cliArguments.push('-a', app);
 		}
-	} else if (platform === 'win32' || (isWsl && !isDocker() && !app)) {
+	} else if (platform === 'win32' || (isWsl && !isInsideContainer() && !app)) {
 		const mountPoint = await getWslDrivesMountPoint();
 
 		command = isWsl ?
