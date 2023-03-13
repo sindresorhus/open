@@ -121,7 +121,18 @@ const baseOpen = async options => {
 	}
 
 	if (app === 'browser' || app === 'browserPrivate') {
-		// Incognito or equivalent flags for each browser in open.apps
+		// IDs from default-browser for macOS and windows are the same
+		const ids = {
+			'com.google.chrome': 'chrome',
+			'google-chrome.desktop': 'chrome',
+			'org.mozilla.firefox': 'firefox',
+			'firefox.desktop': 'firefox',
+			'com.microsoft.msedge': 'edge',
+			'com.microsoft.edge': 'edge',
+			'microsoft-edge.desktop': 'edge'
+		};
+
+		// Incognito flags for each browser in open.apps
 		const flags = {
 			chrome: '--incognito',
 			firefox: '--private-window',
@@ -129,26 +140,23 @@ const baseOpen = async options => {
 		};
 
 		const browser = await defaultBrowser();
-		const browserName = browser.name.toLowerCase();
+		if (browser.id in ids) {
+			const browserName = ids[browser.id];
 
-		const supportedBrowsers = Object.keys(flags);
-		for (const supportedBrowser of supportedBrowsers) {
-			if (browserName.includes(supportedBrowser)) {
-				if (app === 'browserPrivate') {
-					appArguments.push(flags[supportedBrowser]);
-				}
-
-				return baseOpen({
-					...options,
-					app: {
-						name: open.apps[supportedBrowser],
-						arguments: appArguments
-					}
-				});
+			if (app === 'browserPrivate') {
+				appArguments.push(flags[browserName]);
 			}
+
+			return baseOpen({
+				...options,
+				app: {
+					name: open.apps[browserName],
+					arguments: appArguments
+				}
+			});
 		}
 
-		throw new Error(`${browserName} as the default browser is not supported`);
+		throw new Error(`${browser.name} is not supported as a default browser`);
 	}
 
 	let command;
