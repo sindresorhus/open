@@ -76,6 +76,22 @@ declare namespace open {
 	};
 }
 
+/**
+An object containing auto-detected binary names for common apps. Useful to work around cross-platform differences.
+
+@example
+```
+import open from 'open';
+
+await open('https://google.com', {
+	app: {
+		name: open.apps.chrome
+	}
+});
+```
+*/
+declare const apps: Record<open.AppName, string | readonly string[]>;
+
 // eslint-disable-next-line no-redeclare
 declare const open: {
 	/**
@@ -116,19 +132,8 @@ declare const open: {
 
 	/**
 	An object containing auto-detected binary names for common apps. Useful to work around cross-platform differences.
-
-	@example
-	```
-	import open from 'open';
-
-	await open('https://google.com', {
-		app: {
-			name: open.apps.chrome
-		}
-	});
-	```
 	*/
-	apps: Record<open.AppName, string | readonly string[]>;
+	apps: typeof apps;
 
 	/**
 	Open an app. Cross-platform.
@@ -162,4 +167,5 @@ declare const open: {
 	openApp: (name: open.App['name'], options?: open.OpenAppOptions) => Promise<ChildProcess>;
 };
 
-export = open;
+export {apps};
+export default open;

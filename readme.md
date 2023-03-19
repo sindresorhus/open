@@ -119,16 +119,26 @@ Allow the opened app to exit with nonzero exit code when the `wait` option is `t
 
 We do not recommend setting this option. The convention for success is exit code zero.
 
-### open.apps
+### open.apps / apps
 
 An object containing auto-detected binary names for common apps. Useful to work around [cross-platform differences](#app).
 
 ```js
+// Using default export.
 import open from 'open';
 
 await open('https://google.com', {
 	app: {
 		name: open.apps.chrome
+	}
+});
+
+// Using named export.
+import open, {apps} from 'open';
+
+await open('https://firefox.com', {
+	app: {
+		name: apps.browserPrivate
 	}
 });
 ```
@@ -142,7 +152,7 @@ await open('https://google.com', {
 - `browser` - Default web browser
 - `browserPrivate` - Default web browser in incognito mode
 
-`browser` and `browserPrivate` currently support `chrome`, `firefox` and `edge`.
+`browser` and `browserPrivate` only supports `chrome`, `firefox` and `edge`.
 
 ### open.openApp(name, options?)
 
