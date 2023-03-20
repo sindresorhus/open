@@ -1,11 +1,14 @@
-const path = require('path');
-const childProcess = require('child_process');
-const {promises: fs, constants: fsConstants} = require('fs');
-const isWsl = require('is-wsl');
-const isDocker = require('is-docker');
-const defineLazyProperty = require('define-lazy-prop');
+import path from 'path';
+import {fileURLToPath} from 'url';
+import childProcess from 'child_process';
+import {promises as fs, constants as fsConstants} from 'fs';
+import isWsl from 'is-wsl';
+import isDocker from 'is-docker';
+import defineLazyProperty from 'define-lazy-prop';
+import defaultBrowser from 'default-browser';
 
 // Path to included `xdg-open`.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 const {platform, arch} = process;
@@ -117,6 +120,45 @@ const baseOpen = async options => {
 		}));
 	}
 
+	if (app === 'browser' || app === 'browserPrivate') {
+		// IDs from default-browser for macOS and windows are the same
+		const ids = {
+			'com.google.chrome': 'chrome',
+			'google-chrome.desktop': 'chrome',
+			'org.mozilla.firefox': 'firefox',
+			'firefox.desktop': 'firefox',
+			'com.microsoft.msedge': 'edge',
+			'com.microsoft.edge': 'edge',
+			'microsoft-edge.desktop': 'edge'
+		};
+
+		// Incognito flags for each browser in open.apps
+		const flags = {
+			chrome: '--incognito',
+			firefox: '--private-window',
+			edge: '--inPrivate'
+		};
+
+		const browser = await defaultBrowser();
+		if (browser.id in ids) {
+			const browserName = ids[browser.id];
+
+			if (app === 'browserPrivate') {
+				appArguments.push(flags[browserName]);
+			}
+
+			return baseOpen({
+				...options,
+				app: {
+					name: open.apps[browserName],
+					arguments: appArguments
+				}
+			});
+		}
+
+		throw new Error(`${browser.name} is not supported as a default browser`);
+	}
+
 	let command;
 	const cliArguments = [];
 	const childProcessOptions = {};
@@ -149,7 +191,7 @@ const baseOpen = async options => {
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
-			'–ExecutionPolicy',
+			'-ExecutionPolicy',
 			'Bypass',
 			'-EncodedCommand'
 		);
@@ -167,9 +209,9 @@ const baseOpen = async options => {
 		if (app) {
 			// Double quote with double quotes to ensure the inner quotes are passed through.
 			// Inner quotes are delimited for PowerShell interpretation with backticks.
-			encodedArguments.push(`"\`"${app}\`""`, '-ArgumentList');
+			encodedArguments.push(`"\`"${app}\`""`);
 			if (options.target) {
-				appArguments.unshift(options.target);
+				appArguments.push(options.target);
 			}
 		} else if (options.target) {
 			encodedArguments.push(`"${options.target}"`);
@@ -177,7 +219,7 @@ const baseOpen = async options => {
 
 		if (appArguments.length > 0) {
 			appArguments = appArguments.map(arg => `"\`"${arg}\`""`);
-			encodedArguments.push(appArguments.join(','));
+			encodedArguments.push('-ArgumentList', appArguments.join(','));
 		}
 
 		// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
@@ -328,7 +370,12 @@ defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 }));
 
+defineLazyProperty(apps, 'browser', () => 'browser');
+
+defineLazyProperty(apps, 'browserPrivate', () => 'browserPrivate');
+
 open.apps = apps;
 open.openApp = openApp;
 
-module.exports = open;
+export {apps};
+export default open;

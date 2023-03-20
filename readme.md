@@ -26,7 +26,7 @@ npm install open
 ## Usage
 
 ```js
-const open = require('open');
+import open from 'open';
 
 // Opens the image in the default image viewer and waits for the opened app to quit.
 await open('unicorn.png', {wait: true});
@@ -41,10 +41,13 @@ await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 // Specify app arguments.
 await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
 
-// Open an app
+// Opens the URL in the default browser in incognito mode.
+await open('https://sindresorhus.com', {app: {name: open.apps.browserPrivate}});
+
+// Open an app.
 await open.openApp('xcode');
 
-// Open an app with arguments
+// Open an app with arguments.
 await open.openApp(open.apps.chrome, {arguments: ['--incognito']});
 ```
 
@@ -116,25 +119,40 @@ Allow the opened app to exit with nonzero exit code when the `wait` option is `t
 
 We do not recommend setting this option. The convention for success is exit code zero.
 
-### open.apps
+### open.apps / apps
 
 An object containing auto-detected binary names for common apps. Useful to work around [cross-platform differences](#app).
 
 ```js
-const open = require('open');
+// Using default export.
+import open from 'open';
 
 await open('https://google.com', {
 	app: {
 		name: open.apps.chrome
 	}
 });
+
+// Using named export.
+import open, {apps} from 'open';
+
+await open('https://firefox.com', {
+	app: {
+		name: apps.browserPrivate
+	}
+});
 ```
+`browser` and `browserPrivate` can also be used to access the user's default browser through [`default-browser`](https://github.com/sindresorhus/default-browser).
 
 #### Supported apps
 
 - [`chrome`](https://www.google.com/chrome) - Web browser
 - [`firefox`](https://www.mozilla.org/firefox) - Web browser
 - [`edge`](https://www.microsoft.com/edge) - Web browser
+- `browser` - Default web browser
+- `browserPrivate` - Default web browser in incognito mode
+
+`browser` and `browserPrivate` only supports `chrome`, `firefox` and `edge`.
 
 ### open.openApp(name, options?)
 

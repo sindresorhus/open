@@ -1,6 +1,6 @@
 import {expectType} from 'tsd';
 import {ChildProcess} from 'child_process';
-import open = require('.');
+import open from '.';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const options: open.Options = {};

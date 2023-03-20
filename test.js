@@ -1,5 +1,5 @@
-const test = require('ava');
-const open = require('.');
+import test from 'ava';
+import open from './index.js';
 const {openApp} = open;
 
 // Tests only checks that opening doesn't return an error
@@ -77,4 +77,20 @@ test('open Firefox without arguments', async t => {
 
 test('open Chrome in incognito mode', async t => {
 	await t.notThrowsAsync(openApp(open.apps.chrome, {arguments: ['--incognito'], newInstance: true}));
+});
+
+test('open URL with default browser argument', async t => {
+	await t.notThrowsAsync(open('https://sindresorhus.com', {app: {name: open.apps.browser}}));
+});
+
+test('open URL with default browser in incognito mode', async t => {
+	await t.notThrowsAsync(open('https://sindresorhus.com', {app: {name: open.apps.browserPrivate}}));
+});
+
+test('open default browser', async t => {
+	await t.notThrowsAsync(openApp(open.apps.browser, {newInstance: true}));
+});
+
+test('open default browser in incognito mode', async t => {
+	await t.notThrowsAsync(openApp(open.apps.browserPrivate, {newInstance: true}));
 });
