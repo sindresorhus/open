@@ -1,36 +1,20 @@
-import path from 'path';
-import {fileURLToPath} from 'url';
-import childProcess from 'child_process';
-import {promises as fs, constants as fsConstants} from 'fs';
+import process from 'node:process';
+import {Buffer} from 'node:buffer';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import childProcess from 'node:child_process';
+import fs from 'node:fs/promises';
+import {constants as fsConstants} from 'node:fs'; // TODO: Move this to the above import when targeting Node.js 18.
 import isWsl from 'is-wsl';
-import isDocker from 'is-docker';
 import defineLazyProperty from 'define-lazy-prop';
 import defaultBrowser from 'default-browser';
+import isInsideContainer from 'is-inside-container';
 
 // Path to included `xdg-open`.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 const {platform, arch} = process;
-
-// Podman detection
-const hasContainerEnv = () => {
-	try {
-		fs.statSync('/run/.containerenv');
-		return true;
-	} catch {
-		return false;
-	}
-};
-
-let cachedResult;
-function isInsideContainer() {
-	if (cachedResult === undefined) {
-		cachedResult = hasContainerEnv() || isDocker();
-	}
-
-	return cachedResult;
-}
 
 /**
 Get the mount point for fixed drives in WSL.
@@ -97,17 +81,17 @@ const baseOpen = async options => {
 		background: false,
 		newInstance: false,
 		allowNonzeroExitCode: false,
-		...options
+		...options,
 	};
 
 	if (Array.isArray(options.app)) {
 		return pTryEach(options.app, singleApp => baseOpen({
 			...options,
-			app: singleApp
+			app: singleApp,
 		}));
 	}
 
-	let {name: app, arguments: appArguments = []} = options.app || {};
+	let {name: app, arguments: appArguments = []} = options.app ?? {};
 	appArguments = [...appArguments];
 
 	if (Array.isArray(app)) {
@@ -115,8 +99,8 @@ const baseOpen = async options => {
 			...options,
 			app: {
 				name: appName,
-				arguments: appArguments
-			}
+				arguments: appArguments,
+			},
 		}));
 	}
 
@@ -129,14 +113,14 @@ const baseOpen = async options => {
 			'firefox.desktop': 'firefox',
 			'com.microsoft.msedge': 'edge',
 			'com.microsoft.edge': 'edge',
-			'microsoft-edge.desktop': 'edge'
+			'microsoft-edge.desktop': 'edge',
 		};
 
-		// Incognito flags for each browser in open.apps
+		// Incognito flags for each browser in `apps`.
 		const flags = {
 			chrome: '--incognito',
 			firefox: '--private-window',
-			edge: '--inPrivate'
+			edge: '--inPrivate',
 		};
 
 		const browser = await defaultBrowser();
@@ -150,9 +134,9 @@ const baseOpen = async options => {
 			return baseOpen({
 				...options,
 				app: {
-					name: open.apps[browserName],
-					arguments: appArguments
-				}
+					name: apps[browserName],
+					arguments: appArguments,
+				},
 			});
 		}
 
@@ -184,16 +168,16 @@ const baseOpen = async options => {
 	} else if (platform === 'win32' || (isWsl && !isInsideContainer() && !app)) {
 		const mountPoint = await getWslDrivesMountPoint();
 
-		command = isWsl ?
-			`${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe` :
-			`${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
+		command = isWsl
+			? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`
+			: `${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
 
 		cliArguments.push(
 			'-NoProfile',
 			'-NonInteractive',
 			'-ExecutionPolicy',
 			'Bypass',
-			'-EncodedCommand'
+			'-EncodedCommand',
 		);
 
 		if (!isWsl) {
@@ -238,8 +222,8 @@ const baseOpen = async options => {
 				exeLocalXdgOpen = true;
 			} catch {}
 
-			const useSystemXdgOpen = process.versions.electron ||
-				platform === 'android' || isBundled || !exeLocalXdgOpen;
+			const useSystemXdgOpen = process.versions.electron
+				?? (platform === 'android' || isBundled || !exeLocalXdgOpen);
 			command = useSystemXdgOpen ? 'xdg-open' : localXdgOpenPath;
 		}
 
@@ -292,16 +276,16 @@ const open = (target, options) => {
 
 	return baseOpen({
 		...options,
-		target
+		target,
 	});
 };
 
-const openApp = (name, options) => {
+export const openApp = (name, options) => {
 	if (typeof name !== 'string') {
 		throw new TypeError('Expected a `name`');
 	}
 
-	const {arguments: appArguments = []} = options || {};
+	const {arguments: appArguments = []} = options ?? {};
 	if (appArguments !== undefined && appArguments !== null && !Array.isArray(appArguments)) {
 		throw new TypeError('Expected `appArguments` as Array type');
 	}
@@ -310,8 +294,8 @@ const openApp = (name, options) => {
 		...options,
 		app: {
 			name,
-			arguments: appArguments
-		}
+			arguments: appArguments,
+		},
 	});
 };
 
@@ -341,41 +325,37 @@ function detectPlatformBinary({[platform]: platformBinary}, {wsl}) {
 	return detectArchBinary(platformBinary);
 }
 
-const apps = {};
+export const apps = {};
 
 defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
 	darwin: 'google chrome',
 	win32: 'chrome',
-	linux: ['google-chrome', 'google-chrome-stable', 'chromium']
+	linux: ['google-chrome', 'google-chrome-stable', 'chromium'],
 }, {
 	wsl: {
 		ia32: '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
-		x64: ['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe']
-	}
+		x64: ['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'],
+	},
 }));
 
 defineLazyProperty(apps, 'firefox', () => detectPlatformBinary({
 	darwin: 'firefox',
 	win32: 'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
-	linux: 'firefox'
+	linux: 'firefox',
 }, {
-	wsl: '/mnt/c/Program Files/Mozilla Firefox/firefox.exe'
+	wsl: '/mnt/c/Program Files/Mozilla Firefox/firefox.exe',
 }));
 
 defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 	darwin: 'microsoft edge',
 	win32: 'msedge',
-	linux: ['microsoft-edge', 'microsoft-edge-dev']
+	linux: ['microsoft-edge', 'microsoft-edge-dev'],
 }, {
-	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
 }));
 
 defineLazyProperty(apps, 'browser', () => 'browser');
 
 defineLazyProperty(apps, 'browserPrivate', () => 'browserPrivate');
 
-open.apps = apps;
-open.openApp = openApp;
-
-export {apps};
 export default open;

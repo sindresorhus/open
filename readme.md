@@ -23,10 +23,12 @@ This package does not make any security guarantees. If you pass in untrusted inp
 npm install open
 ```
 
+**Warning:** This package is native [ESM](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) and no longer provides a CommonJS export. If your project uses CommonJS, you will have to [convert to ESM](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) or use the [dynamic `import()`](https://v8.dev/features/dynamic-import) function. Please don't open issues for questions regarding CommonJS / ESM.
+
 ## Usage
 
 ```js
-import open from 'open';
+import open, {openApp, apps} from 'open';
 
 // Opens the image in the default image viewer and waits for the opened app to quit.
 await open('unicorn.png', {wait: true});
@@ -42,13 +44,13 @@ await open('https://sindresorhus.com', {app: {name: 'firefox'}});
 await open('https://sindresorhus.com', {app: {name: 'google chrome', arguments: ['--incognito']}});
 
 // Opens the URL in the default browser in incognito mode.
-await open('https://sindresorhus.com', {app: {name: open.apps.browserPrivate}});
+await open('https://sindresorhus.com', {app: {name: apps.browserPrivate}});
 
 // Open an app.
-await open.openApp('xcode');
+await openApp('xcode');
 
 // Open an app with arguments.
-await open.openApp(open.apps.chrome, {arguments: ['--incognito']});
+await openApp(apps.chrome, {arguments: ['--incognito']});
 ```
 
 ## API
@@ -104,7 +106,7 @@ Type: `{name: string | string[], arguments?: string[]} | Array<{name: string | s
 
 Specify the `name` of the app to open the `target` with, and optionally, app `arguments`. `app` can be an array of apps to try to open and `name` can be an array of app names to try. If each app fails, the last error will be thrown.
 
-The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`open.apps`](#openapps) which auto-detects the correct binary to use.
+The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`apps`](#apps) which auto-detects the correct binary to use.
 
 You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 
@@ -119,42 +121,7 @@ Allow the opened app to exit with nonzero exit code when the `wait` option is `t
 
 We do not recommend setting this option. The convention for success is exit code zero.
 
-### open.apps / apps
-
-An object containing auto-detected binary names for common apps. Useful to work around [cross-platform differences](#app).
-
-```js
-// Using default export.
-import open from 'open';
-
-await open('https://google.com', {
-	app: {
-		name: open.apps.chrome
-	}
-});
-
-// Using named export.
-import open, {apps} from 'open';
-
-await open('https://firefox.com', {
-	app: {
-		name: apps.browserPrivate
-	}
-});
-```
-`browser` and `browserPrivate` can also be used to access the user's default browser through [`default-browser`](https://github.com/sindresorhus/default-browser).
-
-#### Supported apps
-
-- [`chrome`](https://www.google.com/chrome) - Web browser
-- [`firefox`](https://www.mozilla.org/firefox) - Web browser
-- [`edge`](https://www.microsoft.com/edge) - Web browser
-- `browser` - Default web browser
-- `browserPrivate` - Default web browser in incognito mode
-
-`browser` and `browserPrivate` only supports `chrome`, `firefox` and `edge`.
-
-### open.openApp(name, options?)
+### openApp(name, options?)
 
 Open an app.
 
@@ -164,7 +131,7 @@ Returns a promise for the [spawned child process](https://nodejs.org/api/child_p
 
 Type: `string`
 
-The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`open.apps`](#openapps) which auto-detects the correct binary to use.
+The app name is platform dependent. Don't hard code it in reusable modules. For example, Chrome is `google chrome` on macOS, `google-chrome` on Linux and `chrome` on Windows. If possible, use [`apps`](#apps) which auto-detects the correct binary to use.
 
 You may also pass in the app's full path. For example on WSL, this can be `/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe` for the Windows installation of Chrome.
 
@@ -182,6 +149,32 @@ Default: `[]`
 Arguments passed to the app.
 
 These arguments are app dependent. Check the app's documentation for what arguments it accepts.
+
+### apps
+
+An object containing auto-detected binary names for common apps. Useful to work around [cross-platform differences](#app).
+
+```js
+import open, {apps} from 'open';
+
+await open('https://google.com', {
+	app: {
+		name: apps.chrome
+	}
+});
+```
+
+`browser` and `browserPrivate` can also be used to access the user's default browser through [`default-browser`](https://github.com/sindresorhus/default-browser).
+
+#### Supported apps
+
+- [`chrome`](https://www.google.com/chrome) - Web browser
+- [`firefox`](https://www.mozilla.org/firefox) - Web browser
+- [`edge`](https://www.microsoft.com/edge) - Web browser
+- `browser` - Default web browser
+- `browserPrivate` - Default web browser in incognito mode
+
+`browser` and `browserPrivate` only supports `chrome`, `firefox`, and `edge`.
 
 ## Related
 

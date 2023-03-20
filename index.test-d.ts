@@ -1,17 +1,14 @@
+import {type ChildProcess} from 'node:child_process';
 import {expectType} from 'tsd';
-import {ChildProcess} from 'child_process';
-import open from '.';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const options: open.Options = {};
+import open from './index.js';
 
 expectType<Promise<ChildProcess>>(open('foo'));
 expectType<Promise<ChildProcess>>(open('foo', {app: {
-	name: 'bar'
+	name: 'bar',
 }}));
 expectType<Promise<ChildProcess>>(open('foo', {app: {
 	name: 'bar',
-	arguments: ['--arg']
+	arguments: ['--arg'],
 }}));
 expectType<Promise<ChildProcess>>(open('foo', {wait: true}));
 expectType<Promise<ChildProcess>>(open('foo', {background: true}));

@@ -1,7 +1,6 @@
 {
 	"name": "open",
 	"version": "8.4.0",
-	"type": "module",
 	"description": "Open stuff like URLs, files, executables. Cross-platform.",
 	"license": "MIT",
 	"repository": "sindresorhus/open",
@@ -11,8 +10,13 @@
 		"email": "sindresorhus@gmail.com",
 		"url": "https://sindresorhus.com"
 	},
+	"type": "module",
+	"exports": {
+		"types": "./index.d.ts",
+		"default": "./index.js"
+	},
 	"engines": {
-		"node": ">=12"
+		"node": ">=14.16"
 	},
 	"scripts": {
 		"test": "xo && tsd"
@@ -49,15 +53,15 @@
 		"file"
 	],
 	"dependencies": {
-		"define-lazy-prop": "^2.0.0",
-		"is-docker": "^2.1.1",
-		"is-wsl": "^2.2.0",
-		"default-browser": "^3.1.0"
+		"default-browser": "^3.1.0",
+		"define-lazy-prop": "^3.0.0",
+		"is-inside-container": "^1.0.0",
+		"is-wsl": "^2.2.0"
 	},
 	"devDependencies": {
-		"@types/node": "^15.0.0",
-		"ava": "^3.15.0",
-		"tsd": "^0.14.0",
-		"xo": "^0.39.1"
+		"@types/node": "^18.15.3",
+		"ava": "^5.2.0",
+		"tsd": "^0.28.0",
+		"xo": "^0.53.1"
 	}
 }
