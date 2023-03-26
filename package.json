@@ -53,13 +53,13 @@
 		"file"
 	],
 	"dependencies": {
-		"default-browser": "^3.1.0",
+		"default-browser": "^4.0.0",
 		"define-lazy-prop": "^3.0.0",
 		"is-inside-container": "^1.0.0",
 		"is-wsl": "^2.2.0"
 	},
 	"devDependencies": {
-		"@types/node": "^18.15.3",
+		"@types/node": "^18.15.10",
 		"ava": "^5.2.0",
 		"tsd": "^0.28.0",
 		"xo": "^0.53.1"
