@@ -1,7 +1,6 @@
 import process from 'node:process';
 import {Buffer} from 'node:buffer';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import childProcess from 'node:child_process';
 import fs from 'node:fs/promises';
 import {constants as fsConstants} from 'node:fs'; // TODO: Move this to the above import when targeting Node.js 18.
@@ -11,8 +10,8 @@ import defaultBrowser from 'default-browser';
 import isInsideContainer from 'is-inside-container';
 
 // Path to included `xdg-open`.
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const localXdgOpenPath = path.join(__dirname, 'xdg-open');
+const _dir = path.resolve();
+const localXdgOpenPath = path.join(_dir, 'xdg-open');
 
 const {platform, arch} = process;
 
@@ -213,7 +212,7 @@ const baseOpen = async options => {
 			command = app;
 		} else {
 			// When bundled by Webpack, there's no actual package file path and no local `xdg-open`.
-			const isBundled = !__dirname || __dirname === '/';
+			const isBundled = !_dir || _dir === '/';
 
 			// Check if local `xdg-open` exists and is executable.
 			let exeLocalXdgOpen = false;
