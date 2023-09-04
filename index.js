@@ -202,7 +202,7 @@ const baseOpen = async options => {
 		}
 
 		if (appArguments.length > 0) {
-			appArguments = appArguments.map(arg => `"\`"${arg}\`""`);
+			appArguments = appArguments.map(arg => `"\`"${String(arg).replaceAll('"', '`"')}\`""`);
 			encodedArguments.push('-ArgumentList', appArguments.join(','));
 		}
 
