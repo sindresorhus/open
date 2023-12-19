@@ -3,8 +3,7 @@ import {Buffer} from 'node:buffer';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import childProcess from 'node:child_process';
-import fs from 'node:fs/promises';
-import {constants as fsConstants} from 'node:fs'; // TODO: Move this to the above import when targeting Node.js 18.
+import fs, {constants as fsConstants} from 'node:fs/promises';
 import isWsl from 'is-wsl';
 import defineLazyProperty from 'define-lazy-prop';
 import defaultBrowser from 'default-browser';
@@ -202,7 +201,7 @@ const baseOpen = async options => {
 		}
 
 		if (appArguments.length > 0) {
-			appArguments = appArguments.map(arg => `"\`"${arg}\`""`);
+			appArguments = appArguments.map(argument => `"\`"${argument}\`""`);
 			encodedArguments.push('-ArgumentList', appArguments.join(','));
 		}
 

@@ -15,8 +15,9 @@
 		"types": "./index.d.ts",
 		"default": "./index.js"
 	},
+	"sideEffects": false,
 	"engines": {
-		"node": ">=14.16"
+		"node": ">=18"
 	},
 	"scripts": {
 		"test": "xo && tsd"
@@ -53,15 +54,15 @@
 		"file"
 	],
 	"dependencies": {
-		"default-browser": "^4.0.0",
+		"default-browser": "^5.2.0",
 		"define-lazy-prop": "^3.0.0",
 		"is-inside-container": "^1.0.0",
-		"is-wsl": "^2.2.0"
+		"is-wsl": "^3.1.0"
 	},
 	"devDependencies": {
-		"@types/node": "^18.15.10",
-		"ava": "^5.2.0",
-		"tsd": "^0.28.0",
-		"xo": "^0.54.2"
+		"@types/node": "^20.10.5",
+		"ava": "^6.0.1",
+		"tsd": "^0.30.0",
+		"xo": "^0.56.0"
 	}
 }
