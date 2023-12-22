@@ -169,7 +169,7 @@ const baseOpen = async options => {
 
 		command = isWsl
 			? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`
-			: `${process.env.SYSTEMROOT}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
+			: `${process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows'}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
 
 		cliArguments.push(
 			'-NoProfile',
