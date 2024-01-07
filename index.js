@@ -238,12 +238,13 @@ const baseOpen = async options => {
 		}
 	}
 
-	if (options.target) {
-		cliArguments.push(options.target);
-	}
-
 	if (platform === 'darwin' && appArguments.length > 0) {
 		cliArguments.push('--args', ...appArguments);
+	}
+
+	// This has to come after `--args`.
+	if (options.target) {
+		cliArguments.push(options.target);
 	}
 
 	const subprocess = childProcess.spawn(command, cliArguments, childProcessOptions);
