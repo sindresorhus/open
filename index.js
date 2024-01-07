@@ -242,6 +242,7 @@ const baseOpen = async options => {
 		cliArguments.push('--args', ...appArguments);
 	}
 
+	// This has to come after `--args`.
 	if (options.target) {
 		cliArguments.push(options.target);
 	}
