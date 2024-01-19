@@ -1,7 +1,7 @@
 import test from 'ava';
 import open, {openApp, apps} from './index.js';
 
-// Tests only checks that opening doesn't return an error
+// Tests only checks that opening doesn't return an error.
 // it has no way make sure that it actually opened anything.
 
 // These have to be manually verified.
