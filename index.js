@@ -281,8 +281,8 @@ const open = (target, options) => {
 };
 
 export const openApp = (name, options) => {
-	if (typeof name !== 'string') {
-		throw new TypeError('Expected a `name`');
+	if (typeof name !== 'string' && !Array.isArray(name)) {
+		throw new TypeError('Expected a valid `name`');
 	}
 
 	const {arguments: appArguments = []} = options ?? {};
