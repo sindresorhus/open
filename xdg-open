@@ -7,7 +7,7 @@
 #   Refer to the usage() function below for usage.
 #
 #   Copyright 2009-2010, Fathi Boudra <fabo@freedesktop.org>
-#   Copyright 2009-2010, Rex Dieter <rdieter@fedoraproject.org>
+#   Copyright 2009-2016, Rex Dieter <rdieter@fedoraproject.org>
 #   Copyright 2006, Kevin Krammer <kevin.krammer@gmx.at>
 #   Copyright 2006, Jeremy White <jwhite@codeweavers.com>
 #
@@ -35,7 +35,7 @@
 
 manualpage()
 {
-cat << _MANUALPAGE
+cat << '_MANUALPAGE'
 Name
 
    xdg-open -- opens a file or URL in the user's preferred
@@ -57,6 +57,14 @@ Description
 
    xdg-open is for use inside a desktop session only. It is not
    recommended to use xdg-open as root.
+
+   As xdg-open can not handle arguments that begin with a "-" it
+   is recommended to pass filepaths in one of the following ways:
+     * Pass absolute paths, i.e. by using realpath as a
+       preprocessor.
+     * Prefix known relative filepaths with a "./". For example
+       using sed -E 's|^[^/]|./\0|'.
+     * Pass a file URL.
 
 Options
 
@@ -87,6 +95,37 @@ Exit Codes
    4
           The action failed.
 
+   In case of success the process launched from the .desktop file
+   will not be forked off and therefore may result in xdg-open
+   running for a very long time. This behaviour intentionally
+   differs from most desktop specific openers to allow terminal
+   based applications to run using the same terminal xdg-open was
+   called from.
+
+Reporting Issues
+
+   Please keep in mind xdg-open inherits most of the flaws of its
+   configuration and the underlying opener.
+
+   In case the command xdg-mime query default "$(xdg-mime query
+   filetype path/to/troublesome_file)" names the program
+   responsible for any unexpected behaviour you can fix that by
+   setting a different handler. (If the program is broken let the
+   developers know)
+
+   Also see the security note on xdg-mime(1) for the default
+   subcommand.
+
+   If a flaw is reproducible using the desktop specific opener
+   (and isn't a configuration issue): Please report to whoever is
+   responsible for that first (reporting to xdg-utils is better
+   than not reporting at all, but since the xdg-utils are
+   maintained in very little spare time a fix will take much
+   longer)
+
+   In case an issue specific to xdg-open please report it to
+   https://gitlab.freedesktop.org/xdg/xdg-utils/-/issues .
+
 See Also
 
    xdg-mime(1), xdg-settings(1), MIME applications associations
@@ -108,7 +147,7 @@ _MANUALPAGE
 
 usage()
 {
-cat << _USAGE
+cat << '_USAGE'
    xdg-open -- opens a file or URL in the user's preferred
    application
 
@@ -122,15 +161,16 @@ _USAGE
 }
 
 #@xdg-utils-common@
-
 #----------------------------------------------------------------------------
 #   Common utility functions included in all XDG wrapper scripts
 #----------------------------------------------------------------------------
 
+#shellcheck shell=sh
+
 DEBUG()
 {
   [ -z "${XDG_UTILS_DEBUG_LEVEL}" ] && return 0;
-  [ ${XDG_UTILS_DEBUG_LEVEL} -lt $1 ] && return 0;
+  [ "${XDG_UTILS_DEBUG_LEVEL}" -lt "$1" ] && return 0;
   shift
   echo "$@" >&2
 }
@@ -138,6 +178,7 @@ DEBUG()
 # This handles backslashes but not quote marks.
 first_word()
 {
+    # shellcheck disable=SC2162 # No -r is intended here
     read first rest
     echo "$first"
 }
@@ -147,9 +188,9 @@ first_word()
 binary_to_desktop_file()
 {
     search="${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-    binary="`which "$1"`"
-    binary="`readlink -f "$binary"`"
-    base="`basename "$binary"`"
+    binary="$(command -v "$1")"
+    binary="$(xdg_realpath "$binary")"
+    base="$(basename "$binary")"
     IFS=:
     for dir in $search; do
         unset IFS
@@ -161,11 +202,11 @@ binary_to_desktop_file()
             grep -q "^Exec.*$base" "$file" || continue
             # Make sure it's a visible desktop file (e.g. not "preferred-web-browser.desktop").
             grep -Eq "^(NoDisplay|Hidden)=true" "$file" && continue
-            command="`grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | first_word`"
-            command="`which "$command"`"
-            if [ x"`readlink -f "$command"`" = x"$binary" ]; then
+            command="$(grep -E "^Exec(\[[^]=]*])?=" "$file" | cut -d= -f 2- | first_word)"
+            command="$(command -v "$command")"
+            if [ x"$(xdg_realpath "$command")" = x"$binary" ]; then
                 # Fix any double slashes that got added path composition
-                echo "$file" | sed -e 's,//*,/,g'
+                echo "$file" | tr -s /
                 return
             fi
         done
@@ -177,7 +218,7 @@ binary_to_desktop_file()
 desktop_file_to_binary()
 {
     search="${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-    desktop="`basename "$1"`"
+    desktop="$(basename "$1")"
     IFS=:
     for dir in $search; do
         unset IFS
@@ -186,10 +227,10 @@ desktop_file_to_binary()
         if [ "${desktop#*-}" != "$desktop" ]; then
             vendor=${desktop%-*}
             app=${desktop#*-}
-            if [ -r $dir/applications/$vendor/$app ]; then
-                file_path=$dir/applications/$vendor/$app
-            elif [ -r $dir/applnk/$vendor/$app ]; then
-                file_path=$dir/applnk/$vendor/$app
+            if [ -r "$dir/applications/$vendor/$app" ]; then
+                file_path="$dir/applications/$vendor/$app"
+            elif [ -r "$dir/applnk/$vendor/$app" ]; then
+                file_path="$dir/applnk/$vendor/$app"
             fi
         fi
         if test -z "$file_path" ; then
@@ -203,9 +244,9 @@ desktop_file_to_binary()
         fi
         if [ -r "$file_path" ]; then
             # Remove any arguments (%F, %f, %U, %u, etc.).
-            command="`grep -E "^Exec(\[[^]=]*])?=" "$file_path" | cut -d= -f 2- | first_word`"
-            command="`which "$command"`"
-            readlink -f "$command"
+            command="$(grep -E "^Exec(\[[^]=]*])?=" "$file_path" | cut -d= -f 2- | first_word)"
+            command="$(command -v "$command")"
+            xdg_realpath "$command"
             return
         fi
     done
@@ -214,10 +255,11 @@ desktop_file_to_binary()
 #-------------------------------------------------------------
 # Exit script on successfully completing the desired operation
 
+# shellcheck disable=SC2120 # It is okay to call this without arguments
 exit_success()
 {
     if [ $# -gt 0 ]; then
-        echo "$@"
+        echo "$*"
         echo
     fi
 
@@ -233,7 +275,7 @@ exit_success()
 exit_failure_syntax()
 {
     if [ $# -gt 0 ]; then
-        echo "xdg-open: $@" >&2
+        echo "xdg-open: $*" >&2
         echo "Try 'xdg-open --help' for more information." >&2
     else
         usage
@@ -249,7 +291,7 @@ exit_failure_syntax()
 exit_failure_file_missing()
 {
     if [ $# -gt 0 ]; then
-        echo "xdg-open: $@" >&2
+        echo "xdg-open: $*" >&2
     fi
 
     exit 2
@@ -261,7 +303,7 @@ exit_failure_file_missing()
 exit_failure_operation_impossible()
 {
     if [ $# -gt 0 ]; then
-        echo "xdg-open: $@" >&2
+        echo "xdg-open: $*" >&2
     fi
 
     exit 3
@@ -273,7 +315,7 @@ exit_failure_operation_impossible()
 exit_failure_operation_failed()
 {
     if [ $# -gt 0 ]; then
-        echo "xdg-open: $@" >&2
+        echo "xdg-open: $*" >&2
     fi
 
     exit 4
@@ -285,7 +327,7 @@ exit_failure_operation_failed()
 exit_failure_file_permission_read()
 {
     if [ $# -gt 0 ]; then
-        echo "xdg-open: $@" >&2
+        echo "xdg-open: $*" >&2
     fi
 
     exit 5
@@ -297,7 +339,7 @@ exit_failure_file_permission_read()
 exit_failure_file_permission_write()
 {
     if [ $# -gt 0 ]; then
-        echo "xdg-open: $@" >&2
+        echo "xdg-open: $*" >&2
     fi
 
     exit 6
@@ -317,7 +359,7 @@ check_vendor_prefix()
 {
     file_label="$2"
     [ -n "$file_label" ] || file_label="filename"
-    file=`basename "$1"`
+    file="$(basename "$1")"
     case "$file" in
        [[:alpha:]]*-*)
          return
@@ -340,7 +382,7 @@ check_output_file()
             exit_failure_file_permission_write "no permission to write to file '$1'"
         fi
     else
-        DIR=`dirname "$1"`
+        DIR="$(dirname "$1")"
         if [ ! -w "$DIR" ] || [ ! -x "$DIR" ]; then
             exit_failure_file_permission_write "no permission to create file '$1'"
         fi
@@ -369,9 +411,13 @@ check_common_commands()
             ;;
 
             --version)
-            echo "xdg-open 1.1.3"
+            echo "xdg-open 1.2.1"
             exit_success
             ;;
+
+            --)
+	        [ -z "$XDG_UTILS_ENABLE_DOUBLE_HYPEN" ] || break
+	        ;;
         esac
     done
 }
@@ -379,7 +425,8 @@ check_common_commands()
 check_common_commands "$@"
 
 [ -z "${XDG_UTILS_DEBUG_LEVEL}" ] && unset XDG_UTILS_DEBUG_LEVEL;
-if [ ${XDG_UTILS_DEBUG_LEVEL-0} -lt 1 ]; then
+# shellcheck disable=SC2034
+if [ "${XDG_UTILS_DEBUG_LEVEL-0}" -lt 1 ]; then
     # Be silent
     xdg_redirect_output=" > /dev/null 2> /dev/null"
 else
@@ -412,9 +459,8 @@ detectDE()
          KDE)
            DE=kde;
            ;;
-         # Deepin Desktop Environments
          DEEPIN|Deepin|deepin)
-           DE=dde;
+           DE=deepin;
            ;;
          LXDE)
            DE=lxde;
@@ -434,27 +480,28 @@ detectDE()
       esac
     fi
 
-    if [ x"$DE" = x"" ]; then
+    # shellcheck disable=SC2153
+    if [ -z "$DE" ]; then
       # classic fallbacks
-      if [ x"$KDE_FULL_SESSION" != x"" ]; then DE=kde;
-      elif [ x"$GNOME_DESKTOP_SESSION_ID" != x"" ]; then DE=gnome;
-      elif [ x"$MATE_DESKTOP_SESSION_ID" != x"" ]; then DE=mate;
-      elif `dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.gnome.SessionManager > /dev/null 2>&1` ; then DE=gnome;
+      if [ -n "$KDE_FULL_SESSION" ]; then DE=kde;
+      elif [ -n "$GNOME_DESKTOP_SESSION_ID" ]; then DE=gnome;
+      elif [ -n "$MATE_DESKTOP_SESSION_ID" ]; then DE=mate;
+      elif dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.GetNameOwner string:org.gnome.SessionManager > /dev/null 2>&1 ; then DE=gnome;
       elif xprop -root _DT_SAVE_MODE 2> /dev/null | grep ' = \"xfce4\"$' >/dev/null 2>&1; then DE=xfce;
       elif xprop -root 2> /dev/null | grep -i '^xfce_desktop_window' >/dev/null 2>&1; then DE=xfce
-      elif echo $DESKTOP | grep -q '^Enlightenment'; then DE=enlightenment;
-      elif [ x"$LXQT_SESSION_CONFIG" != x"" ]; then DE=lxqt;
+      elif echo "$DESKTOP" | grep -q '^Enlightenment'; then DE=enlightenment;
+      elif [ -n "$LXQT_SESSION_CONFIG" ]; then DE=lxqt;
       fi
     fi
 
-    if [ x"$DE" = x"" ]; then
+    if [ -z "$DE" ]; then
       # fallback to checking $DESKTOP_SESSION
       case "$DESKTOP_SESSION" in
          gnome)
            DE=gnome;
            ;;
          LXDE|Lubuntu)
-           DE=lxde; 
+           DE=lxde;
            ;;
          MATE)
            DE=mate;
@@ -465,14 +512,19 @@ detectDE()
       esac
     fi
 
-    if [ x"$DE" = x"" ]; then
+    if [ -z "$DE" ]; then
       # fallback to uname output for other platforms
-      case "$(uname 2>/dev/null)" in 
+      case "$(uname 2>/dev/null)" in
         CYGWIN*)
           DE=cygwin;
           ;;
         Darwin)
           DE=darwin;
+          ;;
+        Linux)
+          grep -q microsoft /proc/version > /dev/null 2>&1 && \
+          command -v explorer.exe > /dev/null 2>&1 && \
+          DE=wsl;
           ;;
       esac
     fi
@@ -480,7 +532,7 @@ detectDE()
     if [ x"$DE" = x"gnome" ]; then
       # gnome-default-applications-properties is only available in GNOME 2.x
       # but not in GNOME 3.x
-      which gnome-default-applications-properties > /dev/null 2>&1  || DE="gnome3"
+      command -v gnome-default-applications-properties > /dev/null || DE="gnome3"
     fi
 
     if [ -f "$XDG_RUNTIME_DIR/flatpak-info" ]; then
@@ -495,13 +547,13 @@ detectDE()
 
 kfmclient_fix_exit_code()
 {
-    version=`LC_ALL=C.UTF-8 kde-config --version 2>/dev/null | grep '^KDE'`
-    major=`echo $version | sed 's/KDE.*: \([0-9]\).*/\1/'`
-    minor=`echo $version | sed 's/KDE.*: [0-9]*\.\([0-9]\).*/\1/'`
-    release=`echo $version | sed 's/KDE.*: [0-9]*\.[0-9]*\.\([0-9]\).*/\1/'`
-    test "$major" -gt 3 && return $1
-    test "$minor" -gt 5 && return $1
-    test "$release" -gt 4 && return $1
+    version="$(LC_ALL=C.UTF-8 kde-config --version 2>/dev/null | grep '^KDE')"
+    major="$(echo "$version" | sed 's/KDE.*: \([0-9]\).*/\1/')"
+    minor="$(echo "$version" | sed 's/KDE.*: [0-9]*\.\([0-9]\).*/\1/')"
+    release="$(echo "$version" | sed 's/KDE.*: [0-9]*\.[0-9]*\.\([0-9]\).*/\1/')"
+    test "$major" -gt 3 && return "$1"
+    test "$minor" -gt 5 && return "$1"
+    test "$release" -gt 4 && return "$1"
     return 0
 }
 
@@ -517,9 +569,67 @@ has_display()
     fi
 }
 
+#----------------------------------------------------------------------------
+# Prefixes a path with a "./" if it starts with a "-".
+# This is useful for programs to not confuse paths with options.
+
+unoption_path()
+{
+	case "$1" in
+		-*)
+			printf "./%s" "$1" ;;
+		*)
+			printf "%s" "$1" ;;
+	esac
+}
+
+#----------------------------------------------------------------------------
+# Performs a symlink and relative path resolving for a single argument.
+# This will always fail if the given file does not exist!
+
+xdg_realpath()
+{
+	# allow caching and external configuration
+	if [ -z "$XDG_UTILS_REALPATH_BACKEND" ] ; then
+		if command -v realpath >/dev/null 2>/dev/null ; then
+			lines="$(realpath -- / 2>&1)"
+			if [ $? = 0 ] && [ "$lines" = "/" ] ; then
+				XDG_UTILS_REALPATH_BACKEND="realpath"
+			else
+				# The realpath took the -- literally, probably the busybox implementation
+				XDG_UTILS_REALPATH_BACKEND="busybox-realpath"
+			fi
+			unset lines
+		elif command -v readlink >/dev/null 2>/dev/null ; then
+			XDG_UTILS_REALPATH_BACKEND="readlink"
+		else
+			exit_failure_operation_failed "No usable realpath backend found. Have a realpath binary or a readlink -f that canonicalizes paths."
+		fi
+	fi
+	# Always fail if the file doesn't exist (busybox realpath does that for example)
+	[ -e "$1" ] || return 1
+	case "$XDG_UTILS_REALPATH_BACKEND" in
+		realpath)
+			realpath -- "$1"
+			;;
+		busybox-realpath)
+			# busybox style realpath implementations have options too
+			realpath "$(unoption_path "$1")"
+			;;
+		readlink)
+			readlink -f "$(unoption_path "$1")"
+			;;
+		*)
+			exit_failure_operation_impossible "Realpath backend '$XDG_UTILS_REALPATH_BACKEND' not recognized."
+			;;
+	esac
+}
+
 # This handles backslashes but not quote marks.
 last_word()
 {
+    # Backslash handling is intended, not using `first` too
+    # shellcheck disable=SC2162,SC2034
     read first rest
     echo "$rest"
 }
@@ -535,7 +645,8 @@ get_key()
 
     IFS_="${IFS}"
     IFS=""
-    while read line
+    # No backslash handling here, first_word and last_word do that
+    while read -r line
     do
         case "$line" in
             "[Desktop Entry]")
@@ -556,14 +667,28 @@ get_key()
     IFS="${IFS_}"
 }
 
+has_url_scheme()
+{
+	echo "$1" | LC_ALL=C grep -Eq '^[[:alpha:]][[:alpha:][:digit:]+\.\-]*:'
+}
+
 # Returns true if argument is a file:// URL or path
 is_file_url_or_path()
 {
-    if echo "$1" | grep -q '^file://' \
-            || ! echo "$1" | egrep -q '^[[:alpha:]+\.\-]+:'; then
+    if echo "$1" | grep -q '^file://' || ! has_url_scheme "$1" ; then
         return 0
     else
         return 1
+    fi
+}
+
+get_hostname() {
+    if [ -z "$HOSTNAME" ]; then
+        if command -v hostname > /dev/null; then
+            HOSTNAME=$(hostname)
+        else
+            HOSTNAME=$(uname -n)
+        fi
     fi
 }
 
@@ -572,10 +697,17 @@ is_file_url_or_path()
 file_url_to_path()
 {
     local file="$1"
-    if echo "$file" | grep -q '^file:///'; then
+    get_hostname
+    if echo "$file" | grep -q '^file://'; then
+        file=${file#file://localhost}
+        file=${file#file://"$HOSTNAME"}
         file=${file#file://}
+        if ! echo "$file" | grep -q '^/'; then
+            echo "$file"
+            return
+        fi
         file=${file%%#*}
-        file=$(echo "$file" | sed -r 's/\?.*$//')
+        file=${file%%\?*}
         local printf=printf
         if [ -x /usr/bin/printf ]; then
             printf=/usr/bin/printf
@@ -615,7 +747,10 @@ open_kde()
           kde-open "$1"
         ;;
         5)
-          kde-open${KDE_SESSION_VERSION} "$1"
+          "kde-open${KDE_SESSION_VERSION}" "$1"
+        ;;
+        6)
+          kde-open "$1"
         ;;
       esac
     else
@@ -630,7 +765,7 @@ open_kde()
     fi
 }
 
-open_dde()
+open_deepin()
 {
     if dde-open -version >/dev/null 2>&1; then
         dde-open "$1"
@@ -736,11 +871,28 @@ open_enlightenment()
 
 open_flatpak()
 {
-    gdbus call --session \
-        --dest org.freedesktop.portal.Desktop \
-        --object-path /org/freedesktop/portal/desktop \
-        --method org.freedesktop.portal.OpenURI.OpenURI \
-        "" "$1" {}
+    if is_file_url_or_path "$1"; then
+        local file
+        file="$(file_url_to_path "$1")"
+
+        check_input_file "$file"
+
+        gdbus call --session \
+            --dest org.freedesktop.portal.Desktop \
+            --object-path /org/freedesktop/portal/desktop \
+            --method org.freedesktop.portal.OpenURI.OpenFile \
+            --timeout 5 \
+            "" "3" {} 3< "$file"
+    else
+        # $1 contains an URI
+
+        gdbus call --session \
+            --dest org.freedesktop.portal.Desktop \
+            --object-path /org/freedesktop/portal/desktop \
+            --method org.freedesktop.portal.OpenURI.OpenURI \
+            --timeout 5 \
+            "" "$1" {}
+    fi
 
     if [ $? -eq 0 ]; then
         exit_success
@@ -752,79 +904,91 @@ open_flatpak()
 #-----------------------------------------
 # Recursively search .desktop file
 
+#(application, directory, target file, target_url)
 search_desktop_file()
 {
     local default="$1"
     local dir="$2"
     local target="$3"
+    local target_uri="$4"
 
     local file=""
     # look for both vendor-app.desktop, vendor/app.desktop
     if [ -r "$dir/$default" ]; then
       file="$dir/$default"
-    elif [ -r "$dir/`echo $default | sed -e 's|-|/|'`" ]; then
-      file="$dir/`echo $default | sed -e 's|-|/|'`"
+    elif [ -r "$dir/$(echo "$default" | sed -e 's|-|/|')" ]; then
+      file="$dir/$(echo "$default" | sed -e 's|-|/|')"
     fi
 
     if [ -r "$file" ] ; then
         command="$(get_key "${file}" "Exec" | first_word)"
-        command_exec=`which $command 2>/dev/null`
-        icon="$(get_key "${file}" "Icon")"
-        # FIXME: Actually LC_MESSAGES should be used as described in
-        # http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s04.html
-        localised_name="$(get_key "${file}" "Name")"
-        set -- $(get_key "${file}" "Exec" | last_word)
-        # We need to replace any occurrence of "%f", "%F" and
-        # the like by the target file. We examine each
-        # argument and append the modified argument to the
-        # end then shift.
-        local args=$#
-        local replaced=0
-        while [ $args -gt 0 ]; do
-            case $1 in
-                %[c])
-                    replaced=1
-                    arg="${localised_name}"
-                    shift
-                    set -- "$@" "$arg"
-                    ;;
-                %[fFuU])
-                    replaced=1
-                    arg="$target"
-                    shift
-                    set -- "$@" "$arg"
-                    ;;
-                %[i])
-                    replaced=1
-                    shift
-                    set -- "$@" "--icon" "$icon"
-                    ;;
-                *)
-                    arg="$1"
-                    shift
-                    set -- "$@" "$arg"
-                    ;;
-            esac
-            args=$(( $args - 1 ))
-        done
-        [ $replaced -eq 1 ] || set -- "$@" "$target"
-        "$command_exec" "$@"
-
-        if [ $? -eq 0 ]; then
+        if command -v "$command" >/dev/null; then
+            icon="$(get_key "${file}" "Icon")"
+            # FIXME: Actually LC_MESSAGES should be used as described in
+            # http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s04.html
+            localised_name="$(get_key "${file}" "Name")"
+            #shellcheck disable=SC2046 # Splitting is intentional here
+            set -- $(get_key "${file}" "Exec" | last_word)
+            # We need to replace any occurrence of "%f", "%F" and
+            # the like by the target file. We examine each
+            # argument and append the modified argument to the
+            # end then shift.
+            local args=$#
+            local replaced=0
+            while [ $args -gt 0 ]; do
+                case $1 in
+                    %[c])
+                        replaced=1
+                        arg="${localised_name}"
+                        shift
+                        set -- "$@" "$arg"
+                        ;;
+                    %[fF])
+	                    # if there is only a target_url return,
+	                    # this application can't handle it.
+	                    [ -n "$target" ] || return
+                        replaced=1
+                        arg="$target"
+                        shift
+                        set -- "$@" "$arg"
+                        ;;
+                    %[uU])
+                        replaced=1
+                        # When an URI is requested use it,
+                        # otherwise fall back to the filepath.
+                        arg="${target_uri:-$target}"
+                        shift
+                        set -- "$@" "$arg"
+                        ;;
+                    %[i])
+                        replaced=1
+                        shift
+                        set -- "$@" "--icon" "$icon"
+                        ;;
+                    *)
+                        arg="$1"
+                        shift
+                        set -- "$@" "$arg"
+                        ;;
+                esac
+                args=$(( args - 1 ))
+            done
+            [ $replaced -eq 1 ] || set -- "$@" "${target:-$target_uri}"
+            env "$command" "$@"
             exit_success
         fi
     fi
 
-    for d in $dir/*/; do
-        [ -d "$d" ] && search_desktop_file "$default" "$d" "$target"
+    for d in "$dir/"*/; do
+        [ -d "$d" ] && search_desktop_file "$default" "$d" "$target" "$target_uri"
     done
 }
 
-
+# (file (or empty), mimetype, optional url)
 open_generic_xdg_mime()
 {
     filetype="$2"
-    default=`xdg-mime query default "$filetype"`
+    default="$(xdg-mime query default "$filetype")"
     if [ -n "$default" ] ; then
         xdg_user_dir="$XDG_DATA_HOME"
         [ -n "$xdg_user_dir" ] || xdg_user_dir="$HOME/.local/share"
@@ -832,25 +996,23 @@ open_generic_xdg_mime()
         xdg_system_dirs="$XDG_DATA_DIRS"
         [ -n "$xdg_system_dirs" ] || xdg_system_dirs=/usr/local/share/:/usr/share/
 
-DEBUG 3 "$xdg_user_dir:$xdg_system_dirs"
-        for x in `echo "$xdg_user_dir:$xdg_system_dirs" | sed 's/:/ /g'`; do
-            search_desktop_file "$default" "$x/applications/" "$1"
+        search_dirs="$xdg_user_dir:$xdg_system_dirs"
+        DEBUG 3 "$search_dirs"
+        old_ifs="$IFS"
+        IFS=:
+        for x in $search_dirs ; do
+            IFS="$old_ifs"
+            search_desktop_file "$default" "$x/applications/" "$1" "$3"
         done
     fi
 }
 
-open_generic_xdg_file_mime()
-{
-    filetype=`xdg-mime query filetype "$1" | sed "s/;.*//"`
-    open_generic_xdg_mime "$1" "$filetype"
-}
-
 open_generic_xdg_x_scheme_handler()
 {
-    scheme="`echo $1 | sed -n 's/\(^[[:alnum:]+\.-]*\):.*$/\1/p'`"
-    if [ -n $scheme ]; then
+    scheme="$(echo "$1" | LC_ALL=C sed -n 's/\(^[[:alpha:]][[:alnum:]+\.-]*\):.*$/\1/p')"
+    if [ -n "$scheme" ]; then
         filetype="x-scheme-handler/$scheme"
-        open_generic_xdg_mime "$1" "$filetype"
+        open_generic_xdg_mime "" "$filetype" "$1"
     fi
 }
 
@@ -862,7 +1024,7 @@ has_single_argument()
 open_envvar()
 {
     local oldifs="$IFS"
-    local browser browser_with_arg
+    local browser
 
     IFS=":"
     for browser in $BROWSER; do
@@ -876,6 +1038,8 @@ open_envvar()
             # Avoid argument injection.
             # See https://bugs.freedesktop.org/show_bug.cgi?id=103807
             # URIs don't have IFS characters spaces anyway.
+            # shellcheck disable=SC2086,SC2091,SC2059
+            # All the scary things here are intentional
             has_single_argument $1 && $(printf "$browser" "$1")
         else
             $browser "$1"
@@ -887,19 +1051,41 @@ open_envvar()
     done
 }
 
+open_wsl()
+{
+    local win_path
+    if is_file_url_or_path "$1" ; then
+        win_path="$(file_url_to_path "$1")"
+        win_path="$(wslpath -aw "$win_path")"
+        [ $? -eq 0 ] || exit_failure_operation_failed
+        explorer.exe "${win_path}"
+    else
+        rundll32.exe url.dll,FileProtocolHandler "$1" 
+    fi
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
+}
+
 open_generic()
 {
     if is_file_url_or_path "$1"; then
-        local file="$(file_url_to_path "$1")"
+        local file
+        file="$(file_url_to_path "$1")"
 
         check_input_file "$file"
 
         if has_display; then
-            filetype=`xdg-mime query filetype "$file" | sed "s/;.*//"`
-            open_generic_xdg_mime "$file" "$filetype"
+            filetype="$(xdg-mime query filetype "$file" | sed "s/;.*//")"
+            # passing a path a url is okay too,
+            # see desktop file specification for '%u'
+            open_generic_xdg_mime "$file" "$filetype" "$1"
         fi
 
-        if which run-mailcap 2>/dev/null 1>&2; then
+        if command -v run-mailcap >/dev/null; then
             run-mailcap --action=view "$file"
             if [ $? -eq 0 ]; then
                 exit_success
@@ -926,7 +1112,7 @@ open_generic()
     if [ x"$BROWSER" = x"" ]; then
         BROWSER=www-browser:links2:elinks:links:lynx:w3m
         if has_display; then
-            BROWSER=x-www-browser:firefox:iceweasel:seamonkey:mozilla:epiphany:konqueror:chromium:chromium-browser:google-chrome:microsoft-edge:$BROWSER
+            BROWSER=x-www-browser:firefox:iceweasel:seamonkey:mozilla:epiphany:konqueror:chromium:chromium-browser:google-chrome:$BROWSER
         fi
     fi
 
@@ -940,7 +1126,8 @@ open_lxde()
 
     # pcmanfm only knows how to handle file:// urls and filepaths, it seems.
     if pcmanfm --help >/dev/null 2>&1 && is_file_url_or_path "$1"; then
-        local file="$(file_url_to_path "$1")"
+        local file
+        file="$(file_url_to_path "$1")"
 
         # handle relative paths
         if ! echo "$file" | grep -q ^/; then
@@ -961,7 +1148,17 @@ open_lxde()
 
 open_lxqt()
 {
-    open_generic "$1"
+    if qtxdg-mat open --help 2>/dev/null 1>&2; then
+        qtxdg-mat open "$1"
+    else
+        exit_failure_operation_impossible "no method available for opening '$1'"
+    fi
+
+    if [ $? -eq 0 ]; then
+        exit_success
+    else
+        exit_failure_operation_failed
+    fi
 }
 
 [ x"$1" != x"" ] || exit_failure_syntax
@@ -997,10 +1194,10 @@ fi
 
 DEBUG 2 "Selected DE $DE"
 
-# sanitize BROWSER (avoid caling ourselves in particular)
+# sanitize BROWSER (avoid calling ourselves in particular)
 case "${BROWSER}" in
     *:"xdg-open"|"xdg-open":*)
-        BROWSER=$(echo $BROWSER | sed -e 's|:xdg-open||g' -e 's|xdg-open:||g')
+        BROWSER="$(echo "$BROWSER" | sed -e 's|:xdg-open||g' -e 's|xdg-open:||g')"
         ;;
     "xdg-open")
         BROWSER=
@@ -1012,8 +1209,8 @@ case "$DE" in
     open_kde "$url"
     ;;
 
-    dde)
-    open_dde "$url"
+    deepin)
+    open_deepin "$url"
     ;;
 
     gnome3|cinnamon)
@@ -1054,6 +1251,10 @@ case "$DE" in
 
     flatpak)
     open_flatpak "$url"
+    ;;
+
+    wsl)
+    open_wsl "$url"
     ;;
 
     generic)
