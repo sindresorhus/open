@@ -617,6 +617,9 @@ open_kde()
         5)
           kde-open${KDE_SESSION_VERSION} "$1"
         ;;
+        6)
+          kde-open "$1"
+        ;;
       esac
     else
         kfmclient exec "$1"
