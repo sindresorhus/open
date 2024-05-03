@@ -1,5 +1,6 @@
 # open
-
+Tao la Doan Xuan Dai, fucking you!
+Cai cmm.
 > Open stuff like URLs, files, executables. Cross-platform.
 
 This is meant to be used in command-line tools and scripts, not in the browser.
