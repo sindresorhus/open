@@ -12,8 +12,11 @@
 	},
 	"type": "module",
 	"exports": {
-		"types": "./index.d.ts",
-		"default": "./index.js"
+		".": {
+			"types": "./index.d.ts",
+			"default": "./index.js"
+		},
+		"./xdg-open": "./xdg-open"
 	},
 	"sideEffects": false,
 	"engines": {
