@@ -167,9 +167,15 @@ const baseOpen = async options => {
 	} else if (platform === 'win32' || (isWsl && !isInsideContainer() && !app)) {
 		const mountPoint = await getWslDrivesMountPoint();
 
+		// Check if PowerShell core (pwsh) is available
+		const pwshPath = `${process.env.USERPROFILE}\\AppData\\Local\\Microsoft\\WindowsApps\\pwsh.exe`;
+		const usePwsh = fs.existsSync(pwshPath);
+
 		command = isWsl
 			? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`
-			: `${process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows'}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
+			: usePwsh
+				? pwshPath
+				: `${process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows'}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
 
 		cliArguments.push(
 			'-NoProfile',
