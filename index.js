@@ -112,6 +112,7 @@ const baseOpen = async options => {
 			'firefox.desktop': 'firefox',
 			'com.microsoft.msedge': 'edge',
 			'com.microsoft.edge': 'edge',
+			'com.microsoft.edgemac': 'edge',
 			'microsoft-edge.desktop': 'edge',
 		};
 
