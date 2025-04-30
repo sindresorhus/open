@@ -80,11 +80,7 @@ Get the default browser name in Windows from WSL.
 */
 async function getWindowsDefaultBrowserFromWsl() {
 	const powershellPath = await getPowershellPathFromWsl();
-
-	const rawCommand = `$prog = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' | Select-Object -ExpandProperty ProgId
-	Write-Output $prog
-	`.trim();
-
+	const rawCommand = '(Get-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice").ProgId';
 	const encodedCommand = Buffer.from(rawCommand, 'utf16le').toString('base64');
 
 	const {stdout, stderr} = await execFile(
