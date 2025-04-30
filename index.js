@@ -68,37 +68,43 @@ async function getWindowsDefaultBrowserFromWsl() {
 	const mountPoint = await getWslDrivesMountPoint();
 	const powershellPath = `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`;
 
-	const rawCommand =
-		`$prog = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' | Select-Object -ExpandProperty ProgId
+	const rawCommand
+		= `$prog = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' | Select-Object -ExpandProperty ProgId
 	Write-Output $prog
 	`.trim();
-	const encodedCommand = Buffer.from(rawCommand, "utf16le").toString("base64");
+	const encodedCommand = Buffer.from(rawCommand, 'utf16le').toString('base64');
 
 	return new Promise((resolve, reject) => {
 		execFile(
 			powershellPath,
 			[
-				"-NoProfile",
-				"-NonInteractive",
-				"-ExecutionPolicy",
-				"Bypass",
-				"-EncodedCommand",
+				'-NoProfile',
+				'-NonInteractive',
+				'-ExecutionPolicy',
+				'Bypass',
+				'-EncodedCommand',
 				encodedCommand,
 			],
-			{ encoding: "utf8" },
-			(err, stdout, stderr) => {
-				if (err) return reject(err);
+			{encoding: 'utf8'},
+			(error, stdout, stderr) => {
+				if (error) {
+					return reject(error);
+				}
+
+				if (stderr) {
+					return reject(new Error(stderr));
+				}
 
 				const progId = stdout.trim();
 
 				// Map ProgId to browser IDs
 				const browserMap = {
-					ChromeHTML: "com.google.chrome",
-					MSEdgeHTM: "com.microsoft.edge",
-					FirefoxURL: "org.mozilla.firefox",
+					ChromeHTML: 'com.google.chrome',
+					MSEdgeHTM: 'com.microsoft.edge',
+					FirefoxURL: 'org.mozilla.firefox',
 				};
 
-				resolve(progId ? { id: browserMap[progId] } : {});
+				resolve(progId ? {id: browserMap[progId]} : {});
 			},
 		);
 	});
