@@ -64,25 +64,27 @@ const getWslDrivesMountPoint = (() => {
 })();
 
 /**
- * Get the PowerShell executable path in WSL environment.
- * @returns {Promise<string>} The full path to the PowerShell executable in WSL
- */
+Get the PowerShell executable path in WSL environment.
+
+@returns {Promise<string>} The absolute path to the PowerShell executable in WSL.
+*/
 const getPowershellPathFromWsl = async () => {
 	const mountPoint = await getWslDrivesMountPoint();
 	return `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`;
 };
 
 /**
- * Get the default browser name in Windows from WSL.
- * @returns {Promise<string>} Browser name
- */
+Get the default browser name in Windows from WSL.
+
+@returns {Promise<string>} Browser name.
+*/
 async function getWindowsDefaultBrowserFromWsl() {
 	const powershellPath = await getPowershellPathFromWsl();
 
-	const rawCommand
-		= `$prog = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' | Select-Object -ExpandProperty ProgId
+	const rawCommand = `$prog = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' | Select-Object -ExpandProperty ProgId
 	Write-Output $prog
 	`.trim();
+
 	const encodedCommand = Buffer.from(rawCommand, 'utf16le').toString('base64');
 
 	const {stdout, stderr} = await execFile(
