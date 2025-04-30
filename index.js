@@ -2,7 +2,7 @@ import process from 'node:process';
 import {Buffer} from 'node:buffer';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import childProcess from 'node:child_process';
+import childProcess, {execFile} from 'node:child_process';
 import fs, {constants as fsConstants} from 'node:fs/promises';
 import isWsl from 'is-wsl';
 import defineLazyProperty from 'define-lazy-prop';
@@ -59,6 +59,50 @@ const getWslDrivesMountPoint = (() => {
 		return mountPoint;
 	};
 })();
+
+/**
+ * Get the default browser name in Windows from WSL.
+ * @returns {Promise<string>} Browser name
+ */
+async function getWindowsDefaultBrowserFromWsl() {
+	const mountPoint = await getWslDrivesMountPoint();
+	const powershellPath = `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`;
+
+	const rawCommand =
+		`$prog = Get-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice' | Select-Object -ExpandProperty ProgId
+	Write-Output $prog
+	`.trim();
+	const encodedCommand = Buffer.from(rawCommand, "utf16le").toString("base64");
+
+	return new Promise((resolve, reject) => {
+		execFile(
+			powershellPath,
+			[
+				"-NoProfile",
+				"-NonInteractive",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-EncodedCommand",
+				encodedCommand,
+			],
+			{ encoding: "utf8" },
+			(err, stdout, stderr) => {
+				if (err) return reject(err);
+
+				const progId = stdout.trim();
+
+				// Map ProgId to browser IDs
+				const browserMap = {
+					ChromeHTML: "com.google.chrome",
+					MSEdgeHTM: "com.microsoft.edge",
+					FirefoxURL: "org.mozilla.firefox",
+				};
+
+				resolve(progId ? { id: browserMap[progId] } : {});
+			},
+		);
+	});
+}
 
 const pTryEach = async (array, mapper) => {
 	let latestError;
@@ -123,7 +167,7 @@ const baseOpen = async options => {
 			edge: '--inPrivate',
 		};
 
-		const browser = await defaultBrowser();
+		const browser = isWsl ? await getWindowsDefaultBrowserFromWsl() : await defaultBrowser();
 		if (browser.id in ids) {
 			const browserName = ids[browser.id];
 
