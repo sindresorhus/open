@@ -83,7 +83,7 @@ async function getWindowsDefaultBrowserFromWsl() {
 	const rawCommand = '(Get-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice").ProgId';
 	const encodedCommand = Buffer.from(rawCommand, 'utf16le').toString('base64');
 
-	const {stdout, stderr} = await execFile(
+	const {stdout} = await execFile(
 		powershellPath,
 		[
 			'-NoProfile',
@@ -95,10 +95,6 @@ async function getWindowsDefaultBrowserFromWsl() {
 		],
 		{encoding: 'utf8'},
 	);
-
-	if (stderr && !stderr.includes('CLIXML')) {
-		throw new Error(stderr);
-	}
 
 	const progId = stdout.trim();
 
