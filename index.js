@@ -2,12 +2,15 @@ import process from 'node:process';
 import {Buffer} from 'node:buffer';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import util from 'node:util';
 import childProcess from 'node:child_process';
 import fs, {constants as fsConstants} from 'node:fs/promises';
 import isWsl from 'is-wsl';
 import defineLazyProperty from 'define-lazy-prop';
 import defaultBrowser from 'default-browser';
 import isInsideContainer from 'is-inside-container';
+
+const execFile = util.promisify(childProcess.execFile);
 
 // Path to included `xdg-open`.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -59,6 +62,51 @@ const getWslDrivesMountPoint = (() => {
 		return mountPoint;
 	};
 })();
+
+/**
+Get the PowerShell executable path in WSL environment.
+
+@returns {Promise<string>} The absolute path to the PowerShell executable in WSL.
+*/
+const getPowershellPathFromWsl = async () => {
+	const mountPoint = await getWslDrivesMountPoint();
+	return `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`;
+};
+
+/**
+Get the default browser name in Windows from WSL.
+
+@returns {Promise<string>} Browser name.
+*/
+async function getWindowsDefaultBrowserFromWsl() {
+	const powershellPath = await getPowershellPathFromWsl();
+	const rawCommand = '(Get-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice").ProgId';
+	const encodedCommand = Buffer.from(rawCommand, 'utf16le').toString('base64');
+
+	const {stdout} = await execFile(
+		powershellPath,
+		[
+			'-NoProfile',
+			'-NonInteractive',
+			'-ExecutionPolicy',
+			'Bypass',
+			'-EncodedCommand',
+			encodedCommand,
+		],
+		{encoding: 'utf8'},
+	);
+
+	const progId = stdout.trim();
+
+	// Map ProgId to browser IDs
+	const browserMap = {
+		ChromeHTML: 'com.google.chrome',
+		MSEdgeHTM: 'com.microsoft.edge',
+		FirefoxURL: 'org.mozilla.firefox',
+	};
+
+	return browserMap[progId] ? {id: browserMap[progId]} : {};
+}
 
 const pTryEach = async (array, mapper) => {
 	let latestError;
@@ -123,7 +171,7 @@ const baseOpen = async options => {
 			edge: '--inPrivate',
 		};
 
-		const browser = await defaultBrowser();
+		const browser = isWsl ? await getWindowsDefaultBrowserFromWsl() : await defaultBrowser();
 		if (browser.id in ids) {
 			const browserName = ids[browser.id];
 
@@ -166,10 +214,8 @@ const baseOpen = async options => {
 			cliArguments.push('-a', app);
 		}
 	} else if (platform === 'win32' || (isWsl && !isInsideContainer() && !app)) {
-		const mountPoint = await getWslDrivesMountPoint();
-
 		command = isWsl
-			? `${mountPoint}c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe`
+			? await getPowershellPathFromWsl()
 			: `${process.env.SYSTEMROOT || process.env.windir || 'C:\\Windows'}\\System32\\WindowsPowerShell\\v1.0\\powershell`;
 
 		cliArguments.push(
