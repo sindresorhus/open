@@ -171,10 +171,11 @@ await open('https://google.com', {
 - [`chrome`](https://www.google.com/chrome) - Web browser
 - [`firefox`](https://www.mozilla.org/firefox) - Web browser
 - [`edge`](https://www.microsoft.com/edge) - Web browser
+- [`brave`](https://brave.com/) - Web browser
 - `browser` - Default web browser
 - `browserPrivate` - Default web browser in incognito mode
 
-`browser` and `browserPrivate` only supports `chrome`, `firefox`, and `edge`.
+`browser` and `browserPrivate` only supports `chrome`, `firefox`, `edge`, and `brave`.
 
 ## Related
 
