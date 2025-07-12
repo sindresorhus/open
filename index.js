@@ -2,7 +2,7 @@ import process from 'node:process';
 import {Buffer} from 'node:buffer';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import util from 'node:util';
+import {promisify} from 'node:util';
 import childProcess from 'node:child_process';
 import fs, {constants as fsConstants} from 'node:fs/promises';
 import {isWsl, powerShellPath} from 'wsl-utils';
@@ -10,7 +10,7 @@ import defineLazyProperty from 'define-lazy-prop';
 import defaultBrowser from 'default-browser';
 import isInsideContainer from 'is-inside-container';
 
-const execFile = util.promisify(childProcess.execFile);
+const execFile = promisify(childProcess.execFile);
 
 // Path to included `xdg-open`.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -25,7 +25,7 @@ Get the default browser name in Windows from WSL.
 */
 async function getWindowsDefaultBrowserFromWsl() {
 	const powershellPath = await powerShellPath();
-	const rawCommand = '(Get-ItemProperty -Path "HKCU:\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice").ProgId';
+	const rawCommand = String.raw`(Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice").ProgId`;
 	const encodedCommand = Buffer.from(rawCommand, 'utf16le').toString('base64');
 
 	const {stdout} = await execFile(
@@ -67,6 +67,7 @@ const pTryEach = async (array, mapper) => {
 	throw latestError;
 };
 
+// eslint-disable-next-line complexity
 const baseOpen = async options => {
 	options = {
 		wait: false,
@@ -330,7 +331,7 @@ defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
 
 defineLazyProperty(apps, 'firefox', () => detectPlatformBinary({
 	darwin: 'firefox',
-	win32: 'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
+	win32: String.raw`C:\Program Files\Mozilla Firefox\firefox.exe`,
 	linux: 'firefox',
 }, {
 	wsl: '/mnt/c/Program Files/Mozilla Firefox/firefox.exe',
