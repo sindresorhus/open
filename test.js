@@ -78,6 +78,10 @@ test('open Chrome in incognito mode', async t => {
 	await t.notThrowsAsync(openApp(apps.chrome, {arguments: ['--incognito'], newInstance: true}));
 });
 
+test('open Brave in incognito mode', async t => {
+	await t.notThrowsAsync(openApp(apps.brave, {arguments: ['--incognito'], newInstance: true}));
+});
+
 test('open URL with default browser argument', async t => {
 	await t.notThrowsAsync(open('https://sindresorhus.com', {app: {name: apps.browser}}));
 });

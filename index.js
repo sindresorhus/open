@@ -46,6 +46,7 @@ async function getWindowsDefaultBrowserFromWsl() {
 	// Map ProgId to browser IDs
 	const browserMap = {
 		ChromeHTML: 'com.google.chrome',
+		BraveHTML: 'com.brave.Browser',
 		MSEdgeHTM: 'com.microsoft.edge',
 		FirefoxURL: 'org.mozilla.firefox',
 	};
@@ -102,6 +103,7 @@ const baseOpen = async options => {
 		const ids = {
 			'com.google.chrome': 'chrome',
 			'google-chrome.desktop': 'chrome',
+			'com.brave.Browser': 'brave',
 			'org.mozilla.firefox': 'firefox',
 			'firefox.desktop': 'firefox',
 			'com.microsoft.msedge': 'edge',
@@ -113,6 +115,7 @@ const baseOpen = async options => {
 		// Incognito flags for each browser in `apps`.
 		const flags = {
 			chrome: '--incognito',
+			brave: '--incognito',
 			firefox: '--private-window',
 			edge: '--inPrivate',
 		};
@@ -326,6 +329,17 @@ defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
 	wsl: {
 		ia32: '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
 		x64: ['/mnt/c/Program Files/Google/Chrome/Application/chrome.exe', '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe'],
+	},
+}));
+
+defineLazyProperty(apps, 'brave', () => detectPlatformBinary({
+	darwin: 'brave browser',
+	win32: 'brave',
+	linux: ['brave-browser', 'brave'],
+}, {
+	wsl: {
+		ia32: '/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe',
+		x64: ['/mnt/c/Program Files/BraveSoftware/Brave-Browser/Application/brave.exe', '/mnt/c/Program Files (x86)/BraveSoftware/Brave-Browser/Application/brave.exe'],
 	},
 }));
 

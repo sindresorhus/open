@@ -64,6 +64,7 @@ export type OpenAppOptions = {
 
 export type AppName =
 	| 'chrome'
+	| 'brave'
 	| 'firefox'
 	| 'edge'
 	| 'browser'
