@@ -59,7 +59,7 @@ const tryEachApp = async (apps, opener) => {
 		// No app was provided
 		return;
 	}
-	
+
 	const errors = [];
 
 	for (const app of apps) {
