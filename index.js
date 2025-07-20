@@ -55,17 +55,17 @@ async function getWindowsDefaultBrowserFromWsl() {
 }
 
 const pTryEach = async (array, mapper) => {
-	let latestError;
+	const errors = [];
 
 	for (const item of array) {
 		try {
 			return await mapper(item); // eslint-disable-line no-await-in-loop
 		} catch (error) {
-			latestError = error;
+			errors.push(error);
 		}
 	}
 
-	throw latestError;
+	throw new AggregateError(errors);
 };
 
 // eslint-disable-next-line complexity
