@@ -54,7 +54,7 @@ async function getWindowsDefaultBrowserFromWsl() {
 	return browserMap[progId] ? {id: browserMap[progId]} : {};
 }
 
-const pTryEach = async (array, mapper) => {
+const pTryEach = async (array, mapper, errorMessage) => {
 	const errors = [];
 
 	for (const item of array) {
@@ -65,7 +65,7 @@ const pTryEach = async (array, mapper) => {
 		}
 	}
 
-	throw new AggregateError(errors);
+	throw new AggregateError(errors, errorMessage);
 };
 
 // eslint-disable-next-line complexity
@@ -82,7 +82,7 @@ const baseOpen = async options => {
 		return pTryEach(options.app, singleApp => baseOpen({
 			...options,
 			app: singleApp,
-		}));
+		}), 'Failed to open in all supported apps');
 	}
 
 	let {name: app, arguments: appArguments = []} = options.app ?? {};
@@ -95,7 +95,7 @@ const baseOpen = async options => {
 				name: appName,
 				arguments: appArguments,
 			},
-		}));
+		}), 'Failed to open in all supported apps');
 	}
 
 	if (app === 'browser' || app === 'browserPrivate') {
