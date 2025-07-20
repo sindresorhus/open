@@ -319,7 +319,10 @@ function detectPlatformBinary({[platform]: platformBinary}, {wsl}) {
 	return detectArchBinary(platformBinary);
 }
 
-export const apps = {};
+export const apps = {
+	browser: 'browser',
+	browserPrivate: 'browserPrivate',
+};
 
 defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
 	darwin: 'google chrome',
@@ -358,9 +361,5 @@ defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 }, {
 	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
 }));
-
-defineLazyProperty(apps, 'browser', () => 'browser');
-
-defineLazyProperty(apps, 'browserPrivate', () => 'browserPrivate');
 
 export default open;
