@@ -54,18 +54,23 @@ async function getWindowsDefaultBrowserFromWsl() {
 	return browserMap[progId] ? {id: browserMap[progId]} : {};
 }
 
-const pTryEach = async (array, mapper) => {
-	let latestError;
+const tryEachApp = async (apps, opener) => {
+	if (apps.length === 0) {
+		// No app was provided
+		return;
+	}
 
-	for (const item of array) {
+	const errors = [];
+
+	for (const app of apps) {
 		try {
-			return await mapper(item); // eslint-disable-line no-await-in-loop
+			return await opener(app); // eslint-disable-line no-await-in-loop
 		} catch (error) {
-			latestError = error;
+			errors.push(error);
 		}
 	}
 
-	throw latestError;
+	throw new AggregateError(errors, 'Failed to open in all supported apps');
 };
 
 // eslint-disable-next-line complexity
@@ -79,7 +84,7 @@ const baseOpen = async options => {
 	};
 
 	if (Array.isArray(options.app)) {
-		return pTryEach(options.app, singleApp => baseOpen({
+		return tryEachApp(options.app, singleApp => baseOpen({
 			...options,
 			app: singleApp,
 		}));
@@ -89,7 +94,7 @@ const baseOpen = async options => {
 	appArguments = [...appArguments];
 
 	if (Array.isArray(app)) {
-		return pTryEach(app, appName => baseOpen({
+		return tryEachApp(app, appName => baseOpen({
 			...options,
 			app: {
 				name: appName,
