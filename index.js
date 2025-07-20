@@ -54,18 +54,23 @@ async function getWindowsDefaultBrowserFromWsl() {
 	return browserMap[progId] ? {id: browserMap[progId]} : {};
 }
 
-const pTryEach = async (array, mapper, errorMessage) => {
+const tryEachApp = async (apps, opener) => {
+	if (apps.length === 0) {
+		// No app was provided
+		return;
+	}
+	
 	const errors = [];
 
-	for (const item of array) {
+	for (const item of apps) {
 		try {
-			return await mapper(item); // eslint-disable-line no-await-in-loop
+			return await opener(item); // eslint-disable-line no-await-in-loop
 		} catch (error) {
 			errors.push(error);
 		}
 	}
 
-	throw new AggregateError(errors, errorMessage);
+	throw new AggregateError(errors, 'Failed to open in all supported apps');
 };
 
 // eslint-disable-next-line complexity
@@ -79,23 +84,23 @@ const baseOpen = async options => {
 	};
 
 	if (Array.isArray(options.app)) {
-		return pTryEach(options.app, singleApp => baseOpen({
+		return tryEachApp(options.app, singleApp => baseOpen({
 			...options,
 			app: singleApp,
-		}), 'Failed to open in all supported apps');
+		}));
 	}
 
 	let {name: app, arguments: appArguments = []} = options.app ?? {};
 	appArguments = [...appArguments];
 
 	if (Array.isArray(app)) {
-		return pTryEach(app, appName => baseOpen({
+		return tryEachApp(app, appName => baseOpen({
 			...options,
 			app: {
 				name: appName,
 				arguments: appArguments,
 			},
-		}), 'Failed to open in all supported apps');
+		}));
 	}
 
 	if (app === 'browser' || app === 'browserPrivate') {
