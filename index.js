@@ -62,9 +62,9 @@ const tryEachApp = async (apps, opener) => {
 	
 	const errors = [];
 
-	for (const item of apps) {
+	for (const app of apps) {
 		try {
-			return await opener(item); // eslint-disable-line no-await-in-loop
+			return await opener(app); // eslint-disable-line no-await-in-loop
 		} catch (error) {
 			errors.push(error);
 		}
