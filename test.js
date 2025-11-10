@@ -70,6 +70,14 @@ test('open URL with query strings and URL reserved characters with `url` option'
 	await t.notThrowsAsync(open('https://httpbin.org/get?amp=%26&colon=%3A&comma=%2C&commat=%40&dollar=%24&equals=%3D&plus=%2B&quest=%3F&semi=%3B&sol=%2F', {url: true}));
 });
 
+test('open URL with single backtick', async t => {
+	await t.notThrowsAsync(open('https://httpbin.org/get?test=backtick ` here'));
+});
+
+test('open URL with double backticks', async t => {
+	await t.notThrowsAsync(open('https://httpbin.org/get?test=backticks `` here'));
+});
+
 test('open Firefox without arguments', async t => {
 	await t.notThrowsAsync(openApp(apps.firefox));
 });

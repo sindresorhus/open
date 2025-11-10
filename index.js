@@ -19,6 +19,11 @@ const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 const {platform, arch} = process;
 
 /**
+Escape value for PowerShell. Single-quoted strings are literal (no variable expansion or escape sequences), unlike double-quoted strings. Escapes single quotes by doubling (handles already-doubled quotes correctly).
+*/
+const escapeForPowerShell = value => `'${String(value).replaceAll('\'', '\'\'')}'`;
+
+/**
 Get the default browser name in Windows from WSL.
 
 @returns {Promise<string>} Browser name.
@@ -189,18 +194,16 @@ const baseOpen = async options => {
 		}
 
 		if (app) {
-			// Double quote with double quotes to ensure the inner quotes are passed through.
-			// Inner quotes are delimited for PowerShell interpretation with backticks.
-			encodedArguments.push(`"\`"${app}\`""`);
+			encodedArguments.push(escapeForPowerShell(app));
 			if (options.target) {
 				appArguments.push(options.target);
 			}
 		} else if (options.target) {
-			encodedArguments.push(`"${options.target}"`);
+			encodedArguments.push(escapeForPowerShell(options.target));
 		}
 
 		if (appArguments.length > 0) {
-			appArguments = appArguments.map(argument => `"\`"${argument}\`""`);
+			appArguments = appArguments.map(argument => escapeForPowerShell(argument));
 			encodedArguments.push('-ArgumentList', appArguments.join(','));
 		}
 
