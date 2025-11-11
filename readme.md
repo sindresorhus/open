@@ -84,6 +84,9 @@ Note that it waits for the app to exit, not just for the window to close.
 
 On Windows, you have to explicitly specify an app for it to be able to wait.
 
+> [!WARNING]
+> When opening URLs in browsers while the browser is already running, the `wait` option will not work as expected. Browsers use a single-instance architecture where new URLs are passed to the existing process, causing the command to exit immediately. Use the `newInstance` option on macOS to force a new browser instance, or avoid using `wait` with browsers.
+
 ##### background <sup>(macOS only)</sup>
 
 Type: `boolean`\

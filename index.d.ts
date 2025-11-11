@@ -8,6 +8,8 @@ export type Options = {
 
 	On Windows, you have to explicitly specify an app for it to be able to wait.
 
+	**Warning:** When opening URLs in browsers while the browser is already running, the `wait` option will not work as expected. Browsers use a single-instance architecture where new URLs are passed to the existing process, causing the command to exit immediately. Use the `newInstance` option on macOS to force a new browser instance, or avoid using `wait` with browsers.
+
 	@default false
 	*/
 	readonly wait?: boolean;
