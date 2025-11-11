@@ -1,3 +1,4 @@
+import process from 'node:process';
 import test from 'ava';
 import open, {openApp, apps} from './index.js';
 
@@ -105,3 +106,18 @@ test('open default browser', async t => {
 test('open default browser in incognito mode', async t => {
 	await t.notThrowsAsync(openApp(apps.browserPrivate, {newInstance: true}));
 });
+
+test('subprocess is spawned before promise resolves', async t => {
+	const childProcess = await open('index.js');
+
+	// By the time the promise resolves, the spawn event should have fired
+	// We verify this by checking that the subprocess has a pid
+	t.true(childProcess.pid !== undefined && childProcess.pid !== null);
+});
+
+if (process.platform === 'linux') {
+	test('spawn errors reject the promise instead of crashing', async t => {
+		const error = await t.throwsAsync(openApp('definitely-not-a-real-command-12345'));
+		t.is(error.code, 'ENOENT');
+	});
+}

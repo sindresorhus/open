@@ -268,7 +268,19 @@ const baseOpen = async options => {
 
 	subprocess.unref();
 
-	return subprocess;
+	// Handle spawn errors before the caller can attach listeners.
+	// This prevents unhandled error events from crashing the process.
+	return new Promise((resolve, reject) => {
+		subprocess.once('error', reject);
+
+		// Wait for the subprocess to spawn before resolving.
+		// This ensures the process is established before the caller continues,
+		// preventing issues when process.exit() is called immediately after.
+		subprocess.once('spawn', () => {
+			subprocess.off('error', reject);
+			resolve(subprocess);
+		});
+	});
 };
 
 const open = (target, options) => {
