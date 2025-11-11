@@ -57,7 +57,7 @@
 		"default-browser": "^5.2.1",
 		"define-lazy-prop": "^3.0.0",
 		"is-inside-container": "^1.0.0",
-		"wsl-utils": "^0.1.0"
+		"wsl-utils": "^0.2.0"
 	},
 	"devDependencies": {
 		"@types/node": "^20.10.5",
