@@ -25,6 +25,36 @@ Escape value for PowerShell. Single-quoted strings are literal (no variable expa
 const escapeForPowerShell = value => `'${String(value).replaceAll('\'', '\'\'')}'`;
 
 /**
+Cached promise for PowerShell accessibility check.
+We only need to check once per process since PowerShell availability doesn't change at runtime.
+Caching the promise (rather than the result) ensures concurrent calls don't trigger duplicate checks.
+*/
+let powerShellAccessiblePromise;
+
+/**
+Check if PowerShell is accessible in WSL.
+This is used to determine whether to use Windows integration (PowerShell) or fall back to Linux behavior (xdg-open).
+In sandboxed WSL environments where Windows access is restricted, PowerShell may not be accessible,
+and we should automatically use native Linux tools instead.
+
+@returns {Promise<boolean>} True if PowerShell is accessible, false otherwise.
+*/
+async function isPowerShellAccessible() {
+	powerShellAccessiblePromise ??= (async () => {
+		try {
+			const psPath = await powerShellPath();
+			await fs.access(psPath, fsConstants.X_OK);
+			return true;
+		} catch {
+			// PowerShell is not accessible (either doesn't exist, no execute permission, or other error)
+			return false;
+		}
+	})();
+
+	return powerShellAccessiblePromise;
+}
+
+/**
 Get the default browser name in Windows from WSL.
 
 @returns {Promise<string>} Browser name.
@@ -155,6 +185,14 @@ const baseOpen = async options => {
 	const cliArguments = [];
 	const childProcessOptions = {};
 
+	// Determine if we should use Windows/PowerShell behavior in WSL.
+	// We only use Windows integration if PowerShell is actually accessible.
+	// This allows the package to work in sandboxed WSL environments where Windows access is restricted.
+	let shouldUseWindowsInWsl = false;
+	if (isWsl && !isInsideContainer() && !isInSsh && !app) {
+		shouldUseWindowsInWsl = await isPowerShellAccessible();
+	}
+
 	if (platform === 'darwin') {
 		command = 'open';
 
@@ -173,7 +211,7 @@ const baseOpen = async options => {
 		if (app) {
 			cliArguments.push('-a', app);
 		}
-	} else if (platform === 'win32' || (isWsl && !isInsideContainer() && !isInSsh && !app)) {
+	} else if (platform === 'win32' || shouldUseWindowsInWsl) {
 		command = await powerShellPath();
 
 		cliArguments.push(

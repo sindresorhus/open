@@ -180,6 +180,16 @@ await open('https://google.com', {
 
 `browser` and `browserPrivate` only supports `chrome`, `firefox`, `edge`, and `brave`.
 
+## WSL (Windows Subsystem for Linux)
+
+The package automatically uses Windows integration (PowerShell) when available, and falls back to `xdg-open` if PowerShell is inaccessible (e.g., sandboxed environments).
+
+To use Linux GUI apps instead:
+
+```javascript
+await open('https://example.com', {app: {name: 'xdg-open'}});
+```
+
 ## Related
 
 - [open-cli](https://github.com/sindresorhus/open-cli) - CLI for this module
