@@ -13,7 +13,7 @@ import isInsideContainer from 'is-inside-container';
 const execFile = promisify(childProcess.execFile);
 
 // Path to included `xdg-open`.
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = import.meta.url ? path.dirname(fileURLToPath(import.meta.url)) : '';
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 const {platform, arch} = process;
