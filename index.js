@@ -9,6 +9,7 @@ import {isWsl, powerShellPath, convertWslPathToWindows} from 'wsl-utils';
 import defineLazyProperty from 'define-lazy-prop';
 import defaultBrowser from 'default-browser';
 import isInsideContainer from 'is-inside-container';
+import isInSsh from 'is-in-ssh';
 
 const execFile = promisify(childProcess.execFile);
 
@@ -172,7 +173,7 @@ const baseOpen = async options => {
 		if (app) {
 			cliArguments.push('-a', app);
 		}
-	} else if (platform === 'win32' || (isWsl && !isInsideContainer() && !app)) {
+	} else if (platform === 'win32' || (isWsl && !isInsideContainer() && !isInSsh && !app)) {
 		command = await powerShellPath();
 
 		cliArguments.push(
