@@ -192,7 +192,8 @@ const baseOpen = async options => {
 			options.target = await convertWslPathToWindows(options.target);
 		}
 
-		const encodedArguments = ['Start'];
+		// Suppress PowerShell progress messages that are written to stderr
+		const encodedArguments = ['$ProgressPreference = \'SilentlyContinue\';', 'Start'];
 
 		if (options.wait) {
 			encodedArguments.push('-Wait');
