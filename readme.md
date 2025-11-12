@@ -184,3 +184,4 @@ await open('https://google.com', {
 
 - [open-cli](https://github.com/sindresorhus/open-cli) - CLI for this module
 - [open-editor](https://github.com/sindresorhus/open-editor) - Open files in your editor at a specific line and column
+- [reveal-file](https://github.com/sindresorhus/reveal-file) - Reveal a file in the system file manager
