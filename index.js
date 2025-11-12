@@ -214,6 +214,11 @@ const baseOpen = async options => {
 
 		// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
 		options.target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
+
+		if (!options.wait) {
+			// PowerShell will keep the parent process alive unless stdio is ignored.
+			childProcessOptions.stdio = 'ignore';
+		}
 	} else {
 		if (app) {
 			command = app;
