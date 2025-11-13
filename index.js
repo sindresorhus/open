@@ -397,7 +397,8 @@ export const apps = {
 defineLazyProperty(apps, 'chrome', () => detectPlatformBinary({
 	darwin: 'google chrome',
 	win32: 'chrome',
-	linux: ['google-chrome', 'google-chrome-stable', 'chromium'],
+	// `chromium-browser` is the older deb package name used by Ubuntu/Debian before snap.
+	linux: ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'],
 }, {
 	wsl: {
 		ia32: '/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe',
