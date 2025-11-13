@@ -12,6 +12,7 @@ import isInsideContainer from 'is-inside-container';
 import isInSsh from 'is-in-ssh';
 
 const execFile = promisify(childProcess.execFile);
+const fallbackAttemptSymbol = Symbol('fallbackAttempt');
 
 // Path to included `xdg-open`.
 const __dirname = import.meta.url ? path.dirname(fileURLToPath(import.meta.url)) : '';
@@ -119,10 +120,14 @@ const baseOpen = async options => {
 		...options,
 	};
 
+	const isFallbackAttempt = options[fallbackAttemptSymbol] === true;
+	delete options[fallbackAttemptSymbol];
+
 	if (Array.isArray(options.app)) {
 		return tryEachApp(options.app, singleApp => baseOpen({
 			...options,
 			app: singleApp,
+			[fallbackAttemptSymbol]: true,
 		}));
 	}
 
@@ -136,6 +141,7 @@ const baseOpen = async options => {
 				name: appName,
 				arguments: appArguments,
 			},
+			[fallbackAttemptSymbol]: true,
 		}));
 	}
 
@@ -151,6 +157,7 @@ const baseOpen = async options => {
 			'com.microsoft.edge': 'edge',
 			'com.microsoft.edgemac': 'edge',
 			'microsoft-edge.desktop': 'edge',
+			'com.apple.Safari': 'safari',
 		};
 
 		// Incognito flags for each browser in `apps`.
@@ -159,6 +166,7 @@ const baseOpen = async options => {
 			brave: '--incognito',
 			firefox: '--private-window',
 			edge: '--inPrivate',
+			// Safari doesn't support private mode via command line
 		};
 
 		const browser = isWsl ? await getWindowsDefaultBrowserFromWsl() : await defaultBrowser();
@@ -166,6 +174,11 @@ const baseOpen = async options => {
 			const browserName = ids[browser.id];
 
 			if (app === 'browserPrivate') {
+				// Safari doesn't support private mode via command line
+				if (browserName === 'safari') {
+					throw new Error('Safari doesn\'t support opening in private mode via command line');
+				}
+
 				appArguments.push(flags[browserName]);
 			}
 
@@ -294,7 +307,11 @@ const baseOpen = async options => {
 		cliArguments.push('--args', ...appArguments);
 	}
 
-	// This has to come after `--args`.
+	// IMPORTANT: On macOS, the target MUST come AFTER '--args'.
+	// When using --args, ALL following arguments are passed to the app.
+	// Example: open -a "chrome" --args --incognito https://site.com
+	// This passes BOTH --incognito AND https://site.com to Chrome.
+	// Without this order, Chrome won't open in incognito. See #332.
 	if (options.target) {
 		cliArguments.push(options.target);
 	}
@@ -306,12 +323,36 @@ const baseOpen = async options => {
 			subprocess.once('error', reject);
 
 			subprocess.once('close', exitCode => {
-				if (!options.allowNonzeroExitCode && exitCode > 0) {
+				if (!options.allowNonzeroExitCode && exitCode !== 0) {
 					reject(new Error(`Exited with code ${exitCode}`));
 					return;
 				}
 
 				resolve(subprocess);
+			});
+		});
+	}
+
+	// When we're in a fallback attempt, we need to detect launch failures before trying the next app.
+	// Wait for the close event to check the exit code before unreffing.
+	// The launcher (open/xdg-open/PowerShell) exits quickly (~10-30ms) even on success.
+	if (isFallbackAttempt) {
+		return new Promise((resolve, reject) => {
+			subprocess.once('error', reject);
+
+			subprocess.once('spawn', () => {
+				// Keep error handler active for post-spawn errors
+				subprocess.once('close', exitCode => {
+					subprocess.off('error', reject);
+
+					if (exitCode !== 0) {
+						reject(new Error(`Exited with code ${exitCode}`));
+						return;
+					}
+
+					subprocess.unref();
+					resolve(subprocess);
+				});
 			});
 		});
 	}
@@ -377,7 +418,7 @@ function detectArchBinary(binary) {
 	return archBinary;
 }
 
-function detectPlatformBinary({[platform]: platformBinary}, {wsl}) {
+function detectPlatformBinary({[platform]: platformBinary}, {wsl} = {}) {
 	if (wsl && isWsl) {
 		return detectArchBinary(wsl);
 	}
@@ -431,6 +472,10 @@ defineLazyProperty(apps, 'edge', () => detectPlatformBinary({
 	linux: ['microsoft-edge', 'microsoft-edge-dev'],
 }, {
 	wsl: '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+}));
+
+defineLazyProperty(apps, 'safari', () => detectPlatformBinary({
+	darwin: 'Safari',
 }));
 
 export default open;
