@@ -1,17 +1,21 @@
 import process from 'node:process';
-import {Buffer} from 'node:buffer';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {promisify} from 'node:util';
 import childProcess from 'node:child_process';
 import fs, {constants as fsConstants} from 'node:fs/promises';
-import {isWsl, powerShellPath, convertWslPathToWindows} from 'wsl-utils';
+import {
+	isWsl,
+	powerShellPath,
+	convertWslPathToWindows,
+	canAccessPowerShell,
+	wslDefaultBrowser,
+} from 'wsl-utils';
+import {executePowerShell} from 'powershell-utils';
 import defineLazyProperty from 'define-lazy-prop';
-import defaultBrowser from 'default-browser';
+import defaultBrowser, {_windowsBrowserProgIdMap} from 'default-browser';
 import isInsideContainer from 'is-inside-container';
 import isInSsh from 'is-in-ssh';
 
-const execFile = promisify(childProcess.execFile);
 const fallbackAttemptSymbol = Symbol('fallbackAttempt');
 
 // Path to included `xdg-open`.
@@ -19,77 +23,6 @@ const __dirname = import.meta.url ? path.dirname(fileURLToPath(import.meta.url))
 const localXdgOpenPath = path.join(__dirname, 'xdg-open');
 
 const {platform, arch} = process;
-
-/**
-Escape value for PowerShell. Single-quoted strings are literal (no variable expansion or escape sequences), unlike double-quoted strings. Escapes single quotes by doubling (handles already-doubled quotes correctly).
-*/
-const escapeForPowerShell = value => `'${String(value).replaceAll('\'', '\'\'')}'`;
-
-/**
-Cached promise for PowerShell accessibility check.
-We only need to check once per process since PowerShell availability doesn't change at runtime.
-Caching the promise (rather than the result) ensures concurrent calls don't trigger duplicate checks.
-*/
-let powerShellAccessiblePromise;
-
-/**
-Check if PowerShell is accessible in WSL.
-This is used to determine whether to use Windows integration (PowerShell) or fall back to Linux behavior (xdg-open).
-In sandboxed WSL environments where Windows access is restricted, PowerShell may not be accessible,
-and we should automatically use native Linux tools instead.
-
-@returns {Promise<boolean>} True if PowerShell is accessible, false otherwise.
-*/
-async function isPowerShellAccessible() {
-	powerShellAccessiblePromise ??= (async () => {
-		try {
-			const psPath = await powerShellPath();
-			await fs.access(psPath, fsConstants.X_OK);
-			return true;
-		} catch {
-			// PowerShell is not accessible (either doesn't exist, no execute permission, or other error)
-			return false;
-		}
-	})();
-
-	return powerShellAccessiblePromise;
-}
-
-/**
-Get the default browser name in Windows from WSL.
-
-@returns {Promise<string>} Browser name.
-*/
-async function getWindowsDefaultBrowserFromWsl() {
-	const powershellPath = await powerShellPath();
-	const rawCommand = String.raw`(Get-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice").ProgId`;
-	const encodedCommand = Buffer.from(rawCommand, 'utf16le').toString('base64');
-
-	const {stdout} = await execFile(
-		powershellPath,
-		[
-			'-NoProfile',
-			'-NonInteractive',
-			'-ExecutionPolicy',
-			'Bypass',
-			'-EncodedCommand',
-			encodedCommand,
-		],
-		{encoding: 'utf8'},
-	);
-
-	const progId = stdout.trim();
-
-	// Map ProgId to browser IDs
-	const browserMap = {
-		ChromeHTML: 'com.google.chrome',
-		BraveHTML: 'com.brave.Browser',
-		MSEdgeHTM: 'com.microsoft.edge',
-		FirefoxURL: 'org.mozilla.firefox',
-	};
-
-	return browserMap[progId] ? {id: browserMap[progId]} : {};
-}
 
 const tryEachApp = async (apps, opener) => {
 	if (apps.length === 0) {
@@ -146,18 +79,19 @@ const baseOpen = async options => {
 	}
 
 	if (app === 'browser' || app === 'browserPrivate') {
-		// IDs from default-browser for macOS and windows are the same
+		// IDs from default-browser for macOS and windows are the same.
+		// IDs are lowercased to increase chances of a match.
 		const ids = {
 			'com.google.chrome': 'chrome',
 			'google-chrome.desktop': 'chrome',
-			'com.brave.Browser': 'brave',
+			'com.brave.browser': 'brave',
 			'org.mozilla.firefox': 'firefox',
 			'firefox.desktop': 'firefox',
 			'com.microsoft.msedge': 'edge',
 			'com.microsoft.edge': 'edge',
 			'com.microsoft.edgemac': 'edge',
 			'microsoft-edge.desktop': 'edge',
-			'com.apple.Safari': 'safari',
+			'com.apple.safari': 'safari',
 		};
 
 		// Incognito flags for each browser in `apps`.
@@ -169,9 +103,17 @@ const baseOpen = async options => {
 			// Safari doesn't support private mode via command line
 		};
 
-		const browser = isWsl ? await getWindowsDefaultBrowserFromWsl() : await defaultBrowser();
+		let browser;
+		if (isWsl) {
+			const progId = await wslDefaultBrowser();
+			const browserInfo = _windowsBrowserProgIdMap.get(progId);
+			browser = browserInfo ?? {};
+		} else {
+			browser = await defaultBrowser();
+		}
+
 		if (browser.id in ids) {
-			const browserName = ids[browser.id];
+			const browserName = ids[browser.id.toLowerCase()];
 
 			if (app === 'browserPrivate') {
 				// Safari doesn't support private mode via command line
@@ -203,7 +145,7 @@ const baseOpen = async options => {
 	// This allows the package to work in sandboxed WSL environments where Windows access is restricted.
 	let shouldUseWindowsInWsl = false;
 	if (isWsl && !isInsideContainer() && !isInSsh && !app) {
-		shouldUseWindowsInWsl = await isPowerShellAccessible();
+		shouldUseWindowsInWsl = await canAccessPowerShell();
 	}
 
 	if (platform === 'darwin') {
@@ -227,13 +169,7 @@ const baseOpen = async options => {
 	} else if (platform === 'win32' || shouldUseWindowsInWsl) {
 		command = await powerShellPath();
 
-		cliArguments.push(
-			'-NoProfile',
-			'-NonInteractive',
-			'-ExecutionPolicy',
-			'Bypass',
-			'-EncodedCommand',
-		);
+		cliArguments.push(...executePowerShell.argumentsPrefix);
 
 		if (!isWsl) {
 			childProcessOptions.windowsVerbatimArguments = true;
@@ -252,21 +188,21 @@ const baseOpen = async options => {
 		}
 
 		if (app) {
-			encodedArguments.push(escapeForPowerShell(app));
+			encodedArguments.push(executePowerShell.escapeArgument(app));
 			if (options.target) {
 				appArguments.push(options.target);
 			}
 		} else if (options.target) {
-			encodedArguments.push(escapeForPowerShell(options.target));
+			encodedArguments.push(executePowerShell.escapeArgument(options.target));
 		}
 
 		if (appArguments.length > 0) {
-			appArguments = appArguments.map(argument => escapeForPowerShell(argument));
+			appArguments = appArguments.map(argument => executePowerShell.escapeArgument(argument));
 			encodedArguments.push('-ArgumentList', appArguments.join(','));
 		}
 
 		// Using Base64-encoded command, accepted by PowerShell, to allow special characters.
-		options.target = Buffer.from(encodedArguments.join(' '), 'utf16le').toString('base64');
+		options.target = executePowerShell.encodeCommand(encodedArguments.join(' '));
 
 		if (!options.wait) {
 			// PowerShell will keep the parent process alive unless stdio is ignored.

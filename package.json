@@ -54,11 +54,12 @@
 		"file"
 	],
 	"dependencies": {
-		"default-browser": "^5.3.0",
+		"default-browser": "^5.4.0",
 		"define-lazy-prop": "^3.0.0",
 		"is-in-ssh": "^1.0.0",
 		"is-inside-container": "^1.0.0",
-		"wsl-utils": "^0.2.0"
+		"powershell-utils": "^0.1.0",
+		"wsl-utils": "^0.3.0"
 	},
 	"devDependencies": {
 		"@types/node": "^24.10.1",
