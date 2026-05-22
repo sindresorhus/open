@@ -176,6 +176,7 @@ test.serial('detaches PowerShell launches when not waiting on Windows', async t 
 		windowsVerbatimArguments: true,
 		stdio: 'ignore',
 		detached: true,
+		windowsHide: true,
 	});
 	t.true(unrefCalled);
 });
