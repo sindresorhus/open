@@ -207,6 +207,7 @@ const baseOpen = async options => {
 		if (!options.wait) {
 			// PowerShell will keep the parent process alive unless stdio is ignored.
 			childProcessOptions.stdio = 'ignore';
+			childProcessOptions.detached = true;
 		}
 	} else {
 		if (app) {

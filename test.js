@@ -139,6 +139,47 @@ test('subprocess is spawned before promise resolves', async t => {
 	t.true(childProcess.pid !== undefined && childProcess.pid !== null);
 });
 
+test.serial('detaches PowerShell launches when not waiting on Windows', async t => {
+	const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
+	const originalSpawn = childProcess.spawn;
+
+	t.teardown(() => {
+		Object.defineProperty(process, 'platform', originalPlatform);
+		childProcess.spawn = originalSpawn;
+	});
+
+	Object.defineProperty(process, 'platform', {value: 'win32'});
+
+	let childProcessOptions;
+	let unrefCalled = false;
+
+	childProcess.spawn = (...arguments_) => {
+		childProcessOptions = arguments_[2];
+
+		// eslint-disable-next-line unicorn/prefer-event-target
+		const fakeChild = new EventEmitter();
+		fakeChild.unref = () => {
+			unrefCalled = true;
+		};
+
+		setImmediate(() => {
+			fakeChild.emit('spawn');
+		});
+
+		return fakeChild;
+	};
+
+	const {default: windowsOpen} = await import(`./index.js?windows-detach=${Date.now()}`);
+	await windowsOpen('C:/coverage/index.html');
+
+	t.like(childProcessOptions, {
+		windowsVerbatimArguments: true,
+		stdio: 'ignore',
+		detached: true,
+	});
+	t.true(unrefCalled);
+});
+
 test.serial('app launches resolve before close without fallback', async t => {
 	const originalSpawn = childProcess.spawn;
 	t.teardown(() => {
