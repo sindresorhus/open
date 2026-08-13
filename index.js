@@ -208,6 +208,11 @@ const baseOpen = async options => {
 			// PowerShell will keep the parent process alive unless stdio is ignored.
 			childProcessOptions.stdio = 'ignore';
 		}
+
+		if (isWsl) {
+			// The spawned Windows process inherits the Linux working directory, which WSL exposes to Windows as a `\\wsl.localhost\…` UNC path served by the distro's default user, so a directory that user cannot traverse makes the launch fail. PowerShell's own directory is on the Windows drive, so it always resolves to a plain `C:\…` path. Nothing here uses the working directory as the target is a URL or an absolute Windows path.
+			childProcessOptions.cwd = path.dirname(command);
+		}
 	} else {
 		if (app) {
 			command = app;
