@@ -112,8 +112,11 @@ const baseOpen = async options => {
 			browser = await defaultBrowser();
 		}
 
-		if (browser.id in ids) {
+		if (Object.hasOwn(ids, browser.id)) {
 			const browserName = ids[browser.id.toLowerCase()];
+			if (browserName === undefined) {
+				throw new Error(`${browser.name} is not supported as a default browser`);
+			}
 
 			if (app === 'browserPrivate') {
 				// Safari doesn't support private mode via command line
