@@ -139,13 +139,9 @@ test('subprocess is spawned before promise resolves', async t => {
 	t.true(childProcess.pid !== undefined && childProcess.pid !== null);
 });
 
-test.serial('app launches resolve before close without fallback', async t => {
+const stubSpawnEmittingCloseAfter = delay => {
 	const originalSpawn = childProcess.spawn;
-	t.teardown(() => {
-		childProcess.spawn = originalSpawn;
-	});
-
-	let closeEmitted = false;
+	const state = {closeEmitted: false};
 
 	childProcess.spawn = () => {
 		// eslint-disable-next-line unicorn/prefer-event-target
@@ -155,18 +151,46 @@ test.serial('app launches resolve before close without fallback', async t => {
 		setImmediate(() => {
 			fakeChild.emit('spawn');
 			setTimeout(() => {
-				closeEmitted = true;
+				state.closeEmitted = true;
 				fakeChild.emit('close', 0);
-			}, 50);
+			}, delay);
 		});
 
 		return fakeChild;
 	};
 
-	const subprocess = await open('index.js', {app: {name: 'stub-app'}});
-	t.false(closeEmitted);
-	t.truthy(subprocess);
-});
+	return {originalSpawn, state};
+};
+
+if (process.platform === 'win32') {
+	// On Windows the spawned process is always a `powershell.exe` launcher, which can take
+	// noticeably longer to start executing the encoded command than the ~10-30ms other
+	// platforms' launchers take. If the promise resolved before the launcher closes (as on
+	// other platforms), callers that exit right after `await open(...)` could tear down the
+	// non-detached launcher before it has actually started the target app.
+	// See https://github.com/sindresorhus/open/issues/298
+	test.serial('app launches on Windows resolve only after the launcher closes', async t => {
+		const {originalSpawn, state} = stubSpawnEmittingCloseAfter(50);
+		t.teardown(() => {
+			childProcess.spawn = originalSpawn;
+		});
+
+		const subprocess = await open('index.js', {app: {name: 'stub-app'}});
+		t.true(state.closeEmitted);
+		t.truthy(subprocess);
+	});
+} else {
+	test.serial('app launches resolve before close without fallback', async t => {
+		const {originalSpawn, state} = stubSpawnEmittingCloseAfter(50);
+		t.teardown(() => {
+			childProcess.spawn = originalSpawn;
+		});
+
+		const subprocess = await open('index.js', {app: {name: 'stub-app'}});
+		t.false(state.closeEmitted);
+		t.truthy(subprocess);
+	});
+}
 
 test('fallback to next app when first app does not exist', async t => {
 	// Try nonexistent apps first, then a real app

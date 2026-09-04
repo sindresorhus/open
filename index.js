@@ -280,7 +280,18 @@ const baseOpen = async options => {
 	// When we're in a fallback attempt, we need to detect launch failures before trying the next app.
 	// Wait for the close event to check the exit code before unreffing.
 	// The launcher (open/xdg-open/PowerShell) exits quickly (~10-30ms) even on success.
-	if (isFallbackAttempt) {
+	//
+	// On Windows, the actual command always runs inside a `powershell.exe` launcher (see
+	// above). Unlike `open`/`xdg-open`, this launcher can take noticeably longer than
+	// ~10-30ms to start executing the encoded script, so waiting only for `'spawn'` isn't
+	// enough: the promise can resolve, and the caller's process can exit, before
+	// `Start-Process` has actually run. Since the launcher isn't detached on Windows,
+	// exiting at that point can tear it down before it launches the target app. Always
+	// wait for the launcher's own `'close'` event on Windows to avoid this race. This does
+	// not wait for the *opened app* to close, only for the (fast) launcher script.
+	const isWindowsLauncher = platform === 'win32' || shouldUseWindowsInWsl;
+
+	if (isFallbackAttempt || isWindowsLauncher) {
 		return new Promise((resolve, reject) => {
 			subprocess.once('error', reject);
 
