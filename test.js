@@ -1,9 +1,16 @@
 import process from 'node:process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import childProcess from 'node:child_process';
 import {EventEmitter} from 'node:events';
+import {promisify} from 'node:util';
+import {setTimeout as delay} from 'node:timers/promises';
 import test from 'ava';
 import defaultBrowser from 'default-browser';
 import open, {openApp, apps} from './index.js';
+
+const execFile = promisify(childProcess.execFile);
 
 // Tests only checks that opening doesn't return an error
 // it has no way make sure that it actually opened anything.
@@ -139,7 +146,31 @@ test('subprocess is spawned before promise resolves', async t => {
 	t.true(childProcess.pid !== undefined && childProcess.pid !== null);
 });
 
-test.serial('app launches resolve before close without fallback', async t => {
+if (process.platform === 'win32') {
+	// Regression test for #367. A child Node.js process opens a target and exits right away, like a CLI does. The "app" is `cmd`, which creates a marker file. If `open()` resolved before PowerShell had run `Start-Process`, the child exiting would kill PowerShell and the marker would never be created.
+	test('launched app survives the parent process exiting on Windows', async t => {
+		const markerPath = path.join(os.tmpdir(), `open-test-${Date.now()}.txt`);
+		t.teardown(() => {
+			fs.rmSync(markerPath, {force: true});
+		});
+
+		const script = `
+			import {openApp} from ${JSON.stringify(new URL('index.js', import.meta.url).href)};
+			await openApp('cmd', {arguments: ['/c', ${JSON.stringify(`copy NUL "${markerPath}"`)}]});
+		`;
+
+		await execFile(process.execPath, ['--input-type=module', '--eval', script]);
+
+		const deadline = Date.now() + 10_000;
+		while (!fs.existsSync(markerPath) && Date.now() < deadline) {
+			await delay(100); // eslint-disable-line no-await-in-loop
+		}
+
+		t.true(fs.existsSync(markerPath));
+	});
+}
+
+test.serial('app launches resolve before close without fallback, except on Windows', async t => {
 	const originalSpawn = childProcess.spawn;
 	t.teardown(() => {
 		childProcess.spawn = originalSpawn;
@@ -164,7 +195,8 @@ test.serial('app launches resolve before close without fallback', async t => {
 	};
 
 	const subprocess = await open('index.js', {app: {name: 'stub-app'}});
-	t.false(closeEmitted);
+	// On Windows, the launcher must be awaited so it is not killed when the parent exits. See the comment in `index.js` and #367.
+	t.is(closeEmitted, process.platform === 'win32');
 	t.truthy(subprocess);
 });
 

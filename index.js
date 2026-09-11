@@ -280,7 +280,15 @@ const baseOpen = async options => {
 	// When we're in a fallback attempt, we need to detect launch failures before trying the next app.
 	// Wait for the close event to check the exit code before unreffing.
 	// The launcher (open/xdg-open/PowerShell) exits quickly (~10-30ms) even on success.
-	if (isFallbackAttempt) {
+
+	/*
+	The PowerShell launcher must ALWAYS be awaited until it closes, even when not waiting for the app. Do not change this to resolve on `spawn`. See #367.
+
+	PowerShell needs a few hundred milliseconds before it runs `Start-Process`, and libuv puts non-detached children in a job object that kills them when the parent exits. So a CLI that exits right after `await open()` silently kills PowerShell before anything opens. The launched app itself survives, since the job object allows breakaway for grandchildren, and `Start-Process` returns as soon as it has launched the app, so this does not wait for the app.
+
+	Before v11, piped stdio kept the parent alive until PowerShell exited, which hid this. Detaching the launcher instead is unverified (PowerShell would get no console), while waiting is what worked before.
+	*/
+	if (isFallbackAttempt || platform === 'win32' || shouldUseWindowsInWsl) {
 		return new Promise((resolve, reject) => {
 			subprocess.once('error', reject);
 
@@ -289,7 +297,8 @@ const baseOpen = async options => {
 				subprocess.once('close', exitCode => {
 					subprocess.off('error', reject);
 
-					if (exitCode !== 0) {
+					// Only fallback attempts check the exit code, to detect a missing app. Other launches never do when not waiting for the app.
+					if (isFallbackAttempt && exitCode !== 0) {
 						reject(new Error(`Exited with code ${exitCode}`));
 						return;
 					}
